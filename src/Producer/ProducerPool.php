@@ -10,7 +10,15 @@ final class ProducerPool implements ProducerInterface
     /**
      * @var ProducerInterface[]
      */
-    private $producers = [];
+    private $producers;
+
+    /**
+     * @param ProducerInterface[] $producers
+     */
+    public function __construct(array $producers = [])
+    {
+        $this->producers = $producers;
+    }
 
     public function produce(string $message)
     {
