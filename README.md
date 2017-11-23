@@ -28,16 +28,36 @@ $producer->produce('hello world');
 
 use \Jobcloud\Messaging\Kafka\Producer\KafkaConsumerBuilder;
 
-$producer = KafkaConsumerBuilder::create()
+$consumer = KafkaConsumerBuilder::create()
     ->addBroker('10.0.2.2')
     ->subscribeTopic('test')
     ->build();
 
 while (true) {
     try {
-        $message = $producer->consume();
+        $message = $consumer->consume();
     } catch (ConsumerExcpetion $e) {
         // Failed
     } 
 }
+```
+
+### ProducerPool
+
+```php
+<?php
+
+use \Jobcloud\Messaging\Producer\ProducerPool;
+use \Jobcloud\Messaging\Producer\ProducerInterface;
+
+/** @var ProducerInterface $someKafkaProducer */
+/** @var ProducerInterface $someRabbitMQProducer */
+
+$pool = new ProducerPool();
+$pool
+    ->addProducer($someKafkaProducer)
+    ->addProducer($someRabbitMQProducer)
+;
+
+$pool->produce('hello world');
 ```
