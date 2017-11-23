@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Producer;
+namespace Jobcloud\Messaging\Producer;
 
 interface ProducerInterface
 {

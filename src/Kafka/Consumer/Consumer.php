@@ -1,15 +1,10 @@
 <?php
 
-
-namespace Jobcloud\Kafka\Consumer;
-
-
-use Jobcloud\Kafka\Message\Message;
-use Jobcloud\Kafka\Message\MessageInterface;
+namespace Jobcloud\Messaging\Kafka\Consumer;
 
 final class Consumer extends AbstractConsumer
 {
-    public function consume(int $timeout): MessageInterface
+    public function consume(int $timeout)
     {
         $message = $this->consumer->consume($timeout);
         $msg = new Message($message->payload);

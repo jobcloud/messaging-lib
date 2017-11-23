@@ -1,17 +1,12 @@
 <?php
 
+namespace Jobcloud\Messaging\Kafka\Consumer;
 
-namespace Jobcloud\Kafka\Consumer;
-
-
-use RdKafka\Conf;
+use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use RdKafka\KafkaConsumer;
-use Jobcloud\Kafka\Helper\ConfigTrait;
 
 abstract class AbstractConsumer implements ConsumerInterface
 {
-
-    use ConfigTrait;
 
     protected $consumer;
 
@@ -19,11 +14,10 @@ abstract class AbstractConsumer implements ConsumerInterface
 
     protected $topics;
 
-    public function __construct(array $brokerList, array $topics, string $consumerGroup, array $config = [])
+    public function __construct(array $brokerList, array $topics, string $consumerGroup, array $config)
     {
         $config['groupId'] = $consumerGroup;
         $config['metadata.broker.list'] = implode(',', $brokerList);
-        $this->config = $this->getConfig($config);
         $this->consumer = new KafkaConsumer($this->config);
         $this->topics = $topics;
     }

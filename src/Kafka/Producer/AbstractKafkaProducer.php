@@ -1,15 +1,13 @@
 <?php
 
 
-namespace Jobcloud\Kafka\Producer;
+namespace Jobcloud\Messaging\Kafka\Producer;
 
-use Jobcloud\Kafka\Helper\ConfigTrait;
+use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
 
-abstract class AbstractProducer implements ProducerInterface
+abstract class AbstractKafkaProducer implements ProducerInterface
 {
-    use ConfigTrait;
-
 
     protected $config;
 
@@ -17,11 +15,8 @@ abstract class AbstractProducer implements ProducerInterface
 
     protected $topic;
 
-
-
-    public function __construct(array $brokerList, string $topic, array $config = [])
+    public function __construct(Producer $producer, array $brokerList, string $topic, array $config)
     {
-        $this->config = $this->getConfig($config);
         $this->producer = new Producer($this->config);
         $this->producer->addBrokers(implode(',', $brokerList));
         $this->topic = $topic;
@@ -38,9 +33,4 @@ abstract class AbstractProducer implements ProducerInterface
     {
         // TODO: Implement produce() method.
     }
-}
-
-class bla extends Producer
-{
-
 }

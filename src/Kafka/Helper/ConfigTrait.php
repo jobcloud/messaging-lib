@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Helper;
+namespace Jobcloud\Messaging\Kafka\Helper;
 
 use RdKafka\Conf;
 

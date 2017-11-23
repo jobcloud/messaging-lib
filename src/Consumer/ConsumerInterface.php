@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Consumer;
+namespace Jobcloud\Messaging\Consumer;
 
 interface ConsumerInterface
 {
