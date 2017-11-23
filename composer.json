@@ -1,5 +1,5 @@
 {
-  "name": "jobcloud/kafka-lib",
+  "name": "jobcloud/messaging-lib",
   "description": "Jobcloud kafka lib",
   "keywords": [
     "kafka"
