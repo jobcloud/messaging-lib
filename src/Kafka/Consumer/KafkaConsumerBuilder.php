@@ -13,14 +13,82 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     use KafkaConfigTrait;
 
     /**
-     * @param array $config
-     * @return ConsumerInterface
+     * @var array
      */
-    public function createConsumer(array $config): ConsumerInterface
-    {
-        $kafkaConsumer = new RdKafkaConsumer($config);
+    private $brokers = [];
 
-        return new KafkaConsumer($kafkaConsumer);
+    /**
+     * @var array
+     */
+    private $config = [];
+
+    /**
+     * @var array
+     */
+    private $topics = [];
+
+    /**
+     * @var string
+     */
+    private $consumerGroup = "default";
+
+    /**
+     * KafkaConsumerBuilder constructor.
+     */
+    private function __construct()
+    {
+    }
+
+    /**
+     * @return KafkaConsumerBuilder
+     */
+    public static function create()
+    {
+        return new self();
+    }
+
+    /**
+     * @param string $broker
+     * @return KafkaConsumerBuilder
+     */
+    public function addBroker(string $broker): self
+    {
+        $this->brokers[] = $broker;
+
+        return $this;
+    }
+
+    /**
+     * @param string $topic
+     * @return KafkaConsumerBuilder
+     */
+    public function subscribeToTopic(string $topic): self
+    {
+        $this->topics[] = $topic;
+
+        return $this;
+    }
+
+    /**
+     * @param string $consumerGroup
+     * @return KafkaConsumerBuilder
+     */
+    public function setConsumerGroup(string $consumerGroup): self
+    {
+        $this->consumerGroup = $consumerGroup;
+
+        return $this;
+    }
+
+    /**
+     * @param array $config
+     * @return KafkaConsumerBuilder
+     */
+    public function setConfig(array $config): self
+    {
+        $this->config += $config;
+
+        return $this;
     }
 
     /**
@@ -28,10 +96,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      */
     public function build(): ConsumerInterface
     {
+        $this->config['groupId'] = $this->consumerGroup;
+        $this->config['metadata.broker.list'] = implode(',', $this->brokers);
         $kafkaConfig = $this->createKafkaConfig($this->getConfig());
 
         $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
 
-        return new KafkaConsumer($rdKafkaConsumer, $this->brokers, $this->topic, $this->config);
+        return new KafkaConsumer($rdKafkaConsumer, $this->brokers, $this->topics, $this->consumerGroup);
     }
 }

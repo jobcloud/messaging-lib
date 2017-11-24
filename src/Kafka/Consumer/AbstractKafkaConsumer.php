@@ -21,12 +21,10 @@ abstract class AbstractKafkaConsumer implements ConsumerInterface
      * @param string $consumerGroup
      * @param array  $config
      */
-    public function __construct(KafkaConsumer $consumer, array $brokerList, array $topics, string $consumerGroup, array $config)
+    public function __construct(KafkaConsumer $consumer, array $brokerList, array $topics, string $consumerGroup)
     {
         $this->consumer = $consumer;
-        $config['groupId'] = $consumerGroup;
-        $config['metadata.broker.list'] = implode(',', $brokerList);
-        $this->consumer = new KafkaConsumer($this->config);
+
         $this->subscribe($topics);
     }
 

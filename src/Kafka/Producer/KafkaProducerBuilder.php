@@ -13,11 +13,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     use KafkaConfigTrait;
 
     /**
-     * @var string
-     */
-    private $topic;
-
-    /**
      * @var array
      */
     private $brokers = [];
@@ -27,6 +22,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      */
     private $config = [];
 
+    /**
+     * KafkaProducerBuilder constructor.
+     */
     private function __construct()
     {
     }

@@ -29,12 +29,13 @@ use \Jobcloud\Messaging\Kafka\Producer\KafkaConsumerBuilder;
 
 $consumer = KafkaConsumerBuilder::create()
     ->addBroker('10.0.2.2')
-    ->subscribeTopic('test')
+    ->setConsumerGroup('testGroup')
+    ->subscribeToTopic('test')
     ->build();
 
 while (true) {
     try {
-        $message = $consumer->consume();
+        $message = $consumer->consume(120 * 10000);
     } catch (ConsumerExcpetion $e) {
         // Failed
     } 
