@@ -25,10 +25,10 @@ final class ProducerPool implements ProducerInterface
      * @param string $topic
      * @param string|NULL $key
      */
-    public function produce(string $message, string $topic, string $key = null)
+    public function produce(string $message, string $topic)
     {
         foreach ($this->producers as $producer) {
-            $producer->produce($message, $topic, $key);
+            $producer->produce($message, $topic);
         }
     }
 

@@ -43,10 +43,10 @@ abstract class AbstractKafkaProducer implements ProducerInterface
      * @param string $topic
      * @param string|NULL $key
      */
-    public function produce(string $message, string $topic, string $key = null)
+    public function produce(string $message, string $topic)
     {
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
-        $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
+        $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message);
     }
 }

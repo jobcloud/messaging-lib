@@ -10,5 +10,5 @@ interface ProducerInterface
      * @param string $key
      * @return mixed
      */
-    public function produce(string $message, string $topic, string $key);
+    public function produce(string $message, string $topic);
 }
