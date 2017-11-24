@@ -2,8 +2,12 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-final class Consumer extends AbstractConsumer
+final class KafkaConsumer extends AbstractKafkaConsumer
 {
+    /**
+     * @param int $timeout
+     * @return Message
+     */
     public function consume(int $timeout)
     {
         $message = $this->consumer->consume($timeout);

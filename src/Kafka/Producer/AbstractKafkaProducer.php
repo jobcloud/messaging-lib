@@ -5,32 +5,48 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
+use RdKafka\ProducerTopic;
 
 abstract class AbstractKafkaProducer implements ProducerInterface
 {
 
-    protected $config;
-
     protected $producer;
 
-    protected $topic;
+    protected $producerTopics = [];
 
-    public function __construct(Producer $producer, array $brokerList, string $topic, array $config)
+    /**
+     * AbstractKafkaProducer constructor.
+     * @param Producer $producer
+     * @param array    $brokerList
+     */
+    public function __construct(Producer $producer, array $brokerList)
     {
-        $this->producer = new Producer($this->config);
+        $this->producer = $producer;
         $this->producer->addBrokers(implode(',', $brokerList));
-        $this->topic = $topic;
-
-        $x = $this->producer->newTopic("x");
     }
 
-    public function getProducerForTopic (string $topic)
+    /**
+     * @param string $topic
+     * @return ProducerTopic
+     */
+    public function getProducerTopicForTopic(string $topic): ProducerTopic
     {
+        if (!isset($this->producerTopics[$topic])) {
+            $this->producerTopics[$topic] = $this->producer->newTopic($topic);
+        }
 
+        return $this->producersTopic[$topic];
     }
 
-    public function produce(string $message)
+    /**
+     * @param string $message
+     * @param string $topic
+     * @param string|NULL $key
+     */
+    public function produce(string $message, string $topic, string $key = null)
     {
-        // TODO: Implement produce() method.
+        $topicProducer = $this->getProducerTopicForTopic($topic);
+
+        $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
     }
 }

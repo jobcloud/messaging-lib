@@ -8,5 +8,8 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 
 interface KafkaProducerBuilderInterface
 {
+    /**
+     * @return ProducerInterface
+     */
     public function build(): ProducerInterface;
 }

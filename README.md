@@ -13,10 +13,9 @@ use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
     ->addBroker('10.0.2.2')
-    ->setTopic('test')
     ->build();
 
-$producer->produce('hello world');
+$producer->produce('hello world', 'testTopic');
 ```
 
 ### Consumer
@@ -59,5 +58,5 @@ $pool
     ->addProducer($someRabbitMQProducer)
 ;
 
-$pool->produce('hello world');
+$pool->produce('hello world', 'topicTest');
 ```

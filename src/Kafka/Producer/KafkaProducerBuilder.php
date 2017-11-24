@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
 
 final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 {
+    use KafkaConfigTrait;
 
     /**
      * @var string
@@ -29,18 +31,18 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
     }
 
+    /**
+     * @return KafkaProducerBuilder
+     */
     public static function create()
     {
         return new self();
     }
 
-    public function setTopic(string $topic): self
-    {
-        $this->topic = $topic;
-
-        return $this;
-    }
-
+    /**
+     * @param string $broker
+     * @return KafkaProducerBuilder
+     */
     public function addBroker(string $broker): self
     {
         $this->brokers[] = $broker;
@@ -48,17 +50,34 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         return $this;
     }
 
+    /**
+     * @param array $config
+     * @return KafkaProducerBuilder
+     */
     public function setConfig(array $config): self
     {
-        $this->config = $config;
+        $this->config += $config;
 
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * @return ProducerInterface
+     */
     public function build(): ProducerInterface
     {
-        $rdKafkaProducer = new Producer();
+        $kafkaConfig = $this->createKafkaConfig($this->getConfig());
 
-        return new KafkaProducer($rdKafkaProducer, $this->brokers, $this->topic, $this->config);
+        $rdKafkaProducer = new Producer($kafkaConfig);
+
+        return new KafkaProducer($rdKafkaProducer, $this->brokers);
     }
 }
