@@ -2,7 +2,6 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Kafka\Consumer\KafkaConsumerBuilderInterface;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use \RdKafka\KafkaConsumer as RdKafkaConsumer;
