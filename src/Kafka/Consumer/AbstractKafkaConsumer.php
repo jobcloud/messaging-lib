@@ -10,22 +10,20 @@ abstract class AbstractKafkaConsumer implements ConsumerInterface
 
     protected $consumer;
 
-    protected $config;
-
     protected $topics;
 
     /**
      * AbstractKafkaConsumer constructor.
-     * @param array  $brokerList
-     * @param array  $topics
-     * @param string $consumerGroup
-     * @param array  $config
+     * @param KafkaConsumer $consumer
+     * @param array         $topics
      */
-    public function __construct(KafkaConsumer $consumer, array $brokerList, array $topics, string $consumerGroup)
+    public function __construct(KafkaConsumer $consumer, array $topics)
     {
-        $this->consumer = $consumer;
+        $this->consumer = $this->setConsumer($consumer);
 
-        $this->subscribe($topics);
+        if (!empty($topics)) {
+            $this->subscribe($topics);
+        }
     }
 
     /**
@@ -33,6 +31,22 @@ abstract class AbstractKafkaConsumer implements ConsumerInterface
      */
     public function subscribe(array $topics)
     {
-        $this->consumer->subscribe($topics);
+        $this->getConsumer()->subscribe($topics);
+    }
+
+    /**
+     * @param KafkaConsumer $consumer
+     */
+    public function setConsumer(KafkaConsumer $consumer)
+    {
+        $this->consumer = $consumer;
+    }
+
+    /**
+     * @return KafkaConsumer
+     */
+    public function getConsumer(): KafkaConsumer
+    {
+        return $this->consumer;
     }
 }
