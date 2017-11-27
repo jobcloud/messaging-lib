@@ -3,9 +3,11 @@
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
 use RdKafka\ProducerTopic;
+use RdKafka\Exception as RdKafkaException;
 
 abstract class AbstractKafkaProducer implements ProducerInterface
 {
@@ -47,6 +49,13 @@ abstract class AbstractKafkaProducer implements ProducerInterface
     {
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
-        $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message);
+        try {
+            $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message);
+        } catch (RdKafkaException $e) {
+            throw new KafkaProducerException(
+                sprintf(KafkaProducerException::PRODUCTION_EXCEPTION_MESSAGE, $e->getMessage()), $e->getCode(), $e
+            );
+        }
+
     }
 }
