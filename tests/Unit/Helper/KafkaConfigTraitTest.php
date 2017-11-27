@@ -27,6 +27,11 @@ class KafkaConfigTraitTest extends TestCase
     {
         $sot = new KafkaConfigTraitTestClass();
 
-        $this->assertInstanceOf(Conf::class, $sot->createTraitKafkaConfig([]));
+        $config = $sot->createTraitKafkaConfig(['group.id' => 'testGroup']);
+        $this->assertInstanceOf(Conf::class, $config);
+
+        $configArray = $config->dump();
+        $this->assertTrue(isset($configArray['group.id']));
+        $this->assertEquals($configArray['group.id'], 'testGroup');
     }
 }

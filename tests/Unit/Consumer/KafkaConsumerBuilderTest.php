@@ -143,6 +143,6 @@ class KafkaConsumerBuilderTest extends TestCase
             ->setErrorCallback($callback)
             ->build();
 
-        $this->assertInstanceOf(ConsumerIntsterface::class, $consumer);
+        $this->assertInstanceOf(ConsumerInterface::class, $consumer);
     }
 }
