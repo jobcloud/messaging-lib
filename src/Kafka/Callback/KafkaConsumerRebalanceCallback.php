@@ -3,6 +3,7 @@
 
 namespace Jobcloud\Messaging\Kafka\Callback;
 
+use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
 
 final class KafkaConsumerRebalanceCallback
@@ -13,7 +14,7 @@ final class KafkaConsumerRebalanceCallback
      * @param integer       $errorcode
      * @param string        $reason
      */
-    public function __invoke(KafkaConsumer $consumer, int $errorCode, array $partitions = null)
+    public function __invoke(RdKafkaConsumer $consumer, int $errorCode, array $partitions = null)
     {
         switch ($errorCode) {
             case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
