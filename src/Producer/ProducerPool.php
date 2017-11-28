@@ -33,6 +33,14 @@ final class ProducerPool implements ProducerInterface
     }
 
     /**
+     * @return array
+     */
+    public function getProducerPool(): array
+    {
+        return $this->producers;
+    }
+
+    /**
      * @param ProducerInterface $producer
      * @return ProducerPool
      */

@@ -54,6 +54,6 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
 
         $result = call_user_func($this->callback, $this->mockProducer, $message);
 
-        self::assertTrue($result);
+        self::assertNull($result);
     }
 }
