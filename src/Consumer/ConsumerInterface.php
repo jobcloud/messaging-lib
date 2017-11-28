@@ -4,7 +4,15 @@ namespace Jobcloud\Messaging\Consumer;
 
 interface ConsumerInterface
 {
+    /**
+     * @param integer $timeout
+     * @return mixed
+     */
     public function consume(int $timeout);
 
+    /**
+     * @param array $topics
+     * @return mixed
+     */
     public function subscribe(array $topics);
 }

@@ -30,7 +30,6 @@ final class KafkaConsumerRebalanceCallback
             default:
                 $consumer->assign(null); // sync state
                 throw new KafkaRebalanceException(KafkaRebalanceException::REBALANCE_EXCEPTION_MESSAGE, $errorCode);
-                break;
         }
     }
 }

@@ -23,7 +23,7 @@ final class ProducerPool implements ProducerInterface
     /**
      * @param string $message
      * @param string $topic
-     * @param string|NULL $key
+     * @return void
      */
     public function produce(string $message, string $topic)
     {
