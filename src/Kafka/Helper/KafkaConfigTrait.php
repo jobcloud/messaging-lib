@@ -2,9 +2,10 @@
 
 namespace Jobcloud\Messaging\Kafka\Helper;
 
-use RdKafka\Conf;
+use \RdKafka\Conf;
 
-trait KafkaConfigTrait {
+trait KafkaConfigTrait
+{
     /**
      * @param array $config
      * @return Conf
