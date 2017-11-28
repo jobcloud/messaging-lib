@@ -2,10 +2,11 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
 use PHPUnit\Framework\TestCase;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerErrorCallback;
+use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 
 /**
@@ -14,6 +15,9 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 class KafkaConsumerBuilderTest extends TestCase
 {
 
+    /**
+     * @var $kcb KafkaConsumerBuilder
+     */
     protected $kcb;
 
     public function setUp()
@@ -23,40 +27,40 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testCreate()
     {
-        $this->assertInstanceOf(KafkaConsumerBuilder::class, KafkaConsumerBuilder::create());
+        self::assertInstanceOf(KafkaConsumerBuilder::class, KafkaConsumerBuilder::create());
     }
 
     public function testGetBrokers()
     {
-        $this->assertInternalType('array', $this->kcb->getBrokers());
+        self::assertInternalType('array', $this->kcb->getBrokers());
     }
 
     public function testGetConfig()
     {
-        $this->assertInternalType('array', $this->kcb->getConfig());
+        self::assertInternalType('array', $this->kcb->getConfig());
     }
 
 
     public function testGetConsumerGroup()
     {
         $consumerGroup = $this->kcb->getConsumerGroup();
-        $this->assertInternalType('string', $consumerGroup);
-        $this->assertEquals('default', $consumerGroup);
+        self::assertInternalType('string', $consumerGroup);
+        self::assertEquals('default', $consumerGroup);
     }
 
     public function testGetErrorCallback()
     {
-        $this->assertInstanceOf(KafkaConsumerErrorCallback::class, $this->kcb->getErrorCallback());
+        self::assertInstanceOf(KafkaErrorCallback::class, $this->kcb->getErrorCallback());
     }
 
     public function testGetRebalanceCallback()
     {
-        $this->assertInstanceOf(KafkaConsumerRebalanceCallback::class, $this->kcb->getRebalanceCallback());
+        self::assertInstanceOf(KafkaConsumerRebalanceCallback::class, $this->kcb->getRebalanceCallback());
     }
 
     public function testGetTopics()
     {
-        $this->assertInternalType('array', $this->kcb->getTopics());
+        self::assertInternalType('array', $this->kcb->getTopics());
     }
 
     public function testAddBroker()
@@ -64,7 +68,7 @@ class KafkaConsumerBuilderTest extends TestCase
         $this->kcb->addBroker('localhost');
         $brokers = $this->kcb->getBrokers();
 
-        $this->assertEquals(['localhost'], $brokers);
+        self::assertEquals(['localhost'], $brokers);
     }
 
     public function testSubscribeToTopic()
@@ -72,7 +76,7 @@ class KafkaConsumerBuilderTest extends TestCase
         $this->kcb->subscribeToTopic('testTopic');
         $topics = $this->kcb->getTopics();
 
-        $this->assertEquals(['testTopic'], $topics);
+        self::assertEquals(['testTopic'], $topics);
     }
 
     public function testSetConfig()
@@ -85,7 +89,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
         $config = $this->kcb->getConfig();
 
-        $this->assertEquals(['timeout' => 100], $config);
+        self::assertEquals(['timeout' => 100], $config);
     }
 
     public function testSetConsumerGroup()
@@ -93,7 +97,7 @@ class KafkaConsumerBuilderTest extends TestCase
         $this->kcb->setConsumerGroup('funGroup');
         $consumerGroup = $this->kcb->getConsumerGroup();
 
-        $this->assertEquals('funGroup', $consumerGroup);
+        self::assertEquals('funGroup', $consumerGroup);
     }
 
     public function testSetErrorCallback()
@@ -102,7 +106,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setErrorCallback($callback);
 
-        $this->assertEquals($callback, $this->kcb->getErrorCallback());
+        self::assertEquals($callback, $this->kcb->getErrorCallback());
     }
 
     public function testSetRebalanceCallback()
@@ -111,7 +115,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setRebalanceCallback($callback);
 
-        $this->assertEquals($callback, $this->kcb->getRebalanceCallback());
+        self::assertEquals($callback, $this->kcb->getRebalanceCallback());
     }
 
     /**
@@ -140,6 +144,6 @@ class KafkaConsumerBuilderTest extends TestCase
             ->setErrorCallback($callback)
             ->build();
 
-        $this->assertInstanceOf(ConsumerInterface::class, $consumer);
+        self::assertInstanceOf(ConsumerInterface::class, $consumer);
     }
 }

@@ -5,12 +5,12 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Callback;
 
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
-use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerErrorCallback;
+use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Callback\KafkaConsumerErrorCallback
+ * @covers Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback
  */
-class KafkaConsumerErrorCallbackTest extends TestCase
+class KafkaErrorCallbackTest extends TestCase
 {
     /**
      * @expectedException \Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException
@@ -21,7 +21,7 @@ class KafkaConsumerErrorCallbackTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $callback = new KafkaConsumerErrorCallback();
+        $callback = new KafkaErrorCallback();
         call_user_func($callback, $consumerMock, 1, "error");
     }
 }

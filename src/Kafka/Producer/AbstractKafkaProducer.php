@@ -37,7 +37,7 @@ abstract class AbstractKafkaProducer implements ProducerInterface
             $this->producerTopics[$topic] = $this->producer->newTopic($topic);
         }
 
-        return $this->producersTopics[$topic];
+        return $this->producerTopics[$topic];
     }
 
     /**

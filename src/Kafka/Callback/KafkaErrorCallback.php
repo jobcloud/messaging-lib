@@ -5,7 +5,7 @@ namespace Jobcloud\Messaging\Kafka\Callback;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 
-final class KafkaConsumerErrorCallback
+final class KafkaErrorCallback
 {
 
     /**
