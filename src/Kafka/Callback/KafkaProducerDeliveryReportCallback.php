@@ -12,8 +12,8 @@ final class KafkaProducerDeliveryReportCallback
     /**
      * @param RdKafkaProducer $producer
      * @param Message         $message
+     * @return boolean
      * @throws KafkaProducerException
-     * @return void
      */
     public function __invoke(RdKafkaProducer $producer, Message $message)
     {
@@ -31,5 +31,7 @@ final class KafkaProducerDeliveryReportCallback
                     );
             }
         }
+
+        return true;
     }
 }
