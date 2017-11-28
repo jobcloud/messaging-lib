@@ -37,13 +37,14 @@ abstract class AbstractKafkaProducer implements ProducerInterface
             $this->producerTopics[$topic] = $this->producer->newTopic($topic);
         }
 
-        return $this->producersTopic[$topic];
+        return $this->producerTopics[$topic];
     }
 
     /**
      * @param string $message
      * @param string $topic
-     * @param string|NULL $key
+     * @return void
+     * @throws KafkaProducerException
      */
     public function produce(string $message, string $topic)
     {
