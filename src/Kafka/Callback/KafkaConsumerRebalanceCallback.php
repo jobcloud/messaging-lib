@@ -10,9 +10,11 @@ final class KafkaConsumerRebalanceCallback
 {
 
     /**
-     * @param KafkaConsumer $consumer
-     * @param integer       $errorcode
-     * @param string        $reason
+     * @param RdKafkaConsumer $consumer
+     * @param integer         $errorCode
+     * @param array|null      $partitions
+     * @throws KafkaRebalanceException
+     * @return void
      */
     public function __invoke(RdKafkaConsumer $consumer, int $errorCode, array $partitions = null)
     {

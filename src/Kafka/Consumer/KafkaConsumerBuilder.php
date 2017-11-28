@@ -33,7 +33,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @var string
      */
-    private $consumerGroup = "default";
+    private $consumerGroup = 'default';
 
     /**
      * @var callable
@@ -109,6 +109,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param callable $errorCallback
+     * @return KafkaConsumerBuilder
      */
     public function setErrorCallback(callable $errorCallback): self
     {
@@ -119,6 +120,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param callable $rebalanceCallback
+     * @return KafkaConsumerBuilder
      */
     public function setRebalanceCallback(callable $rebalanceCallback): self
     {
@@ -177,6 +179,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @return ConsumerInterface
+     * @throws KafkaConsumerException
      */
     public function build(): ConsumerInterface
     {

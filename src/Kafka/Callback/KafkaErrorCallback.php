@@ -9,9 +9,9 @@ final class KafkaErrorCallback
 {
 
     /**
-     * @param KafkaConsumer $consumer
-     * @param integer       $errorCode
-     * @param string        $reason
+     * @param RdKafkaConsumer $consumer
+     * @param integer         $errorCode
+     * @param string          $reason
      * @throws KafkaBrokerException
      * @return void
      */

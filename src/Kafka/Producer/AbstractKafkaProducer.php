@@ -59,6 +59,5 @@ abstract class AbstractKafkaProducer implements ProducerInterface
                 $e
             );
         }
-
     }
 }
