@@ -3,15 +3,14 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
-use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use RdKafka\Exception;
 use RdKafka\Message;
 
 /**
  * @covers Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
+ * @covers Jobcloud\Messaging\Kafka\Consumer\AbstractKafkaConsumer
  */
 class KafkaConsumerTest extends TestCase
 {

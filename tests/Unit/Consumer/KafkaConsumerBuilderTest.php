@@ -14,9 +14,6 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 class KafkaConsumerBuilderTest extends TestCase
 {
 
-    /**
-     * @var KafkaConsumerBuilder
-     */
     protected $kcb;
 
     public function setUp()
