@@ -57,7 +57,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @return KafkaConsumerBuilder
      */
-    public static function create()
+    public static function create(): self
     {
         return new self();
     }
