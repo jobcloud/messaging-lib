@@ -52,7 +52,7 @@
             <arg value="--count-tests"/>
             <arg value="--log-csv"/>
             <arg value="${basedir}/build/logs/phploc.csv"/>
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
         </exec>
     </target>
 
@@ -61,14 +61,14 @@
             <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml"/>
             <arg value="--jdepend-chart=${basedir}/build/logs/pdepend/dependencies.svg"/>
             <arg value="--overview-pyramid=${basedir}/build/logs/pdepend/overview-pyramid.svg"/>
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
         </exec>
     </target>
 
     <target name="phpmd-ci"
             description="Perform project mess detection using PHPMD creating a log file for the continuous integration server">
         <exec executable="vendor/bin/phpmd" failonerror="false">
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
             <arg value="xml"/>
             <arg value="${basedir}/vendor/jobcloud/unity-coding-standards/phpmd.xml"/>
             <arg value="--reportfile"/>
@@ -83,7 +83,7 @@
             <arg value="--report=checkstyle"/>
             <arg value="--report-file=${basedir}/build/logs/checkstyle.xml"/>
             <arg value="--standard=${basedir}/vendor/jobcloud/unity-coding-standards/ruleset.xml"/>
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
         </exec>
     </target>
 
@@ -92,7 +92,7 @@
             <arg value="-n"/>
             <arg value="--log-pmd"/>
             <arg value="${basedir}/build/logs/pmd-cpd.xml"/>
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
         </exec>
     </target>
 
@@ -129,7 +129,7 @@
             <arg value="--report-full=${basedir}/build/logs/checkstyle-dev-full.txt"/>
             <arg value="--report-gitblame=${basedir}/build/logs/checkstyle-dev-gitblame.txt"/>
             <arg value="--standard=${basedir}/vendor/jobcloud/unity-coding-standards/ruleset.xml"/>
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
         </exec>
         <loadfile property="report-full" srcFile="${basedir}/build/logs/checkstyle-dev-full.txt" failonerror="false"/>
         <loadfile property="report-gitblame" srcFile="${basedir}/build/logs/checkstyle-dev-gitblame.txt" failonerror="false"/>
@@ -137,7 +137,7 @@
             <length file="${basedir}/build/logs/checkstyle-dev-full.txt" when="greater" length="1" />
         </condition>
         <exec executable="vendor/bin/phpmd" failonerror="false">
-            <arg path="${basedir}/app"/>
+            <arg path="${basedir}/src"/>
             <arg value="text"/>
             <arg value="${basedir}/vendor/jobcloud/unity-coding-standards/phpmd.xml"/>
             <arg value="--reportfile"/>
