@@ -68,7 +68,9 @@ class KafkaProducerBuilderTest extends TestCase
 
     public function testSetDeliveryReportCallback()
     {
-        $callback = function() { echo 'foo'; };
+        $callback = function () {
+            echo 'foo';
+        };
 
         $this->kpb->setDeliveryReportCallback($callback);
 
@@ -77,7 +79,9 @@ class KafkaProducerBuilderTest extends TestCase
 
     public function testSetErrorCallback()
     {
-        $callback = function() { echo 'foo'; };
+        $callback = function () {
+            echo 'foo';
+        };
 
         $this->kpb->setErrorCallback($callback);
 
@@ -86,7 +90,9 @@ class KafkaProducerBuilderTest extends TestCase
 
     public function testBuild()
     {
-        $callback = function ($kafka, $errId, $msg) {};
+        $callback = function ($kafka, $errId, $msg) {
+            //do nothing
+        };
 
         $producer = KafkaProducerBuilder::create()
             ->addBroker('localhost')

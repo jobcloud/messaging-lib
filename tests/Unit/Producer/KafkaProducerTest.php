@@ -3,6 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
+use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Producer as RdKafkaProducer;
 use PHPUnit\Framework\TestCase;
 use RdKafka\ProducerTopic;
@@ -21,6 +22,11 @@ class KafkaProducerTest extends TestCase
      */
     protected $producer;
 
+    /**
+     * @var $rdProducer RdKafkaProducer
+     */
+    protected $rdProducer;
+
     public function setUp()
     {
         $callback = function ($kafka, $errId, $msg) {
@@ -30,9 +36,9 @@ class KafkaProducerTest extends TestCase
         $conf = new Conf();
         $conf->setErrorCb($callback);
         $conf->setDrMsgCb($callback);
-        $producer = new RdKafkaProducer($conf);
+        $this->rdProducer = new RdKafkaProducer($conf);
 
-        $this->producer = new KafkaProducer($producer, ['localhost']);
+        $this->producer = new KafkaProducer($this->rdProducer, ['localhost']);
     }
 
 
@@ -40,6 +46,66 @@ class KafkaProducerTest extends TestCase
     {
         $producerTopic = $this->producer->getProducerTopicForTopic('testTopic');
 
-        $this->assertInstanceOf(ProducerTopic::class, $producerTopic);
+        self::assertInstanceOf(ProducerTopic::class, $producerTopic);
+    }
+
+    public function testGetPartition()
+    {
+        self::assertEquals(RD_KAFKA_PARTITION_UA, $this->producer->getPartition());
+    }
+
+    public function testProduceError()
+    {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
+
+        $producerMock = $this->getMockBuilder(KafkaProducer::class)
+            ->setConstructorArgs(
+                [
+                    $this->rdProducer,
+                    ['localhost']
+                ]
+            )
+            ->setMethods(['getPartition'])
+            ->getMock();
+
+        $producerMock
+            ->expects(self::any())
+            ->method('getPartition')
+            ->willReturn(-100);
+
+        $producerMock->produce('test', 'test');
+    }
+
+    public function testProduceSuccess()
+    {
+        $producerTopicMock = $this
+            ->getMockBuilder(RdKafkaProducerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['produce'])
+            ->getMock();
+        $producerTopicMock
+            ->expects(self::once())
+            ->method('produce')
+            ->with(RD_KAFKA_PARTITION_UA, 0, 'test');
+
+        $producerMock = $this->getMockBuilder(KafkaProducer::class)
+            ->setConstructorArgs(
+                [
+                    $this->rdProducer,
+                    ['localhost']
+                ]
+            )
+            ->setMethods(['getProducerTopicForTopic'])
+            ->getMock();
+
+        $producerMock
+            ->expects(self::once())
+            ->method('getProducerTopicForTopic')
+            ->with('test')
+            ->willReturn(
+                $producerTopicMock
+            );
+
+        $producerMock->produce('test', 'test');
     }
 }

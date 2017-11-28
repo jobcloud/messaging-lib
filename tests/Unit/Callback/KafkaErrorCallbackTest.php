@@ -12,16 +12,16 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
  */
 class KafkaErrorCallbackTest extends TestCase
 {
-    /**
-     * @expectedException \Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException
-     */
+
     public function testInvoke()
     {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException');
+
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $callback = new KafkaErrorCallback();
-        call_user_func($callback, $consumerMock, 1, "error");
+        call_user_func($callback, $consumerMock, 1, 'error');
     }
 }

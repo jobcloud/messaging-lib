@@ -2,20 +2,19 @@
 
 namespace Jobcloud\Messaging\Kafka\Callback;
 
-use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 
 final class KafkaErrorCallback
 {
 
     /**
-     * @param RdKafkaConsumer $consumer
-     * @param integer         $errorCode
-     * @param string          $reason
-     * @throws KafkaBrokerException
+     * @param mixed   $kafka
+     * @param integer $errorCode
+     * @param string  $reason
      * @return void
+     * @throws KafkaBrokerException
      */
-    public function __invoke(RdKafkaConsumer $consumer, int $errorCode, string $reason)
+    public function __invoke($kafka, int $errorCode, string $reason)
     {
         throw new KafkaBrokerException(
             sprintf(KafkaBrokerException::BROKER_EXCEPTION_MESSAGE, $reason),

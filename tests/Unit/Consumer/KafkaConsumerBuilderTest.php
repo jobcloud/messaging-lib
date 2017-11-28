@@ -102,7 +102,9 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testSetErrorCallback()
     {
-        $callback = function() { echo 'foo'; };
+        $callback = function () {
+            echo 'foo';
+        };
 
         $this->kcb->setErrorCallback($callback);
 
@@ -111,29 +113,39 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testSetRebalanceCallback()
     {
-        $callback = function() { echo 'foo'; };
+        $callback = function () {
+            echo 'foo';
+        };
 
         $this->kcb->setRebalanceCallback($callback);
 
         self::assertEquals($callback, $this->kcb->getRebalanceCallback());
     }
 
-    /**
-     * @expectedException Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException
-     * @expectedException Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException
-     */
     public function testBuildFail()
     {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException');
+
         $this->kcb
             ->addBroker('localhost')
             ->build();
+    }
 
+    public function testBuildFailConsumer()
+    {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException');
 
+        $this->kcb
+            ->addBroker('localhost')
+            ->setConsumerGroup('')
+            ->build();
     }
 
     public function testBuildSuccess()
     {
-        $callback = function ($kafka, $errId, $msg) {};
+        $callback = function ($kafka, $errId, $msg) {
+            //do nothing
+        };
 
         /**
          * @var $consumer KafkaConsumer

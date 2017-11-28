@@ -43,11 +43,9 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         $this->callback = new KafkaConsumerRebalanceCallback();
     }
 
-    /**
-     * @expectedException \Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException
-     */
     public function testInvokeWithError()
     {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException');
 
         call_user_func($this->callback, $this->consumerMock, 1, []);
     }

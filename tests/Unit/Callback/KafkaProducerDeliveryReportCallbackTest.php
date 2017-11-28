@@ -24,14 +24,12 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->callback = new KafkaProducerDeliveryReportCallback();;
+        $this->callback = new KafkaProducerDeliveryReportCallback();
     }
 
-    /**
-     * @expectedException \Jobcloud\Messaging\Kafka\Exception\KafkaProducerException
-     */
     public function testInvokeDefault()
     {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
 
         $message = new Message();
         $message->err = -1;
@@ -39,18 +37,16 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
         call_user_func($this->callback, $this->mockProducer, $message);
     }
 
-    /**
-     * @expectedException \Jobcloud\Messaging\Kafka\Exception\KafkaProducerException
-     */
     public function testInvokeTimeout()
     {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
 
         $message = new Message();
         $message->err = RD_KAFKA_RESP_ERR__MSG_TIMED_OUT;
 
         call_user_func($this->callback, $this->mockProducer, $message);
     }
-    
+
     public function testInvokeNoError()
     {
 
