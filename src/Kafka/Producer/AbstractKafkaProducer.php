@@ -37,14 +37,14 @@ abstract class AbstractKafkaProducer implements ProducerInterface
             $this->producerTopics[$topic] = $this->producer->newTopic($topic);
         }
 
-        return $this->producerTopics[$topic];
+        return $this->producersTopics[$topic];
     }
 
     /**
      * @param string $message
      * @param string $topic
-     * @return void
      * @throws KafkaProducerException
+     * @return void
      */
     public function produce(string $message, string $topic)
     {
@@ -54,7 +54,9 @@ abstract class AbstractKafkaProducer implements ProducerInterface
             $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $message);
         } catch (RdKafkaException $e) {
             throw new KafkaProducerException(
-                sprintf(KafkaProducerException::PRODUCTION_EXCEPTION_MESSAGE, $e->getMessage()), $e->getCode(), $e
+                sprintf(KafkaProducerException::PRODUCTION_EXCEPTION_MESSAGE, $e->getMessage()),
+                $e->getCode(),
+                $e
             );
         }
 
