@@ -14,7 +14,7 @@ final class KafkaConsumer extends AbstractKafkaConsumer
      */
     public function consume(int $timeout): Message
     {
-        $message = $this->getConsumer()->consume($timeout);
+        $message = $this->consumer->consume($timeout);
 
         if (null !== $message->err
             && RD_KAFKA_RESP_ERR_NO_ERROR !== $message->err
