@@ -50,8 +50,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      */
     private function __construct()
     {
-        $this->setErrorCallback(new KafkaErrorCallback());
-        $this->setRebalanceCallback(new KafkaConsumerRebalanceCallback());
+        $this->errorCallback = new KafkaErrorCallback();
+        $this->rebalanceCallback = new KafkaConsumerRebalanceCallback();
     }
 
     /**

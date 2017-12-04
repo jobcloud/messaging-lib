@@ -40,8 +40,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      */
     private function __construct()
     {
-        $this->setDeliveryReportCallback(new KafkaProducerDeliveryReportCallback());
-        $this->setErrorCallback(new KafkaErrorCallback());
+        $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
+        $this->errorCallback = new KafkaErrorCallback();
     }
 
     /**
