@@ -113,22 +113,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * @return callable
-     */
-    public function getDeliveryReportCallback()
-    {
-        return $this->deliverReportCallback;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getErrorCallback()
-    {
-        return $this->errorCallback;
-    }
-
-    /**
      * @return ProducerInterface
      * @throws KafkaProducerException
      */
@@ -140,8 +124,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         $kafkaConfig = $this->createKafkaConfig($this->getConfig());
 
-        $kafkaConfig->setDrMsgCb($this->getDeliveryReportCallback());
-        $kafkaConfig->setErrorCb($this->getErrorCallback());
+        $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
+        $kafkaConfig->setErrorCb($this->errorCallback);
 
         $rdKafkaProducer = new Producer($kafkaConfig);
 

@@ -48,16 +48,6 @@ class KafkaConsumerBuilderTest extends TestCase
         self::assertEquals('default', $consumerGroup);
     }
 
-    public function testGetErrorCallback()
-    {
-        self::assertInstanceOf(KafkaErrorCallback::class, $this->kcb->getErrorCallback());
-    }
-
-    public function testGetRebalanceCallback()
-    {
-        self::assertInstanceOf(KafkaConsumerRebalanceCallback::class, $this->kcb->getRebalanceCallback());
-    }
-
     public function testGetTopics()
     {
         self::assertInternalType('array', $this->kcb->getTopics());
@@ -108,7 +98,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setErrorCallback($callback);
 
-        self::assertEquals($callback, $this->kcb->getErrorCallback());
+        self::assertAttributeEquals($callback, 'errorCallback', $this->kcb);
     }
 
     public function testSetRebalanceCallback()
@@ -119,7 +109,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setRebalanceCallback($callback);
 
-        self::assertEquals($callback, $this->kcb->getRebalanceCallback());
+        self::assertAttributeEquals($callback, 'rebalanceCallback', $this->kcb);
     }
 
     public function testBuildFail()

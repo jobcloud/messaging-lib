@@ -56,16 +56,6 @@ class KafkaProducerBuilderTest extends TestCase
         self::assertEquals(['localhost'], $brokers);
     }
 
-    public function testGetDeliveryReportCallback()
-    {
-        self::assertInstanceOf(KafkaProducerDeliveryReportCallback::class, $this->kpb->getDeliveryReportCallback());
-    }
-
-    public function testGetErrorCallback()
-    {
-        self::assertInstanceOf(KafkaErrorCallback::class, $this->kpb->getErrorCallback());
-    }
-
     public function testSetDeliveryReportCallback()
     {
         $callback = function () {
@@ -74,7 +64,7 @@ class KafkaProducerBuilderTest extends TestCase
 
         $this->kpb->setDeliveryReportCallback($callback);
 
-        self::assertEquals($callback, $this->kpb->getDeliveryReportCallback());
+        self::assertAttributeEquals($callback, 'deliverReportCallback', $this->kpb);
     }
 
     public function testSetErrorCallback()
@@ -85,7 +75,7 @@ class KafkaProducerBuilderTest extends TestCase
 
         $this->kpb->setErrorCallback($callback);
 
-        self::assertEquals($callback, $this->kpb->getErrorCallback());
+        self::assertAttributeEquals($callback, 'errorCallback', $this->kpb);
     }
 
     public function testBuildNoBroker()

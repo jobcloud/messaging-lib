@@ -154,22 +154,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @return callable
-     */
-    public function getErrorCallback()
-    {
-        return $this->errorCallback;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getRebalanceCallback()
-    {
-        return $this->rebalanceCallback;
-    }
-
-    /**
      * @return array
      */
     public function getTopics(): array
@@ -197,8 +181,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $kafkaConfig = $this->createKafkaConfig($this->getConfig());
 
         //set consumer callbacks
-        $kafkaConfig->setErrorCb($this->getErrorCallback());
-        $kafkaConfig->setRebalanceCb($this->getRebalanceCallback());
+        $kafkaConfig->setErrorCb($this->errorCallback);
+        $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
 
         //create RdConsumer
         try {
