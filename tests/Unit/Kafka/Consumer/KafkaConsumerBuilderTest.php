@@ -124,10 +124,9 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testBuildFail()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException');
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException');
 
         $this->kcb
-            ->addBroker('localhost')
             ->build();
     }
 

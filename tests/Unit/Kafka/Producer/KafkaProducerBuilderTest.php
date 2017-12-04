@@ -88,6 +88,14 @@ class KafkaProducerBuilderTest extends TestCase
         self::assertEquals($callback, $this->kpb->getErrorCallback());
     }
 
+    public function testBuildNoBroker()
+    {
+        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
+
+        $producer = KafkaProducerBuilder::create()
+            ->build();
+    }
+
     public function testBuild()
     {
         $callback = function ($kafka, $errId, $msg) {
