@@ -17,7 +17,7 @@ final class KafkaProducerDeliveryReportCallback
      */
     public function __invoke(RdKafkaProducer $producer, Message $message)
     {
-        if (empty($message->err)) {
+        if (null === $message->err) {
             return;
         }
 

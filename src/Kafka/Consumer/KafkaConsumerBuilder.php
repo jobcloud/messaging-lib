@@ -183,9 +183,15 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      */
     public function build(): ConsumerInterface
     {
+        $brokers = $this->getBrokers();
+
+        if ([] === $brokers) {
+            throw new KafkaConsumerException(KafkaConsumerException::NO_BROKER_EXCEPTION_MESSAGE);
+        }
+
         //set additional config
         $this->config['group.id'] = $this->getConsumerGroup();
-        $this->config['metadata.broker.list'] = implode(',', $this->getBrokers());
+        $this->config['metadata.broker.list'] = implode(',', $brokers);
 
         //create config from given settings
         $kafkaConfig = $this->createKafkaConfig($this->getConfig());

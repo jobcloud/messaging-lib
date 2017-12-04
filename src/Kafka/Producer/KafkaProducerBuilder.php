@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
+use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
@@ -15,7 +16,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     use KafkaConfigTrait;
 
     /**
-     * @var array
+     * @var array|string[]
      */
     private $brokers = [];
 
@@ -129,9 +130,14 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @return ProducerInterface
+     * @throws KafkaProducerException
      */
     public function build(): ProducerInterface
     {
+        if ([] === $this->brokers) {
+            throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
+        }
+
         $kafkaConfig = $this->createKafkaConfig($this->getConfig());
 
         $kafkaConfig->setDrMsgCb($this->getDeliveryReportCallback());

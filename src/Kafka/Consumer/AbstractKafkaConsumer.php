@@ -21,17 +21,8 @@ abstract class AbstractKafkaConsumer implements ConsumerInterface
     {
         $this->consumer = $consumer;
 
-        if (!empty($topics)) {
-            $this->subscribe($topics);
+        if ([] !== $topics) {
+            $this->consumer->subscribe($topics);
         }
-    }
-
-    /**
-     * @param array $topics
-     * @return void
-     */
-    public function subscribe(array $topics)
-    {
-        $this->consumer->subscribe($topics);
     }
 }

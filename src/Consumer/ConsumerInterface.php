@@ -9,10 +9,4 @@ interface ConsumerInterface
      * @return mixed
      */
     public function consume(int $timeout);
-
-    /**
-     * @param array $topics
-     * @return mixed
-     */
-    public function subscribe(array $topics);
 }

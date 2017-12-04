@@ -17,7 +17,7 @@ final class KafkaErrorCallback
     public function __invoke($kafka, int $errorCode, string $reason)
     {
         throw new KafkaBrokerException(
-            sprintf(KafkaBrokerException::BROKER_EXCEPTION_MESSAGE, $reason),
+            $reason,
             $errorCode
         );
     }
