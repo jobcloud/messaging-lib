@@ -63,7 +63,7 @@ abstract class AbstractKafkaProducer implements ProducerInterface
             $topicProducer->produce($this->getPartition(), 0, $message);
         } catch (InvalidArgumentException | RdKafkaException $e) {
             throw new KafkaProducerException(
-                sprintf(KafkaProducerException::PRODUCTION_EXCEPTION_MESSAGE, $e->getMessage()),
+                $e->getMessage(),
                 $e->getCode(),
                 $e
             );
