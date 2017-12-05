@@ -3,6 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
 use PHPUnit\Framework\TestCase;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
@@ -10,7 +11,7 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
  */
 class KafkaConsumerBuilderTest extends TestCase
 {
@@ -114,7 +115,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testBuildFail()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException');
+        self::expectException(KafkaConsumerException::class);
 
         $this->kcb
             ->build();
@@ -122,7 +123,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testBuildFailConsumer()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException');
+        self::expectException(KafkaConsumerException::class);
 
         $this->kcb
             ->addBroker('localhost')

@@ -10,7 +10,7 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder
+ * @covers \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder
  */
 class KafkaProducerBuilderTest extends TestCase
 {

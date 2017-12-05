@@ -9,7 +9,7 @@ use RdKafka\Message;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 
 /**
- * @ Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback
+ * @ \Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback
  */
 class KafkaProducerDeliveryReportCallbackTest extends TestCase
 {

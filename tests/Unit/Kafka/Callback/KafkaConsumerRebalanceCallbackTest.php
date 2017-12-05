@@ -3,37 +3,19 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Callback;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
+use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
+use PHPUnit\Framework\MockObject\MockObject;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback
+ * @covers \Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback
  */
 class KafkaConsumerRebalanceCallbackTest extends TestCase
 {
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getConsumerMock(callable $callback)
-    {
-        //create mock to assign topics
-        $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['assign'])
-            ->getMock();
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('assign')
-            ->willReturnCallback($callback);
-
-        return $consumerMock;
-    }
-
     public function testInvokeWithError()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException');
+        self::expectException(KafkaRebalanceException::class);
 
         $consumer = $this->getConsumerMock(function () {
             self::assertEquals(null, func_get_args()[0]);
@@ -58,5 +40,24 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         });
 
         call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS);
+    }
+
+    /**
+     * @var MockObject|RdKafkaConsumer
+     */
+    private function getConsumerMock(callable $callback)
+    {
+        //create mock to assign topics
+        $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['assign'])
+            ->getMock();
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('assign')
+            ->willReturnCallback($callback);
+
+        return $consumerMock;
     }
 }

@@ -9,8 +9,8 @@ use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use RdKafka\Message;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
- * @covers Jobcloud\Messaging\Kafka\Consumer\AbstractKafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\AbstractKafkaConsumer
  */
 class KafkaConsumerTest extends TestCase
 {

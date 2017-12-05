@@ -8,7 +8,7 @@ use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback
+ * @covers \Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback
  */
 class KafkaErrorCallbackTest extends TestCase
 {

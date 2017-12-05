@@ -10,8 +10,8 @@ use RdKafka\ProducerTopic;
 use RdKafka\Conf;
 
 /**
- * @covers Jobcloud\Messaging\Kafka\Producer\KafkaProducer
- * @covers Jobcloud\Messaging\Kafka\Producer\AbstractKafkaProducer
+ * @covers \Jobcloud\Messaging\Kafka\Producer\KafkaProducer
+ * @covers \Jobcloud\Messaging\Kafka\Producer\AbstractKafkaProducer
  *
  */
 class KafkaProducerTest extends TestCase
