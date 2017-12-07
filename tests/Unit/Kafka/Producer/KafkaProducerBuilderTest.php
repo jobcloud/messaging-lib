@@ -4,6 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
+use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -80,7 +81,7 @@ class KafkaProducerBuilderTest extends TestCase
 
     public function testBuildNoBroker()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
+        self::expectException(KafkaProducerException::class);
 
         $producer = KafkaProducerBuilder::create()
             ->build();

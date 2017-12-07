@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Producer as RdKafkaProducer;
@@ -56,7 +57,7 @@ class KafkaProducerTest extends TestCase
 
     public function testProduceError()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaProducerException');
+        self::expectException(KafkaProducerException::class);
 
         $producerMock = $this->getMockBuilder(KafkaProducer::class)
             ->setConstructorArgs(

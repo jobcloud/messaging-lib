@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Callback;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;

@@ -41,7 +41,6 @@ class KafkaConsumerBuilderTest extends TestCase
         self::assertInternalType('array', $this->kcb->getConfig());
     }
 
-
     public function testGetConsumerGroup()
     {
         $consumerGroup = $this->kcb->getConsumerGroup();

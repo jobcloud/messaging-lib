@@ -3,6 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Conf;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
@@ -33,7 +34,6 @@ class KafkaConsumerTest extends TestCase
         $this->consumer = new KafkaConsumer($rdKafkaConsumer, ['test']);
     }
 
-
     public function testConsumeSuccess()
     {
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
@@ -52,13 +52,12 @@ class KafkaConsumerTest extends TestCase
         $ref->setAccessible(true);
         $ref->setValue($this->consumer, $consumerMock);
 
-
         self::assertInstanceOf(Message::class, $this->consumer->consume(1));
     }
 
     public function testConsumeFail()
     {
-        self::expectException('Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException');
+        self::expectException(KafkaConsumerException::class);
 
         $message = new Message();
         $message->err = -1;
@@ -78,7 +77,6 @@ class KafkaConsumerTest extends TestCase
         $ref = new \ReflectionProperty(KafkaConsumer::class, 'consumer');
         $ref->setAccessible(true);
         $ref->setValue($this->consumer, $consumerMock);
-
 
         self::assertInstanceOf(Message::class, $this->consumer->consume(1));
     }
