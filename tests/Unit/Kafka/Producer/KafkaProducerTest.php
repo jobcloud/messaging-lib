@@ -9,6 +9,7 @@ use RdKafka\Producer as RdKafkaProducer;
 use PHPUnit\Framework\TestCase;
 use RdKafka\ProducerTopic;
 use RdKafka\Conf;
+use \InvalidArgumentException;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Producer\KafkaProducer
@@ -59,26 +60,43 @@ class KafkaProducerTest extends TestCase
     {
         self::expectException(KafkaProducerException::class);
 
-        $producerMock = $this->getMockBuilder(KafkaProducer::class)
-            ->setConstructorArgs(
-                [
-                    $this->rdProducer,
-                    ['localhost']
-                ]
-            )
-            ->setMethods(['getPartition'])
+        $producerTopicMock = $this
+            ->getMockBuilder(RdKafkaProducerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['produce'])
+            ->getMock();
+        $producerTopicMock
+            ->expects(self::once())
+            ->method('produce')
+            ->with(RD_KAFKA_PARTITION_UA, 0, 'test')
+            ->willThrowException(new InvalidArgumentException());
+
+        $producerMock = $this->getMockBuilder(RdKafkaProducer::class)
+            ->setMethods(['newTopic', 'addBrokers'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $producerMock
             ->expects(self::any())
-            ->method('getPartition')
-            ->willReturn(-100);
+            ->method('addBrokers')
+            ->with('localhost');
 
-        $producerMock->produce('test', 'test');
+        $producerMock
+            ->expects(self::any())
+            ->method('newTopic')
+            ->willReturn(
+                $producerTopicMock
+            );
+
+
+        $producer = new KafkaProducer($producerMock, ['localhost']);
+
+        $producer->produce('test', 'test');
     }
 
     public function testProduceSuccess()
     {
+
         $producerTopicMock = $this
             ->getMockBuilder(RdKafkaProducerTopic::class)
             ->disableOriginalConstructor()
@@ -89,24 +107,25 @@ class KafkaProducerTest extends TestCase
             ->method('produce')
             ->with(RD_KAFKA_PARTITION_UA, 0, 'test');
 
-        $producerMock = $this->getMockBuilder(KafkaProducer::class)
-            ->setConstructorArgs(
-                [
-                    $this->rdProducer,
-                    ['localhost']
-                ]
-            )
-            ->setMethods(['getProducerTopicForTopic'])
+        $producerMock = $this->getMockBuilder(RdKafkaProducer::class)
+            ->setMethods(['newTopic', 'addBrokers'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $producerMock
-            ->expects(self::once())
-            ->method('getProducerTopicForTopic')
-            ->with('test')
+            ->expects(self::any())
+            ->method('newTopic')
             ->willReturn(
                 $producerTopicMock
             );
 
-        $producerMock->produce('test', 'test');
+        $producerMock
+            ->expects(self::any())
+            ->method('addBrokers')
+            ->with('localhost');
+
+        $producer = new KafkaProducer($producerMock, ['localhost']);
+
+        $producer->produce('test', 'test');
     }
 }

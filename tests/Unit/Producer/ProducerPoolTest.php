@@ -5,6 +5,8 @@ namespace Jobcloud\Messaging\Tests\Unit\Producer;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use Jobcloud\Messaging\Producer\ProducerPool;
 use PHPUnit\Framework\TestCase;
+use RdKafka\Producer as RdKafkaProducer;
+use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
 class ProducerPoolTest extends TestCase
 {
@@ -18,6 +20,39 @@ class ProducerPoolTest extends TestCase
         $this->producerPool = new ProducerPool();
     }
 
+    public function getProducerMock()
+    {
+        $producerTopicMock = $this
+            ->getMockBuilder(RdKafkaProducerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['produce'])
+            ->getMock();
+        $producerTopicMock
+            ->expects(self::any())
+            ->method('produce')
+            ->with(RD_KAFKA_PARTITION_UA, 0, 'test');
+
+        $producerMock = $this->getMockBuilder(RdKafkaProducer::class)
+            ->setMethods(['newTopic', 'addBrokers'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $producerMock
+            ->expects(self::any())
+            ->method('newTopic')
+            ->with('testTopic')
+            ->willReturn(
+                $producerTopicMock
+            );
+
+        $producerMock
+            ->expects(self::any())
+            ->method('addBrokers')
+            ->with('localhost');
+
+        return $producerMock;
+    }
+
     public function testGetProducerPool()
     {
         self::assertInternalType('array', $this->producerPool->getProducerPool());
@@ -25,10 +60,7 @@ class ProducerPoolTest extends TestCase
 
     public function testAddProducerSuccess()
     {
-        $producer = $this->
-        getMockBuilder(KafkaProducer::class)
-        ->disableOriginalConstructor()
-        ->getMock();
+        $producer = $producer = new KafkaProducer($this->getProducerMock(), ['localhost']);
 
         $this->producerPool->addProducer($producer);
 
@@ -44,19 +76,12 @@ class ProducerPoolTest extends TestCase
 
     public function testProduce()
     {
-        $producer = $this->
-        getMockBuilder(KafkaProducer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['produce'])
-            ->getMock();
-
-        $producer
-            ->expects(self::once())
-            ->method('produce')
-            ->with('test', 'testTopic');
+        $producer = $producer = new KafkaProducer($this->getProducerMock(), ['localhost']);
 
         $this->producerPool->addProducer($producer);
 
-        $this->producerPool->produce('test', 'testTopic');
+        $result = $this->producerPool->produce('test', 'testTopic');
+
+        self::assertNull($result);
     }
 }
