@@ -83,8 +83,7 @@ class KafkaProducerBuilderTest extends TestCase
     {
         self::expectException(KafkaProducerException::class);
 
-        $producer = KafkaProducerBuilder::create()
-            ->build();
+        KafkaProducerBuilder::create()->build();
     }
 
     public function testBuild()

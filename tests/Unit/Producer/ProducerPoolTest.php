@@ -10,6 +10,7 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
 class ProducerPoolTest extends TestCase
 {
+
     /**
      * @var $producerPool ProducerPool
      */
