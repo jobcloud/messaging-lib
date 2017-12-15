@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Producer;
 
 use Jobcloud\Messaging\Producer\ProducerInterface;
-use RdKafka\Producer;
-use RdKafka\ProducerTopic;
+use RdKafka\Producer as RdKafkaProducer;
+use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
 abstract class AbstractKafkaProducer implements ProducerInterface
 {
 
     /**
-     * @var Producer
+     * @var RdKafkaProducer
      */
     protected $producer;
 
@@ -23,10 +23,10 @@ abstract class AbstractKafkaProducer implements ProducerInterface
 
     /**
      * AbstractKafkaProducer constructor.
-     * @param Producer $producer
-     * @param array    $brokerList
+     * @param RdKafkaProducer $producer
+     * @param array           $brokerList
      */
-    public function __construct(Producer $producer, array $brokerList)
+    public function __construct(RdKafkaProducer $producer, array $brokerList)
     {
         $this->producer = $producer;
         $this->producer->addBrokers(implode(',', $brokerList));
@@ -34,22 +34,14 @@ abstract class AbstractKafkaProducer implements ProducerInterface
 
     /**
      * @param string $topic
-     * @return ProducerTopic
+     * @return RdKafkaProducerTopic
      */
-    public function getProducerTopicForTopic(string $topic): ProducerTopic
+    public function getProducerTopicForTopic(string $topic): RdKafkaProducerTopic
     {
         if (!isset($this->producerTopics[$topic])) {
             $this->producerTopics[$topic] = $this->producer->newTopic($topic);
         }
 
         return $this->producerTopics[$topic];
-    }
-
-    /**
-     * @return integer
-     */
-    public function getPartition()
-    {
-        return RD_KAFKA_PARTITION_UA;
     }
 }

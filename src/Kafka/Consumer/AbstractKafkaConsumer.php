@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
-use RdKafka\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
+use RdKafka\KafkaConsumer as RdKafkaConsumer;
+use RdKafka\Exception as RdKafkaException;
 
 abstract class AbstractKafkaConsumer implements ConsumerInterface
 {
 
     /**
-     * @var KafkaConsumer
+     * @var RdKafkaConsumer
      */
     protected $consumer;
 
@@ -22,16 +24,20 @@ abstract class AbstractKafkaConsumer implements ConsumerInterface
 
     /**
      * AbstractKafkaConsumer constructor.
-     * @param KafkaConsumer $consumer
-     * @param array         $topics
-     * @throws \RdKafka\Exception
+     * @param RdKafkaConsumer $consumer
+     * @param array           $topics
+     * @throws KafkaConsumerException
      */
-    public function __construct(KafkaConsumer $consumer, array $topics)
+    public function __construct(RdKafkaConsumer $consumer, array $topics)
     {
         $this->consumer = $consumer;
 
         if ([] !== $topics) {
-            $this->consumer->subscribe($topics);
+            try {
+                $this->consumer->subscribe($topics);
+            } catch (RdKafkaException $e) {
+                throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
+            }
         }
     }
 }

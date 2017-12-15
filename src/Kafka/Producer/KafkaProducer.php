@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use \InvalidArgumentException;
-use RdKafka\Exception as RdKafkaException;
-
 final class KafkaProducer extends AbstractKafkaProducer
 {
+
     /**
      * @param string $message
      * @param string $topic
-     * @throws KafkaProducerException
+     * @param int    $partition
      * @return void
      */
-    public function produce(string $message, string $topic)
+    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA)
     {
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
-        try {
-            $topicProducer->produce($this->getPartition(), 0, $message);
-        } catch (InvalidArgumentException | RdKafkaException $e) {
-            throw new KafkaProducerException(
-                $e->getMessage(),
-                $e->getCode(),
-                $e
-            );
-        }
+        $topicProducer->produce($partition, 0, $message);
     }
 }
