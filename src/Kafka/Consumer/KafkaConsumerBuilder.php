@@ -38,6 +38,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $consumerGroup = 'default';
 
     /**
+     * @var int
+     */
+    private $timeout = 1000;
+
+    /**
      * @var callable
      */
     private $errorCallback;
@@ -86,7 +91,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         return $this;
     }
 
-
     /**
      * @param array $config
      * @return KafkaConsumerBuilder
@@ -94,6 +98,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function setConfig(array $config): self
     {
         $this->config += $config;
+
+        return $this;
+    }
+
+    public function setTimeout(int $timeout): self
+    {
+        $this->timeout = $timeout;
 
         return $this;
     }
@@ -132,55 +143,21 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @return array
-     */
-    public function getBrokers(): array
-    {
-        return $this->brokers;
-    }
-
-    /**
-     * @return array
-     */
-    public function getConfig(): array
-    {
-        return $this->config;
-    }
-
-    /**
-     * @return string
-     */
-    public function getConsumerGroup() :string
-    {
-        return $this->consumerGroup;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTopics(): array
-    {
-        return $this->topics;
-    }
-
-    /**
      * @return KafkaConsumer
      * @throws KafkaConsumerException
      */
     public function build(): KafkaConsumer
     {
-        $brokers = $this->getBrokers();
-
-        if ([] === $brokers) {
+        if ([] === $this->brokers) {
             throw new KafkaConsumerException(KafkaConsumerException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
         //set additional config
-        $this->config['group.id'] = $this->getConsumerGroup();
-        $this->config['metadata.broker.list'] = implode(',', $brokers);
+        $this->config['group.id'] = $this->consumerGroup;
+        $this->config['metadata.broker.list'] = implode(',', $this->brokers);
 
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->getConfig());
+        $kafkaConfig = $this->createKafkaConfig($this->config);
 
         //set consumer callbacks
         $kafkaConfig->setErrorCb($this->errorCallback);
@@ -197,6 +174,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             );
         }
 
-        return new KafkaConsumer($rdKafkaConsumer, $this->getTopics());
+        return new KafkaConsumer($rdKafkaConsumer, $this->topics, $this->timeout);
     }
 }
