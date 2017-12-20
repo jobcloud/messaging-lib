@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
-use RdKafka\Message as RdKafkaMessage;
 use RdKafka\Exception as RdKafkaException;
 
 final class KafkaConsumer extends AbstractKafkaConsumer
@@ -13,10 +13,10 @@ final class KafkaConsumer extends AbstractKafkaConsumer
 
     /**
      * @param integer $timeout
-     * @return RdKafkaMessage
+     * @return MessageInterface|Message
      * @throws KafkaConsumerException
      */
-    public function consume(int $timeout): RdKafkaMessage
+    public function consume(int $timeout): MessageInterface
     {
         try {
             $message = $this->consumer->consume($timeout);
@@ -31,7 +31,14 @@ final class KafkaConsumer extends AbstractKafkaConsumer
                 );
             }
 
-            return $message;
+            return new Message(
+                $message->payload,
+                $message->topic_name,
+                $message->partition,
+                $message->offset,
+                $message->err,
+                $message->errstr()
+            );
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
         }

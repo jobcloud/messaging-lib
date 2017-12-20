@@ -13,5 +13,5 @@ interface ProducerInterface
      * @param int    $partition
      * @return mixed|void
      */
-    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA);
+    public function produce(string $message, string $topic, int $partition);
 }

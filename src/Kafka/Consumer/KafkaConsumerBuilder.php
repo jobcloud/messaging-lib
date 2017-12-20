@@ -164,10 +164,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @return ConsumerInterface
+     * @return KafkaConsumer
      * @throws KafkaConsumerException
      */
-    public function build(): ConsumerInterface
+    public function build(): KafkaConsumer
     {
         $brokers = $this->getBrokers();
 

@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Consumer;
 
-use RdKafka\Message as RdKafkaMessage;
-
 interface ConsumerInterface
 {
     /**
-     * @param integer $timeout
-     * @return RdKafkaMessage
+     * @param integer $timeout Timeout to wait for new message in milliseconds
+     * @return MessageInterface
      * @throws ConsumerException
      */
-    public function consume(int $timeout);
+    public function consume(int $timeout): MessageInterface;
 }
