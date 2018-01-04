@@ -15,7 +15,7 @@ trait KafkaConfigTrait
         $conf = new Conf();
 
         foreach ($config as $name => $value) {
-            $conf->set($name, $value);
+            $conf->set($name, is_bool($value) ? (false === $value ? 'false' : 'true') : $value);
         }
 
         return $conf;

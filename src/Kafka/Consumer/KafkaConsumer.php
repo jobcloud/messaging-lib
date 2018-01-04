@@ -97,6 +97,11 @@ final class KafkaConsumer implements ConsumerInterface
         }
     }
 
+    public function commit(Message $message = null): void
+    {
+        $this->consumer->commit();
+    }
+
     /**
      * Unsubscribes this consumer from all currently subscribed topics
      * @return array List of successfully unsubscribed topics
