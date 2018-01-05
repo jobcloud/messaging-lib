@@ -47,8 +47,14 @@ class Message implements MessageInterface
      * @param int         $errorCode
      * @param string      $errorMessage
      */
-    public function __construct(?string $body, string $topicName, int $partition, int $offset, int $errorCode, string $errorMessage)
-    {
+    public function __construct(
+        ?string $body,
+        string $topicName,
+        int $partition,
+        int $offset,
+        int $errorCode,
+        ?string $errorMessage
+    ) {
         $this->body         = $body;
         $this->topicName    = $topicName;
         $this->partition    = $partition;

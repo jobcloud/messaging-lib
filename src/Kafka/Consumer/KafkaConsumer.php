@@ -60,13 +60,15 @@ final class KafkaConsumer implements ConsumerInterface
                 );
             }
 
+            $errorMessage = RD_KAFKA_RESP_ERR_NO_ERROR !== $message->err ? $message->errstr() : null;
+
             return new Message(
                 $message->payload,
                 $message->topic_name,
                 $message->partition,
                 $message->offset,
                 $message->err,
-                $message->errstr()
+                $errorMessage
             );
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
