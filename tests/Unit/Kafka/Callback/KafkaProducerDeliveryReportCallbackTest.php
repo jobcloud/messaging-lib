@@ -44,6 +44,7 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
     public function testInvokeNoError()
     {
         $message = new Message();
+        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $result = call_user_func(new KafkaProducerDeliveryReportCallback(), $this->getProducerMock(), $message);
 

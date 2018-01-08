@@ -22,17 +22,9 @@ final class KafkaProducerDeliveryReportCallback
             return;
         }
 
-        switch ($message->err) {
-            case RD_KAFKA_RESP_ERR__MSG_TIMED_OUT:
-                throw new KafkaProducerException(
-                    sprintf(KafkaProducerException::TIMEOUT_EXCEPTION_MESSAGE, $message->errstr()),
-                    $message->err
-                );
-            default:
-                throw new KafkaProducerException(
-                    sprintf(KafkaProducerException::UNEXPECTED_EXCEPTION_MESSAGE, $message->errstr()),
-                    $message->err
-                );
-        }
+        throw new KafkaProducerException(
+            $message->errstr(),
+            $message->err
+        );
     }
 }

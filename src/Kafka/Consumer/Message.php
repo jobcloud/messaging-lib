@@ -74,7 +74,7 @@ class Message implements MessageInterface
     /**
      * @return string
      */
-    public function getErrorMessage(): string
+    public function getErrorMessage(): ?string
     {
         return $this->errorMessage;
     }

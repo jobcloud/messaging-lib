@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
-use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use \RdKafka\KafkaConsumer as RdKafkaConsumer;
-use RdKafka\Exception as RdKafkaException;
+use \RdKafka\Exception as RdKafkaException;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {

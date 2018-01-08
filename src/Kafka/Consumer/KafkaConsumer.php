@@ -9,6 +9,7 @@ use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use RdKafka\Exception as RdKafkaException;
+use RdKafka\TopicPartition;
 
 final class KafkaConsumer implements ConsumerInterface
 {
@@ -99,9 +100,42 @@ final class KafkaConsumer implements ConsumerInterface
         }
     }
 
-    public function commit(Message $message = null): void
+    /**
+     * @param Message[]|Message|null $messages
+     * @return void
+     * @throws KafkaConsumerException
+     */
+    public function commit($messages = null): void
     {
-        $this->consumer->commit();
+        try {
+            if (null === $messages) {
+                $this->consumer->commit();
+                return;
+            }
+
+            $messages = (array) $messages;
+            $offsets = [];
+
+            foreach ($messages as $message) {
+                if (false === $messages instanceof Message) {
+                    throw new KafkaConsumerException(
+                        sprintf('Provided message is not an instance of "%s"', Message::class)
+                    );
+                }
+
+                $offsets[] = new TopicPartition(
+                    $message->getTopicName(), $message->getPartition(), $message->getOffset()
+                );
+            }
+
+            $this->consumer->commit($offsets);
+        } catch (RdKafkaException $e) {
+            if (RD_KAFKA_RESP_ERR__NO_OFFSET === $e->getCode()) {
+                return;
+            }
+
+            throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**

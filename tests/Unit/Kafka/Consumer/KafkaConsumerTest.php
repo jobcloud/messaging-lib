@@ -3,11 +3,12 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Consumer\Message;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use RdKafka\Conf;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
-use RdKafka\Message;
+use RdKafka\Message as RdKafkaMessage;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
@@ -16,68 +17,96 @@ use RdKafka\Message;
 class KafkaConsumerTest extends TestCase
 {
 
-    protected $consumer;
-
-    public function setUp()
-    {
-        $callback = function ($kafka, $errId, $msg) {
-            //do nothing
-        };
-
-        $conf = new Conf();
-        $conf->setErrorCb($callback);
-        $conf->setRebalanceCb($callback);
-        $conf->set('metadata.broker.list', 'localhost');
-        $conf->set('group.id', 'defaultGroup');
-        $rdKafkaConsumer = new RdKafkaConsumer($conf);
-
-        $this->consumer = new KafkaConsumer($rdKafkaConsumer, ['test']);
-    }
-
     public function testConsumeSuccess()
     {
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
-            ->setMethods(['consume'])
+            ->setMethods(['consume', 'unsubscribe', 'getSubscription'])
             ->disableOriginalConstructor()
             ->getMock();
+
+        /** @var RdKafkaMessage|MockObject $messageMock */
+        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
+            ->setMethods(['errstr'])
+            ->getMock();
+
+        $messageMock->err = RD_KAFKA_RESP_ERR_NO_ERROR;
+        $messageMock->topic_name = 'sample_topic';
+        $messageMock->partition = 0;
+        $messageMock->offset = 1;
+
+        $messageMock
+            ->expects(self::never())
+            ->method('errstr');
 
         $consumerMock
             ->expects(self::any())
             ->method('consume')
-            ->willReturn(
-                new Message()
-            );
+            ->willReturn($messageMock);
 
-        $ref = new \ReflectionProperty(KafkaConsumer::class, 'consumer');
-        $ref->setAccessible(true);
-        $ref->setValue($this->consumer, $consumerMock);
+        $consumerMock
+            ->expects(self::any())
+            ->method('unsubscribe')
+            ->willReturn(null);
 
-        self::assertInstanceOf(Message::class, $this->consumer->consume(1));
+        $consumerMock
+            ->expects(self::any())
+            ->method('getSubscription')
+            ->willReturn([]);
+
+        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+
+        $message = $consumer->consume();
+
+        self::assertInstanceOf(Message::class, $message);
+
+        self::assertEquals($messageMock->payload, $message->getBody());
+        self::assertEquals($messageMock->offset, $message->getOffset());
+        self::assertEquals($messageMock->partition, $message->getPartition());
+        self::assertEquals($messageMock->err, $message->getErrorCode());
+        self::assertNull($message->getErrorMessage());
     }
 
     public function testConsumeFail()
     {
-        self::expectException(KafkaConsumerException::class);
+        $exceptionMessage = 'Unknown error';
 
-        $message = new Message();
-        $message->err = -1;
+        self::expectException(KafkaConsumerException::class);
+        self::expectExceptionMessage($exceptionMessage);
+
+        /** @var RdKafkaMessage|MockObject $messageMock */
+        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
+            ->setMethods(['errstr'])
+            ->getMock();
+
+        $messageMock->err = -1;
+
+        $messageMock
+            ->expects(self::once())
+            ->method('errstr')
+            ->willReturn($exceptionMessage);
 
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
-            ->setMethods(['consume'])
+            ->setMethods(['consume', 'unsubscribe', 'getSubscription'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $consumerMock
             ->expects(self::any())
             ->method('consume')
-            ->willReturn(
-                $message
-            );
+            ->willReturn($messageMock);
 
-        $ref = new \ReflectionProperty(KafkaConsumer::class, 'consumer');
-        $ref->setAccessible(true);
-        $ref->setValue($this->consumer, $consumerMock);
+        $consumerMock
+            ->expects(self::any())
+            ->method('unsubscribe')
+            ->willReturn(null);
 
-        self::assertInstanceOf(Message::class, $this->consumer->consume(1));
+        $consumerMock
+            ->expects(self::any())
+            ->method('getSubscription')
+            ->willReturn([]);
+
+        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+
+        $consumer->consume();
     }
 }

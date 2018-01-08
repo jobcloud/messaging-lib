@@ -43,20 +43,31 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
     }
 
     /**
-     * @var MockObject|RdKafkaConsumer
+     * @param callable $callback
+     * @return MockObject|RdKafkaConsumer
      */
     private function getConsumerMock(callable $callback)
     {
         //create mock to assign topics
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['assign'])
+            ->setMethods(['assign', 'unsubscribe', 'getSubscription'])
             ->getMock();
 
         $consumerMock
             ->expects(self::any())
             ->method('assign')
             ->willReturnCallback($callback);
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('unsubscribe')
+            ->willReturn(null);
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('getSubscription')
+            ->willReturn([]);
 
         return $consumerMock;
     }

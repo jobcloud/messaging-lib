@@ -19,7 +19,18 @@ class KafkaErrorCallbackTest extends TestCase
 
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
+            ->setMethods(['unsubscribe', 'getSubscription'])
             ->getMock();
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('unsubscribe')
+            ->willReturn(null);
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('getSubscription')
+            ->willReturn([]);
 
         $callback = new KafkaErrorCallback();
         call_user_func($callback, $consumerMock, 1, 'error');

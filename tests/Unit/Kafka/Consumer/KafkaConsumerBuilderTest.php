@@ -31,32 +31,14 @@ class KafkaConsumerBuilderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerBuilder::class, KafkaConsumerBuilder::create());
     }
 
-    public function testGetBrokers()
-    {
-        self::assertInternalType('array', $this->kcb->getBrokers());
-    }
-
-    public function testGetConfig()
-    {
-        self::assertInternalType('array', $this->kcb->getConfig());
-    }
-
-    public function testGetConsumerGroup()
-    {
-        $consumerGroup = $this->kcb->getConsumerGroup();
-        self::assertInternalType('string', $consumerGroup);
-        self::assertEquals('default', $consumerGroup);
-    }
-
-    public function testGetTopics()
-    {
-        self::assertInternalType('array', $this->kcb->getTopics());
-    }
-
     public function testAddBroker()
     {
         $this->kcb->addBroker('localhost');
-        $brokers = $this->kcb->getBrokers();
+
+        $property = new \ReflectionProperty($this->kcb, 'brokers');
+        $property->setAccessible(true);
+
+        $brokers = $property->getValue($this->kcb);
 
         self::assertEquals(['localhost'], $brokers);
     }
@@ -64,7 +46,11 @@ class KafkaConsumerBuilderTest extends TestCase
     public function testSubscribeToTopic()
     {
         $this->kcb->subscribeToTopic('testTopic');
-        $topics = $this->kcb->getTopics();
+
+        $property = new \ReflectionProperty($this->kcb, 'topics');
+        $property->setAccessible(true);
+
+        $topics = $property->getValue($this->kcb);
 
         self::assertEquals(['testTopic'], $topics);
     }
@@ -77,7 +63,10 @@ class KafkaConsumerBuilderTest extends TestCase
             ]
         );
 
-        $config = $this->kcb->getConfig();
+        $property = new \ReflectionProperty($this->kcb, 'config');
+        $property->setAccessible(true);
+
+        $config = $property->getValue($this->kcb);
 
         self::assertEquals(['timeout' => 100], $config);
     }
@@ -85,7 +74,11 @@ class KafkaConsumerBuilderTest extends TestCase
     public function testSetConsumerGroup()
     {
         $this->kcb->setConsumerGroup('funGroup');
-        $consumerGroup = $this->kcb->getConsumerGroup();
+
+        $property = new \ReflectionProperty($this->kcb, 'consumerGroup');
+        $property->setAccessible(true);
+
+        $consumerGroup = $property->getValue($this->kcb);
 
         self::assertEquals('funGroup', $consumerGroup);
     }
@@ -116,8 +109,7 @@ class KafkaConsumerBuilderTest extends TestCase
     {
         self::expectException(KafkaConsumerException::class);
 
-        $this->kcb
-            ->build();
+        $this->kcb->build();
     }
 
     public function testBuildFailConsumer()
