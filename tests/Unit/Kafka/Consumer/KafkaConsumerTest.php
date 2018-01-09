@@ -2,10 +2,12 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Consumer\ConsumerException;
+use Jobcloud\Messaging\Consumer\ConsumeException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\Message;
-use phpmock\Mock;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Exception as RdKafkaException;
@@ -51,15 +53,13 @@ class KafkaConsumerTest extends TestCase
         self::assertEquals($messageMock->payload, $message->getBody());
         self::assertEquals($messageMock->offset, $message->getOffset());
         self::assertEquals($messageMock->partition, $message->getPartition());
-        self::assertEquals($messageMock->err, $message->getErrorCode());
-        self::assertNull($message->getErrorMessage());
     }
 
     public function testConsumeFailThrowsException()
     {
         $exceptionMessage = 'Unknown error';
 
-        self::expectException(ConsumerException::class);
+        self::expectException(KafkaConsumerConsumeException::class);
         self::expectExceptionMessage($exceptionMessage);
 
         /** @var RdKafkaMessage|MockObject $messageMock */
@@ -68,6 +68,9 @@ class KafkaConsumerTest extends TestCase
             ->getMock();
 
         $messageMock->err = -1;
+        $messageMock->partition = 1;
+        $messageMock->offset = 42;
+        $messageMock->topic_name = 'test';
 
         $messageMock
             ->expects(self::once())
@@ -86,11 +89,11 @@ class KafkaConsumerTest extends TestCase
         $consumer->consume();
     }
 
-    public function testExceptionDuringConsumeGetsConvertedToGeneralException()
+    public function testConsumeConvertsExtensionExceptionToLibraryException()
     {
         $exceptionMessage = 'Something went wrong';
 
-        self::expectException(ConsumerException::class);
+        self::expectException(KafkaConsumerConsumeException::class);
         self::expectExceptionMessage($exceptionMessage);
 
         $consumerMock = $this->getRdKafkaConsumerMock();
@@ -139,7 +142,7 @@ class KafkaConsumerTest extends TestCase
     {
         $exceptionMessage = 'foobar';
 
-        self::expectException(ConsumerException::class);
+        self::expectException(KafkaConsumerSubscriptionException::class);
         self::expectExceptionMessage($exceptionMessage);
 
         $topics = ['test'];
@@ -163,7 +166,7 @@ class KafkaConsumerTest extends TestCase
     {
         $exceptionMessage = 'foobar';
 
-        self::expectException(ConsumerException::class);
+        self::expectException(KafkaConsumerSubscriptionException::class);
         self::expectExceptionMessage($exceptionMessage);
 
         $consumerMock = $this->getRdKafkaConsumerMock();
@@ -199,7 +202,7 @@ class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topic = 'topic';
 
-        $message = new Message('some message', $topic3, $partition, $offset, RD_KAFKA_RESP_ERR_NO_ERROR, null);
+        $message = new Message('some message', $topic, $partition, $offset);
 
         $consumerMock = $this->getRdKafkaConsumerMock();
 
@@ -217,6 +220,73 @@ class KafkaConsumerTest extends TestCase
                 self::assertEquals($offset, $message->getOffset());
                 self::assertEquals($topic, $message->getTopicName());
             });
+
+        $consumer = new KafkaConsumer($consumerMock, [], 0);
+
+        $consumer->commit($message);
+    }
+
+    public function testCommitWithInvalidObjectThrowsExceptionAndDoesNotTriggerCommit()
+    {
+        self::expectException(KafkaConsumerCommitException::class);
+        self::expectExceptionMessage(
+            'Provided message (offset: 0) is not an instance of "Jobcloud\Messaging\Kafka\Consumer\Message"'
+        );
+
+        $message = new \stdClass();
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::never())
+            ->method('commit');
+
+        $consumer = new KafkaConsumer($consumerMock, [], 0);
+
+        $consumer->commit($message);
+    }
+
+    public function testDonNotTreatNonStoredOffsetAsAnError()
+    {
+        $partition = 1;
+        $offset = 42;
+        $topic = 'topic';
+
+        $message = new Message('some message', $topic, $partition, $offset);
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::once())
+            ->method('commit')
+            ->willThrowException(new RdKafkaException('foo', RD_KAFKA_RESP_ERR__NO_OFFSET));
+
+        $consumer = new KafkaConsumer($consumerMock, [], 0);
+
+        $consumer->commit($message);
+    }
+
+    public function testCommitConvertsExtensionExceptionToLibraryException()
+    {
+        $exceptionCode = RD_KAFKA_RESP_ERR__FS;
+        $exceptionMessage = 'foo';
+        
+        self::expectException(KafkaConsumerCommitException::class);
+        self::expectExceptionMessage($exceptionMessage);
+        self::expectExceptionCode($exceptionCode);
+
+        $partition = 1;
+        $offset = 42;
+        $topic = 'topic';
+
+        $message = new Message('some message', $topic, $partition, $offset);
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::once())
+            ->method('commit')
+            ->willThrowException(new RdKafkaException($exceptionMessage, $exceptionCode));
 
         $consumer = new KafkaConsumer($consumerMock, [], 0);
 
@@ -245,18 +315,5 @@ class KafkaConsumerTest extends TestCase
             ->willReturn([]);
 
         return $consumerMock;
-    }
-
-    /**
-     * @return Message|MockObject
-     */
-    private function getMessageMock(): Message
-    {
-        /** @var RdKafkaMessage|MockObject $messageMock */
-        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
-            ->setMethods(['errstr'])
-            ->getMock();
-
-        return $messageMock;
     }
 }

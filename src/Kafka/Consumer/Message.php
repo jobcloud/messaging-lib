@@ -10,16 +10,6 @@ class Message implements MessageInterface
 {
 
     /**
-     * @var int
-     */
-    private $errorCode;
-
-    /**
-     * @var string
-     */
-    private $errorMessage;
-
-    /**
      * @var string|null
      */
     private $body;
@@ -44,39 +34,17 @@ class Message implements MessageInterface
      * @param string      $topicName
      * @param int         $partition
      * @param int         $offset
-     * @param int         $errorCode
-     * @param string      $errorMessage
      */
     public function __construct(
         ?string $body,
         string $topicName,
         int $partition,
-        int $offset,
-        int $errorCode,
-        ?string $errorMessage
+        int $offset
     ) {
         $this->body         = $body;
         $this->topicName    = $topicName;
         $this->partition    = $partition;
         $this->offset       = $offset;
-        $this->errorCode    = $errorCode;
-        $this->errorMessage = $errorMessage;
-    }
-
-    /**
-     * @return int
-     */
-    public function getErrorCode(): int
-    {
-        return $this->errorCode;
-    }
-
-    /**
-     * @return string
-     */
-    public function getErrorMessage(): ?string
-    {
-        return $this->errorMessage;
     }
 
     /**

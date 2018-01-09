@@ -3,7 +3,8 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
-use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use PHPUnit\Framework\TestCase;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
@@ -33,7 +34,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testAddBroker()
     {
-        $this->kcb->addBroker('localhost');
+        self::assertSame($this->kcb, $this->kcb->addBroker('localhost'));
 
         $property = new \ReflectionProperty($this->kcb, 'brokers');
         $property->setAccessible(true);
@@ -45,7 +46,7 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testSubscribeToTopic()
     {
-        $this->kcb->subscribeToTopic('testTopic');
+        self::assertSame($this->kcb, $this->kcb->subscribeToTopic('testTopic'));
 
         $property = new \ReflectionProperty($this->kcb, 'topics');
         $property->setAccessible(true);
@@ -53,6 +54,20 @@ class KafkaConsumerBuilderTest extends TestCase
         $topics = $property->getValue($this->kcb);
 
         self::assertEquals(['testTopic'], $topics);
+    }
+
+    public function testSetTimeout()
+    {
+        $timeout = 42;
+
+        self::assertSame($this->kcb, $this->kcb->setTimeout($timeout));
+
+        $property = new \ReflectionProperty($this->kcb, 'timeout');
+        $property->setAccessible(true);
+
+        $storedTimeout = $property->getValue($this->kcb);
+
+        self::assertEquals($timeout, $storedTimeout);
     }
 
     public function testSetConfig()
@@ -107,14 +122,14 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testBuildFail()
     {
-        self::expectException(KafkaConsumerException::class);
+        self::expectException(KafkaConsumerBuilderException::class);
 
         $this->kcb->build();
     }
 
     public function testBuildFailConsumer()
     {
-        self::expectException(KafkaConsumerException::class);
+        self::expectException(KafkaConsumerBuilderException::class);
 
         $this->kcb
             ->addBroker('localhost')
@@ -137,6 +152,30 @@ class KafkaConsumerBuilderTest extends TestCase
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
+
+        self::assertInstanceOf(ConsumerInterface::class, $consumer);
+    }
+
+    public function testExceptionDuringDelegatedConsumerInstanciationGetsConvertedAndThrown()
+    {
+        self::expectException(KafkaConsumerBuilderException::class);
+        self::expectExceptionMessage('Could not instantiate consumer');
+
+        $callback = function ($kafka, $errId, $msg) {
+            //do nothing
+        };
+
+        $consumerBuilder = KafkaConsumerBuilder::create()
+            ->addBroker('localhost')
+            ->subscribeToTopic('test')
+            ->setRebalanceCallback($callback)
+            ->setErrorCallback($callback);
+
+        $reflectionProperty = new \ReflectionProperty($consumerBuilder, 'consumerGroup');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($consumerBuilder, null);
+
+        $consumer = $consumerBuilder->build();
 
         self::assertInstanceOf(ConsumerInterface::class, $consumer);
     }

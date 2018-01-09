@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
@@ -143,16 +142,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @return KafkaConsumer
-     * @throws KafkaConsumerException
+     * @throws KafkaConsumerBuilderException
      */
     public function build(): KafkaConsumer
     {
         if ([] === $this->brokers) {
-            throw new KafkaConsumerException(KafkaConsumerException::NO_BROKER_EXCEPTION_MESSAGE);
+            throw new KafkaConsumerBuilderException('No brokers to connect');
         }
 
         if ([] === $this->topics) {
-            throw new KafkaConsumerException('No topics set to consume');
+            throw new KafkaConsumerBuilderException('No topics set to consume');
         }
 
         //set additional config
@@ -170,11 +169,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         try {
             $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
         } catch (RdKafkaException $e) {
-            throw new KafkaConsumerException(
-                sprintf(KafkaConsumerException::CREATION_EXCEPTION_MESSAGE, $e->getMessage()),
-                $e->getCode(),
-                $e
-            );
+            throw new KafkaConsumerBuilderException('Could not instantiate consumer', 0, $e);
         }
 
         return new KafkaConsumer($rdKafkaConsumer, $this->topics, $this->timeout);
