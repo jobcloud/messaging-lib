@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Consumer\ConsumerException;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerException;
@@ -44,7 +45,7 @@ final class KafkaConsumer implements ConsumerInterface
 
     /**
      * @return MessageInterface|Message
-     * @throws KafkaConsumerException
+     * @throws ConsumerException
      */
     public function consume(): MessageInterface
     {
@@ -55,10 +56,7 @@ final class KafkaConsumer implements ConsumerInterface
                 && RD_KAFKA_RESP_ERR_NO_ERROR !== $message->err
                 && RD_KAFKA_RESP_ERR__PARTITION_EOF !== $message->err
             ) {
-                throw new KafkaConsumerException(
-                    sprintf(KafkaConsumerException::CONSUMPTION_EXCEPTION_MESSAGE, $message->errstr()),
-                    $message->err
-                );
+                throw new ConsumerException($message->errstr(), $message->err);
             }
 
             $errorMessage = RD_KAFKA_RESP_ERR_NO_ERROR !== $message->err ? $message->errstr() : null;
@@ -72,7 +70,7 @@ final class KafkaConsumer implements ConsumerInterface
                 $errorMessage
             );
         } catch (RdKafkaException $e) {
-            throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
+            throw new ConsumerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -87,7 +85,7 @@ final class KafkaConsumer implements ConsumerInterface
     /**
      * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
      * @return array List of successfully subscribed topics
-     * @throws KafkaConsumerException
+     * @throws ConsumerException
      */
     public function subscribe(): array
     {
@@ -96,14 +94,14 @@ final class KafkaConsumer implements ConsumerInterface
 
             return $this->getSubscription();
         } catch (RdKafkaException $e) {
-            throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
+            throw new ConsumerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
      * @param Message[]|Message|null $messages
      * @return void
-     * @throws KafkaConsumerException
+     * @throws ConsumerException
      */
     public function commit($messages = null): void
     {
@@ -113,13 +111,13 @@ final class KafkaConsumer implements ConsumerInterface
                 return;
             }
 
-            $messages = (array) $messages;
+            $messages = is_array($messages) ? $messages : [$messages];
             $offsets = [];
 
-            foreach ($messages as $message) {
-                if (false === $messages instanceof Message) {
+            foreach ($messages as $i => $message) {
+                if (false === $message instanceof Message) {
                     throw new KafkaConsumerException(
-                        sprintf('Provided message is not an instance of "%s"', Message::class)
+                        sprintf('Provided message (offset: %d) is not an instance of "%s"', $i, Message::class)
                     );
                 }
 
@@ -134,21 +132,17 @@ final class KafkaConsumer implements ConsumerInterface
                 return;
             }
 
-            throw new KafkaConsumerException($e->getMessage(), $e->getCode(), $e);
+            throw new ConsumerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
      * Unsubscribes this consumer from all currently subscribed topics
      * @return array List of successfully unsubscribed topics
-     * @throws KafkaConsumerException
+     * @throws ConsumerException
      */
     public function unsubscribe(): array
     {
-        if ([] === $this->topics) {
-            return [];
-        }
-
         try {
             $this->consumer->unsubscribe();
 
@@ -168,7 +162,7 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @throws KafkaConsumerException
+     * @throws ConsumerException
      */
     public function __destruct()
     {

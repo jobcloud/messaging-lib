@@ -151,6 +151,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             throw new KafkaConsumerException(KafkaConsumerException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
+        if ([] === $this->topics) {
+            throw new KafkaConsumerException('No topics set to consume');
+        }
+
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['metadata.broker.list'] = implode(',', $this->brokers);

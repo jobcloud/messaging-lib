@@ -133,6 +133,7 @@ class KafkaConsumerBuilderTest extends TestCase
          */
         $consumer = KafkaConsumerBuilder::create()
             ->addBroker('localhost')
+            ->subscribeToTopic('test')
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
