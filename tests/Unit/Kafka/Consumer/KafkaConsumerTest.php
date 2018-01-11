@@ -89,6 +89,35 @@ class KafkaConsumerTest extends TestCase
         $consumer->consume();
     }
 
+    public function testConsumeAtEndOfPartitionReturnsNull()
+    {
+
+        /** @var RdKafkaMessage|MockObject $messageMock */
+        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
+            ->setMethods(['errstr'])
+            ->getMock();
+
+        $messageMock->err = RD_KAFKA_RESP_ERR__PARTITION_EOF;
+        $messageMock->partition = 1;
+        $messageMock->offset = 42;
+        $messageMock->topic_name = 'test';
+
+        $messageMock
+            ->expects(self::never())
+            ->method('errstr');
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('consume')
+            ->willReturn($messageMock);
+
+        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+
+        self::assertNull($consumer->consume());
+    }
+
     public function testConsumeConvertsExtensionExceptionToLibraryException()
     {
         $exceptionMessage = 'Something went wrong';

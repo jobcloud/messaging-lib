@@ -8,8 +8,8 @@ interface ConsumerInterface
 {
     /**
      * Consumes a message and returns it
-     * @return MessageInterface The consumed message
+     * @return MessageInterface|null The consumed message or null of there isn't any
      * @throws ConsumerException
      */
-    public function consume(): MessageInterface;
+    public function consume(): ?MessageInterface;
 }

@@ -46,10 +46,10 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @return MessageInterface|Message
+     * @return MessageInterface|Message|null
      * @throws ConsumerException
      */
-    public function consume(): MessageInterface
+    public function consume(): ?MessageInterface
     {
         try {
             $rdKafkaMessage = $this->consumer->consume($this->timeout);
@@ -61,9 +61,11 @@ final class KafkaConsumer implements ConsumerInterface
                 $rdKafkaMessage->offset
             );
 
-            if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err
-                && RD_KAFKA_RESP_ERR__PARTITION_EOF !== $rdKafkaMessage->err
-            ) {
+            if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
+                return null;
+            }
+
+            if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
                 throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
             }
 
