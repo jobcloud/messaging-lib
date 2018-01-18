@@ -54,16 +54,20 @@ final class KafkaConsumer implements ConsumerInterface
         try {
             $rdKafkaMessage = $this->consumer->consume($this->timeout);
 
+            if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
+                return null;
+            }
+
+            if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+                throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
+            }
+
             $message = new Message(
                 $rdKafkaMessage->payload,
                 $rdKafkaMessage->topic_name,
                 $rdKafkaMessage->partition,
                 $rdKafkaMessage->offset
             );
-
-            if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
-                return null;
-            }
 
             if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
                 throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
@@ -160,13 +164,5 @@ final class KafkaConsumer implements ConsumerInterface
     protected function getSubscription(): array
     {
         return $this->consumer->getSubscription();
-    }
-
-    /**
-     * @throws KafkaConsumerSubscriptionException
-     */
-    public function __destruct()
-    {
-        $this->unsubscribe();
     }
 }
