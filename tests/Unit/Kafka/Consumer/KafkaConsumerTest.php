@@ -89,6 +89,40 @@ class KafkaConsumerTest extends TestCase
         $consumer->consume();
     }
 
+    public function testConsumeThrowsExceptionOnErrorWithoutTopic()
+    {
+        $exceptionMessage = 'Unknown error';
+
+        self::expectException(KafkaConsumerConsumeException::class);
+        self::expectExceptionMessage($exceptionMessage);
+
+        /** @var RdKafkaMessage|MockObject $messageMock */
+        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
+            ->setMethods(['errstr'])
+            ->getMock();
+
+        $messageMock->err = -1;
+        $messageMock->partition = 1;
+        $messageMock->offset = 42;
+        $messageMock->topic_name = null;
+
+        $messageMock
+            ->expects(self::once())
+            ->method('errstr')
+            ->willReturn($exceptionMessage);
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('consume')
+            ->willReturn($messageMock);
+
+        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+
+        $consumer->consume();
+    }
+
     public function testConsumeAtEndOfPartitionReturnsNull()
     {
 
@@ -98,6 +132,35 @@ class KafkaConsumerTest extends TestCase
             ->getMock();
 
         $messageMock->err = RD_KAFKA_RESP_ERR__PARTITION_EOF;
+        $messageMock->partition = 1;
+        $messageMock->offset = 42;
+        $messageMock->topic_name = 'test';
+
+        $messageMock
+            ->expects(self::never())
+            ->method('errstr');
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::any())
+            ->method('consume')
+            ->willReturn($messageMock);
+
+        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+
+        self::assertNull($consumer->consume());
+    }
+
+    public function testConsumeTimedOutReturnsNull()
+    {
+
+        /** @var RdKafkaMessage|MockObject $messageMock */
+        $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
+            ->setMethods(['errstr'])
+            ->getMock();
+
+        $messageMock->err = RD_KAFKA_RESP_ERR__TIMED_OUT;
         $messageMock->partition = 1;
         $messageMock->offset = 42;
         $messageMock->topic_name = 'test';
@@ -201,13 +264,32 @@ class KafkaConsumerTest extends TestCase
         $consumerMock = $this->getRdKafkaConsumerMock();
 
         $consumerMock
-            ->expects(self::exactly(2))
+            ->expects(self::exactly(1))
             ->method('unsubscribe')
             ->willThrowException(new RdKafkaException($exceptionMessage));
 
         $consumer = new KafkaConsumer($consumerMock, [], 0);
 
         $consumer->unsubscribe();
+    }
+
+    public function testUnsubscribeReturnsResultOfGetSubscription()
+    {
+        $expectedSubscription = [];
+
+        $consumerMock = $this->getRdKafkaConsumerMock();
+
+        $consumerMock
+            ->expects(self::once())
+            ->method('unsubscribe');
+        $consumerMock
+            ->expects(self::once())
+            ->method('getSubscription')
+            ->willReturn($expectedSubscription);
+
+        $consumer = new KafkaConsumer($consumerMock, [], 0);
+
+        self::assertEquals($expectedSubscription, $consumer->unsubscribe());
     }
 
     public function testCommitWithoutMessagesDelegatesGeneralCommit()
