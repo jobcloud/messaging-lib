@@ -24,13 +24,10 @@ final class KafkaConsumerRebalanceCallback
                 $consumer->assign($partitions);
                 break;
 
-            case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
+            default:
                 $consumer->assign(null);
                 break;
 
-            default:
-                $consumer->assign(null); // sync state
-                throw new KafkaRebalanceException(KafkaRebalanceException::REBALANCE_EXCEPTION_MESSAGE, $errorCode);
         }
     }
 }
