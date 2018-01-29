@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
-use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use \RdKafka\KafkaConsumer as RdKafkaConsumer;
 use \RdKafka\Exception as RdKafkaException;
@@ -56,7 +55,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
-        $this->rebalanceCallback = new KafkaConsumerRebalanceCallback();
     }
 
     /**
@@ -100,6 +98,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         return $this;
     }
 
+    /**
+     * @param integer $timeout
+     * @return KafkaConsumerBuilder
+     */
     public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
@@ -163,7 +165,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //set consumer callbacks
         $kafkaConfig->setErrorCb($this->errorCallback);
-        $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
+        if (null !== $this->rebalanceCallback) {
+            $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
+        }
 
         //create RdConsumer
         try {
