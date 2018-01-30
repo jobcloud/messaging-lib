@@ -15,7 +15,7 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
  */
-class KafkaConsumerBuilderTest extends TestCase
+final class KafkaConsumerBuilderTest extends TestCase
 {
 
     /**

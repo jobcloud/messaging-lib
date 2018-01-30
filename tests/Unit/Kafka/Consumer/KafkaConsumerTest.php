@@ -21,7 +21,7 @@ use RdKafka\Queue as RdKafkaQueue;
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
  */
-class KafkaConsumerTest extends TestCase
+final class KafkaConsumerTest extends TestCase
 {
 
     public function testConsumeWithSimpleTopicSubscriptionIsSuccessful()
@@ -350,6 +350,57 @@ class KafkaConsumerTest extends TestCase
         return $consumerMock;
     }
 
+    public function testSubscribeUseExistingTopicsForResubscribe()
+    {
+        $partitionId = 1;
+        $offset = 42;
+        $topicName = 'test';
+
+        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription->addPartition($partitionId, $offset);
+
+        $topics = [$topicSubscription];
+
+        $queueMock = $this->getRdKafkaQueue();
+
+        $topicMock = $this->getMockBuilder(ConsumerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['consumeQueueStart', 'consumeStop'])
+            ->getMock();
+
+        $topicMock
+            ->expects(self::exactly(2))
+            ->method('consumeQueueStart')
+            ->with($partitionId, $offset, $queueMock)
+            ->willReturn(null);
+
+        $topicMock
+            ->expects(self::once())
+            ->method('consumeStop')
+            ->with($partitionId)
+            ->willReturn(null);
+
+        $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
+
+        $consumerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with($topicName)
+            ->willReturn($topicMock);
+
+        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+
+        $consumer->subscribe();
+
+        self::assertTrue($consumer->isSubscribed());
+
+        $consumer->unsubscribe();
+
+        self::assertFalse($consumer->isSubscribed());
+
+        $consumer->subscribe();
+    }
+
     public function testIsSubscribedReturnsCurrentSubscroptionState()
     {
         $topics = [new TopicSubscription('test')];
@@ -423,8 +474,41 @@ class KafkaConsumerTest extends TestCase
         $consumer->commit($message);
     }
 
+    public function testUnsubscribeEarlyReturnsIfAlreadyUnsubscribed()
+    {
+        $partitionId = 1;
+        $offset = 42;
+        $topicName = 'test';
+
+        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription->addPartition($partitionId, $offset);
+
+        $topics = [$topicSubscription];
+
+        $queueMock = $this->getRdKafkaQueue();
+
+        $topicMock = $this->getMockBuilder(ConsumerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['consumeQueueStart', 'consumeStop'])
+            ->getMock();
+
+        $topicMock
+            ->expects(self::never())
+            ->method('consumeStop');
+
+        $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
+
+        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+
+        self::assertFalse($consumer->isSubscribed());
+
+        $consumer->unsubscribe();
+
+        self::assertFalse($consumer->isSubscribed());
+    }
+
     /**
-     * @return Queue|MockObject
+     * @return RdKafkaQueue|MockObject
      */
     private function getRdKafkaQueue(): RdKafkaQueue
     {

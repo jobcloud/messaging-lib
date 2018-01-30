@@ -194,6 +194,8 @@ final class KafkaConsumer implements ConsumerInterface
                 $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
             }
         }
+
+        $this->subscribed = false;
     }
 
     /**
