@@ -4,6 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use PHPUnit\Framework\TestCase;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
@@ -46,14 +47,16 @@ class KafkaConsumerBuilderTest extends TestCase
 
     public function testSubscribeToTopic()
     {
-        self::assertSame($this->kcb, $this->kcb->subscribeToTopic('testTopic'));
+        $topicSubscription = new TopicSubscription('testTopic');
+
+        self::assertSame($this->kcb, $this->kcb->addSubscription($topicSubscription));
 
         $property = new \ReflectionProperty($this->kcb, 'topics');
         $property->setAccessible(true);
 
         $topics = $property->getValue($this->kcb);
 
-        self::assertEquals(['testTopic'], $topics);
+        self::assertEquals([$topicSubscription], $topics);
     }
 
     public function testSetTimeout()
@@ -148,34 +151,10 @@ class KafkaConsumerBuilderTest extends TestCase
          */
         $consumer = KafkaConsumerBuilder::create()
             ->addBroker('localhost')
-            ->subscribeToTopic('test')
+            ->addSubscription(new TopicSubscription('test'))
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
-
-        self::assertInstanceOf(ConsumerInterface::class, $consumer);
-    }
-
-    public function testExceptionDuringDelegatedConsumerInstanciationGetsConvertedAndThrown()
-    {
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage('Could not instantiate consumer');
-
-        $callback = function ($kafka, $errId, $msg) {
-            //do nothing
-        };
-
-        $consumerBuilder = KafkaConsumerBuilder::create()
-            ->addBroker('localhost')
-            ->subscribeToTopic('test')
-            ->setRebalanceCallback($callback)
-            ->setErrorCallback($callback);
-
-        $reflectionProperty = new \ReflectionProperty($consumerBuilder, 'consumerGroup');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($consumerBuilder, null);
-
-        $consumer = $consumerBuilder->build();
 
         self::assertInstanceOf(ConsumerInterface::class, $consumer);
     }

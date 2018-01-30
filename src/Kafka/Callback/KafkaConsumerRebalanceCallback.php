@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Callback;
 
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
+use RdKafka\Exception as RdKafkaException;
 
 final class KafkaConsumerRebalanceCallback
 {
@@ -19,15 +20,19 @@ final class KafkaConsumerRebalanceCallback
      */
     public function __invoke(RdKafkaConsumer $consumer, int $errorCode, array $partitions = null)
     {
-        switch ($errorCode) {
-            case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                $consumer->assign($partitions);
-                break;
+        try {
+            switch ($errorCode) {
+                case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
+                    $consumer->assign($partitions);
+                    break;
 
-            default:
-                $consumer->assign(null);
-                break;
+                default:
+                    $consumer->assign(null);
+                    break;
 
+            }
+        } catch (RdKafkaException $e) {
+            throw new KafkaRebalanceException($e->getMessage(), $e->getCode(), $e);
         }
     }
 }

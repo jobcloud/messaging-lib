@@ -5,6 +5,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Callback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
 use PHPUnit\Framework\MockObject\MockObject;
+use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use PHPUnit\Framework\TestCase;
 
@@ -15,49 +16,68 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
 {
     public function testInvokeWithError()
     {
-        self::expectException(KafkaRebalanceException::class);
+        $exceptionMessage = 'Foo';
+        $exceptionCode = 10;
 
-        $consumer = $this->getConsumerMock(function () {
-            self::assertEquals(null, func_get_args()[0]);
-        });
+        self::expectException(KafkaRebalanceException::class);
+        self::expectExceptionMessage($exceptionMessage);
+        self::expectExceptionCode($exceptionCode);
+
+        $consumer = $this->getConsumerMock();
+
+        $consumer
+            ->expects(self::once())
+            ->method('assign')
+            ->with(null)
+            ->willThrowException(new RdKafkaException($exceptionMessage, $exceptionCode));
 
         call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, 1, []);
     }
 
     public function testInvokeAssign()
     {
-        $consumer = $this->getConsumerMock(function () {
-            self::assertEquals(['test'], func_get_args()[0]);
-        });
+        $partitions = [1, 2, 3];
 
-        call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS, ['test']);
+        $consumer = $this->getConsumerMock();
+
+        $consumer
+            ->expects(self::once())
+            ->method('assign')
+            ->with($partitions)
+            ->willReturn(null);
+
+
+        call_user_func(
+            new KafkaConsumerRebalanceCallback(),
+            $consumer,
+            RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS,
+            $partitions
+        );
     }
 
     public function testInvokeRevoke()
     {
-        $consumer = $this->getConsumerMock(function () {
-            self::assertEquals(null, func_get_args()[0]);
-        });
+        $consumer = $this->getConsumerMock();
+
+        $consumer
+            ->expects(self::once())
+            ->method('assign')
+            ->with(null)
+            ->willReturn(null);
 
         call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS);
     }
 
     /**
-     * @param callable $callback
      * @return MockObject|RdKafkaConsumer
      */
-    private function getConsumerMock(callable $callback)
+    private function getConsumerMock()
     {
         //create mock to assign topics
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
             ->setMethods(['assign', 'unsubscribe', 'getSubscription'])
             ->getMock();
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('assign')
-            ->willReturnCallback($callback);
 
         $consumerMock
             ->expects(self::any())

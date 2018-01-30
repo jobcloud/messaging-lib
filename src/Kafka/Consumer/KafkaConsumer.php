@@ -29,9 +29,14 @@ final class KafkaConsumer implements ConsumerInterface
     protected $consumer;
 
     /**
-     * @var array|string[]
+     * @var array|ConsumerTopic[]
      */
     protected $topics = [];
+
+    /**
+     * @var array|TopicSubscriptionInterface[]
+     */
+    protected $topicSubscriptions;
 
     /**
      * @var boolean
@@ -50,33 +55,16 @@ final class KafkaConsumer implements ConsumerInterface
 
     /**
      * AbstractKafkaConsumer constructor.
-     * @param RdKafkaConsumer $consumer
-     * @param array           $topics
-     * @param integer         $timeout
-     * @throws RdKafkaException
+     * @param RdKafkaConsumer                    $consumer
+     * @param array|TopicSubscriptionInterface[] $topics
+     * @param integer                            $timeout
      */
     public function __construct(RdKafkaConsumer $consumer, array $topics, int $timeout)
     {
         $this->consumer = $consumer;
         $this->timeout = $timeout;
         $this->queue = $consumer->newQueue();
-
-        foreach ($topics as $topicName => $topicInfo) {
-            $topic = $this->consumer->newTopic($topicName);
-
-            if ([] === $partitions = $topicInfo['partitions']) {
-                $topicMetadata = $this->getMetadataForTopic($topic);
-
-                foreach ($topicMetadata->getPartitions() as $partition) {
-                    $partitions[$partition->getId()] = $topicInfo['offset'];
-                }
-            }
-
-            $this->topics[$topicName] = [
-                'partitions' => $partitions,
-                'topic' => $topic
-            ];
-        }
+        $this->topicSubscriptions = $topics;
     }
 
     /**
@@ -86,7 +74,7 @@ final class KafkaConsumer implements ConsumerInterface
     public function consume(): ?MessageInterface
     {
         if (false === $this->subscribed) {
-            throw new KafkaConsumerConsumeException('This consumer has not subscribed to any topics');
+            throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
         }
 
         if (null === $rdKafkaMessage = $this->queue->consume($this->timeout)) {
@@ -94,7 +82,7 @@ final class KafkaConsumer implements ConsumerInterface
         }
 
         if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-            throw new KafkaConsumerConsumeException($rdKafkaMessage->err . ': ' . $rdKafkaMessage->errstr(), $rdKafkaMessage->err);
+            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
         $message = new Message(
@@ -112,11 +100,11 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @return array|string[]
+     * @return array|TopicSubscriptionInterface[]
      */
-    public function getTopics(): array
+    public function getTopicSubscriptions(): array
     {
-        return $this->topics;
+        return $this->topicSubscriptions;
     }
 
     /**
@@ -131,9 +119,35 @@ final class KafkaConsumer implements ConsumerInterface
         }
 
         try {
-            foreach ($this->topics as $topicName => $topicInfo) {
-                foreach ($topicInfo['partitions'] as $partitionId => $offset) {
-                    $topicInfo['topic']->consumeQueueStart($partitionId, $offset, $this->queue);
+            foreach ($this->topicSubscriptions as $offset => $topicSubscription) {
+                $topicName = $topicSubscription->getTopicName();
+
+                if (false === isset($this->topics[$topicName])) {
+                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);
+
+                    // Convert simple TopicSubscription to TopicPartitionSubscription
+                    if ($topicSubscription instanceof TopicSubscription) {
+                        $topicPartitionSubscription = new TopicPartitionSubscription(
+                            $topicSubscription->getTopicName()
+                        );
+
+                        $topicMetadata = $this->getMetadataForTopic($topic);
+
+                        foreach ($topicMetadata->getPartitions() as $partition) {
+                            $topicPartitionSubscription->addPartition(
+                                $partition->getId(),
+                                $topicSubscription->getOffset()
+                            );
+                        }
+
+                        $this->topicSubscriptions[$offset] = $topicSubscription = $topicPartitionSubscription;
+                    }
+                } else {
+                    $topic = $this->topics[$topicName];
+                }
+
+                foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+                    $topic->consumeQueueStart($partitionId, $offset, $this->queue);
                 }
             }
 
@@ -159,7 +173,7 @@ final class KafkaConsumer implements ConsumerInterface
                 );
             }
 
-            $this->topics[$message->getTopicName()]['topic']->offsetStore(
+            $this->topics[$message->getTopicName()]->offsetStore(
                 $message->getPartition(), $message->getOffset()
             );
         }
@@ -168,7 +182,6 @@ final class KafkaConsumer implements ConsumerInterface
     /**
      * Unsubscribes this consumer from all currently subscribed topics
      * @return void
-     * @throws KafkaConsumerSubscriptionException
      */
     public function unsubscribe(): void
     {
@@ -176,17 +189,16 @@ final class KafkaConsumer implements ConsumerInterface
             return;
         }
 
-        try {
-            foreach ($this->topics as $topicName => $topicInfo) {
-                foreach ($topicInfo['partitions'] as $partitionId => $offset) {
-                    $topicInfo['topic']->consumeStop($partitionId);
-                }
+        foreach ($this->topicSubscriptions as $topicSubscription) {
+            foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+                $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
             }
-        } catch (RdKafkaException $e) {
-            throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
+    /**
+     * @return bool
+     */
     public function isSubscribed(): bool
     {
         return $this->subscribed;
