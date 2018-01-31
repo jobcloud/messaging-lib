@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Consumer\ConsumerException;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use RdKafka\KafkaConsumer as RdKafkaConsumer;
+use RdKafka\Consumer as RdKafkaConsumer;
+use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
-use RdKafka\TopicPartition;
+use RdKafka\Metadata;
+use RdKafka\Queue;
 
 final class KafkaConsumer implements ConsumerInterface
 {
+
+    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
+    const OFFSET_END = RD_KAFKA_OFFSET_END;
+    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
 
     /**
      * @var RdKafkaConsumer
@@ -22,9 +29,19 @@ final class KafkaConsumer implements ConsumerInterface
     protected $consumer;
 
     /**
-     * @var array|string[]
+     * @var array|ConsumerTopic[]
      */
-    protected $topics;
+    protected $topics = [];
+
+    /**
+     * @var array|TopicSubscriptionInterface[]
+     */
+    protected $topicSubscriptions;
+
+    /**
+     * @var boolean
+     */
+    protected $subscribed = false;
 
     /**
      * @var integer
@@ -32,140 +49,164 @@ final class KafkaConsumer implements ConsumerInterface
     protected $timeout;
 
     /**
-     * AbstractKafkaConsumer constructor.
-     * @param RdKafkaConsumer $consumer
-     * @param array           $topics
-     * @param integer         $timeout
+     * @var Queue
      */
-    public function __construct(RdKafkaConsumer $consumer, array $topics, int $timeout)
+    protected $queue;
+
+    /**
+     * AbstractKafkaConsumer constructor.
+     * @param RdKafkaConsumer                    $consumer
+     * @param array|TopicSubscriptionInterface[] $topicSubscriptions
+     * @param integer                            $timeout
+     */
+    public function __construct(RdKafkaConsumer $consumer, array $topicSubscriptions, int $timeout)
     {
         $this->consumer = $consumer;
-        $this->topics = $topics;
         $this->timeout = $timeout;
+        $this->queue = $consumer->newQueue();
+        $this->topicSubscriptions = $topicSubscriptions;
     }
 
     /**
      * @return MessageInterface|Message|null
-     * @throws KafkaConsumerConsumeException
+     * @throws ConsumerException
      */
     public function consume(): ?MessageInterface
     {
-        try {
-            $rdKafkaMessage = $this->consumer->consume($this->timeout);
-
-            if (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err
-                || RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err
-            ) {
-                return null;
-            }
-
-            if (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-                throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
-            }
-
-            $message = new Message(
-                $rdKafkaMessage->payload,
-                $rdKafkaMessage->topic_name,
-                $rdKafkaMessage->partition,
-                $rdKafkaMessage->offset
-            );
-
-            if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-                throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
-            }
-
-            return $message;
-        } catch (RdKafkaException $e) {
-            throw new KafkaConsumerConsumeException($e->getMessage(), $e->getCode(), null, $e);
+        if (false === $this->subscribed) {
+            throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
         }
+
+        if (null === $rdKafkaMessage = $this->queue->consume($this->timeout)) {
+            throw new KafkaConsumerConsumeException(rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT), RD_KAFKA_RESP_ERR__TIMED_OUT);
+        }
+
+        if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
+        }
+
+        $message = new Message(
+            $rdKafkaMessage->payload,
+            $rdKafkaMessage->topic_name,
+            $rdKafkaMessage->partition,
+            $rdKafkaMessage->offset
+        );
+
+        if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
+        }
+
+        return $message;
     }
 
     /**
-     * @return array|string[]
+     * @return array|TopicSubscriptionInterface[]
      */
-    public function getTopics(): array
+    public function getTopicSubscriptions(): array
     {
-        return $this->topics;
+        return $this->topicSubscriptions;
     }
 
     /**
      * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
-     * @return array List of successfully subscribed topics
+     * @return void
      * @throws KafkaConsumerSubscriptionException
      */
-    public function subscribe(): array
+    public function subscribe(): void
     {
-        try {
-            $this->consumer->subscribe($this->topics);
+        if (true === $this->subscribed) {
+            return;
+        }
 
-            return $this->getSubscription();
+        try {
+            foreach ($this->topicSubscriptions as $index => $topicSubscription) {
+                $topicName = $topicSubscription->getTopicName();
+
+                if (false === isset($this->topics[$topicName])) {
+                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);
+
+                    // Convert simple TopicSubscription to TopicPartitionSubscription
+                    if ([] === $topicSubscription->getPartitions()) {
+                        $topicMetadata = $this->getMetadataForTopic($topic);
+
+                        foreach ($topicMetadata->getPartitions() as $partition) {
+                            $topicSubscription->addPartition(
+                                $partition->getId(),
+                                $topicSubscription->getOffset()
+                            );
+                        }
+                    }
+                } else {
+                    $topic = $this->topics[$topicName];
+                }
+
+                foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+                    $topic->consumeQueueStart($partitionId, $offset, $this->queue);
+                }
+            }
+
+            $this->subscribed = true;
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @param Message[]|Message|null $messages
+     * @param Message[]|Message $messages
      * @return void
      * @throws KafkaConsumerCommitException
      */
-    public function commit($messages = null): void
+    public function commit($messages): void
     {
-        try {
-            if (null === $messages) {
-                $this->consumer->commit();
-                return;
-            }
+        $messages = is_array($messages) ? $messages : [$messages];
 
-            $messages = is_array($messages) ? $messages : [$messages];
-            $offsets = [];
-
-            foreach ($messages as $i => $message) {
-                if (false === $message instanceof Message) {
-                    throw new KafkaConsumerCommitException(
-                        sprintf('Provided message (offset: %d) is not an instance of "%s"', $i, Message::class)
-                    );
-                }
-
-                $offsets[] = new TopicPartition(
-                    $message->getTopicName(),
-                    $message->getPartition(),
-                    $message->getOffset()
+        foreach ($messages as $i => $message) {
+            if (false === $message instanceof Message) {
+                throw new KafkaConsumerCommitException(
+                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
                 );
             }
 
-            $this->consumer->commit($offsets);
-        } catch (RdKafkaException $e) {
-            if (RD_KAFKA_RESP_ERR__NO_OFFSET === $e->getCode()) {
-                return;
-            }
-
-            throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode(), $e);
+            $this->topics[$message->getTopicName()]->offsetStore(
+                $message->getPartition(), $message->getOffset()
+            );
         }
     }
 
     /**
      * Unsubscribes this consumer from all currently subscribed topics
-     * @return array List of successfully unsubscribed topics
-     * @throws KafkaConsumerSubscriptionException
+     * @return void
      */
-    public function unsubscribe(): array
+    public function unsubscribe(): void
     {
-        try {
-            $this->consumer->unsubscribe();
-
-            return $this->getSubscription();
-        } catch (RdKafkaException $e) {
-            throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
+        if (false === $this->subscribed) {
+            return;
         }
+
+        foreach ($this->topicSubscriptions as $topicSubscription) {
+            foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+                $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
+            }
+        }
+
+        $this->subscribed = false;
     }
 
     /**
-     * Returns all the topics to which this consumer is currently subscribed
-     * @return array
+     * @return bool
      */
-    protected function getSubscription(): array
+    public function isSubscribed(): bool
     {
-        return $this->consumer->getSubscription();
+        return $this->subscribed;
+    }
+
+    /**
+     * @param ConsumerTopic $topic
+     * @return Metadata\Topic
+     * @throws RdKafkaException
+     */
+    private function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
+    {
+        return $this->consumer->getMetadata(false, $topic, $this->timeout)->getTopics()->current();
     }
 }
