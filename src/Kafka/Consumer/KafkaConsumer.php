@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Consumer\ConsumerException;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
@@ -36,7 +35,7 @@ final class KafkaConsumer implements ConsumerInterface
      * AbstractKafkaConsumer constructor.
      * @param RdKafkaConsumer $consumer
      * @param array           $topics
-     * @param int             $timeout
+     * @param integer         $timeout
      */
     public function __construct(RdKafkaConsumer $consumer, array $topics, int $timeout)
     {
@@ -47,18 +46,20 @@ final class KafkaConsumer implements ConsumerInterface
 
     /**
      * @return MessageInterface|Message|null
-     * @throws ConsumerException
+     * @throws KafkaConsumerConsumeException
      */
     public function consume(): ?MessageInterface
     {
         try {
             $rdKafkaMessage = $this->consumer->consume($this->timeout);
 
-            if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
+            if (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err
+                || RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err
+            ) {
                 return null;
             }
 
-            if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+            if (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
                 throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
             }
 
@@ -127,7 +128,9 @@ final class KafkaConsumer implements ConsumerInterface
                 }
 
                 $offsets[] = new TopicPartition(
-                    $message->getTopicName(), $message->getPartition(), $message->getOffset()
+                    $message->getTopicName(),
+                    $message->getPartition(),
+                    $message->getOffset()
                 );
             }
 
