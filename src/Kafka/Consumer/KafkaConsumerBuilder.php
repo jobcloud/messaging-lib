@@ -98,6 +98,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         return $this;
     }
 
+    /**
+     * @param integer $timeout
+     * @return KafkaConsumerBuilder
+     */
     public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
