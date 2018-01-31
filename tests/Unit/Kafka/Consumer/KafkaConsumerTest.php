@@ -4,7 +4,6 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\Message;
-use Jobcloud\Messaging\Kafka\Consumer\TopicPartitionSubscription;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -24,7 +23,7 @@ use RdKafka\Queue as RdKafkaQueue;
 final class KafkaConsumerTest extends TestCase
 {
 
-    public function testConsumeWithSimpleTopicSubscriptionIsSuccessful()
+    public function testConsumeWithTopicSubscriptionWithNoPartitionsIsSuccessful()
     {
         $topicName = 'test';
         $timeout = 0;
@@ -141,7 +140,10 @@ final class KafkaConsumerTest extends TestCase
 
         $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
-        $consumer = new KafkaConsumer($consumerMock, [new TopicPartitionSubscription('test')], $timeout);
+        $topicSubscription = new TopicSubscription('test');
+        $topicSubscription->addPartition(1);
+
+        $consumer = new KafkaConsumer($consumerMock, [], $timeout);
 
         $consumer->subscribe();
 
@@ -152,6 +154,9 @@ final class KafkaConsumerTest extends TestCase
     {
         $exceptionMessage = 'Unknown error';
         $timeout = 0;
+        $topicName = 'test';
+        $partitionId = 1;
+        $defaultOffset = 42;
 
         self::expectException(KafkaConsumerConsumeException::class);
         self::expectExceptionMessage($exceptionMessage);
@@ -179,9 +184,29 @@ final class KafkaConsumerTest extends TestCase
             ->with($timeout)
             ->willReturn($messageMock);
 
+        $topicMock = $this->getMockBuilder(ConsumerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['consumeQueueStart'])
+            ->getMock();
+
+        $topicMock
+            ->expects(self::once())
+            ->method('consumeQueueStart')
+            ->with($partitionId, $defaultOffset, $queueMock)
+            ->willReturn(null);
+
         $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
-        $consumer = new KafkaConsumer($consumerMock, [new TopicPartitionSubscription('test')], $timeout);
+        $consumerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with($topicName)
+            ->willReturn($topicMock);
+
+        $topicSubscription = new TopicSubscription($topicName, $defaultOffset);
+        $topicSubscription->addPartition($partitionId);
+
+        $consumer = new KafkaConsumer($consumerMock, [$topicSubscription], $timeout);
 
         $consumer->subscribe();
 
@@ -192,6 +217,9 @@ final class KafkaConsumerTest extends TestCase
     {
         $exceptionMessage = 'Unknown error';
         $timeout = 0;
+        $topicName = 'test';
+        $partitionId = 1;
+        $defaultOffset = 42;
 
         self::expectException(KafkaConsumerConsumeException::class);
         self::expectExceptionMessage($exceptionMessage);
@@ -219,9 +247,29 @@ final class KafkaConsumerTest extends TestCase
             ->with($timeout)
             ->willReturn($messageMock);
 
+        $topicMock = $this->getMockBuilder(ConsumerTopic::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['consumeQueueStart'])
+            ->getMock();
+
+        $topicMock
+            ->expects(self::once())
+            ->method('consumeQueueStart')
+            ->with($partitionId, $defaultOffset, $queueMock)
+            ->willReturn(null);
+
         $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
-        $consumer = new KafkaConsumer($consumerMock, [new TopicPartitionSubscription('test')], $timeout);
+        $consumerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with($topicName)
+            ->willReturn($topicMock);
+
+        $topicSubscription = new TopicSubscription($topicName, $defaultOffset);
+        $topicSubscription->addPartition($partitionId);
+
+        $consumer = new KafkaConsumer($consumerMock, [$topicSubscription], $timeout);
 
         $consumer->subscribe();
 
@@ -265,7 +313,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'test';
 
-        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription = new TopicSubscription($topicName);
         $topicSubscription->addPartition($partitionId, $offset);
 
         $topics = [$topicSubscription];
@@ -302,7 +350,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'test';
 
-        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription = new TopicSubscription($topicName);
         $topicSubscription->addPartition($partitionId, $offset);
 
         $topics = [$topicSubscription];
@@ -356,7 +404,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'test';
 
-        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription = new TopicSubscription($topicName);
         $topicSubscription->addPartition($partitionId, $offset);
 
         $topics = [$topicSubscription];
@@ -480,7 +528,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'test';
 
-        $topicSubscription = new TopicPartitionSubscription($topicName);
+        $topicSubscription = new TopicSubscription($topicName);
         $topicSubscription->addPartition($partitionId, $offset);
 
         $topics = [$topicSubscription];

@@ -11,4 +11,14 @@ interface TopicSubscriptionInterface
      * @return string
      */
     public function getTopicName(): string;
+
+    /**
+     * @return array
+     */
+    public function getPartitions(): array;
+
+    /**
+     * @return int
+     */
+    public function getOffset(): int;
 }

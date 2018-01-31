@@ -56,15 +56,15 @@ final class KafkaConsumer implements ConsumerInterface
     /**
      * AbstractKafkaConsumer constructor.
      * @param RdKafkaConsumer                    $consumer
-     * @param array|TopicSubscriptionInterface[] $topics
+     * @param array|TopicSubscriptionInterface[] $topicSubscriptions
      * @param integer                            $timeout
      */
-    public function __construct(RdKafkaConsumer $consumer, array $topics, int $timeout)
+    public function __construct(RdKafkaConsumer $consumer, array $topicSubscriptions, int $timeout)
     {
         $this->consumer = $consumer;
         $this->timeout = $timeout;
         $this->queue = $consumer->newQueue();
-        $this->topicSubscriptions = $topics;
+        $this->topicSubscriptions = $topicSubscriptions;
     }
 
     /**
@@ -119,28 +119,22 @@ final class KafkaConsumer implements ConsumerInterface
         }
 
         try {
-            foreach ($this->topicSubscriptions as $offset => $topicSubscription) {
+            foreach ($this->topicSubscriptions as $index => $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
 
                 if (false === isset($this->topics[$topicName])) {
                     $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);
 
                     // Convert simple TopicSubscription to TopicPartitionSubscription
-                    if ($topicSubscription instanceof TopicSubscription) {
-                        $topicPartitionSubscription = new TopicPartitionSubscription(
-                            $topicSubscription->getTopicName()
-                        );
-
+                    if ([] === $topicSubscription->getPartitions()) {
                         $topicMetadata = $this->getMetadataForTopic($topic);
 
                         foreach ($topicMetadata->getPartitions() as $partition) {
-                            $topicPartitionSubscription->addPartition(
+                            $topicSubscription->addPartition(
                                 $partition->getId(),
                                 $topicSubscription->getOffset()
                             );
                         }
-
-                        $this->topicSubscriptions[$offset] = $topicSubscription = $topicPartitionSubscription;
                     }
                 } else {
                     $topic = $this->topics[$topicName];
