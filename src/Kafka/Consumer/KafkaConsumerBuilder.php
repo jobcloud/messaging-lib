@@ -6,8 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
-use \RdKafka\KafkaConsumer as RdKafkaConsumer;
-use \RdKafka\Exception as RdKafkaException;
+use RdKafka\Consumer as RdKafkaConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
@@ -78,11 +77,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param string $topic
+     * @param array  $partitions
      * @return KafkaConsumerBuilder
      */
-    public function subscribeToTopic(string $topic): self
+    public function addSubscription(TopicSubscriptionInterface $topicSubscription): self
     {
-        $this->topics[] = $topic;
+        $this->topics[] = $topicSubscription;
 
         return $this;
     }
@@ -158,23 +158,20 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
-        $this->config['metadata.broker.list'] = implode(',', $this->brokers);
 
         //create config from given settings
         $kafkaConfig = $this->createKafkaConfig($this->config);
 
         //set consumer callbacks
         $kafkaConfig->setErrorCb($this->errorCallback);
+
         if (null !== $this->rebalanceCallback) {
             $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
         }
 
         //create RdConsumer
-        try {
-            $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
-        } catch (RdKafkaException $e) {
-            throw new KafkaConsumerBuilderException('Could not instantiate consumer', 0, $e);
-        }
+        $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
+        $rdKafkaConsumer->addBrokers(implode(',', $this->brokers));
 
         return new KafkaConsumer($rdKafkaConsumer, $this->topics, $this->timeout);
     }

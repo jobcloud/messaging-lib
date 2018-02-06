@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\Message
  */
-class MessageTest extends TestCase
+final class MessageTest extends TestCase
 {
     public function testMessageGettersAndConstructor()
     {
