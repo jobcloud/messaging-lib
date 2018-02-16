@@ -11,7 +11,7 @@ interface ProducerInterface
      * @param string  $message
      * @param string  $topic
      * @param integer $partition
-     * @return mixed|void
+     * @return void
      */
     public function produce(string $message, string $topic, int $partition);
 }

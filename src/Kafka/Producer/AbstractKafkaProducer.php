@@ -8,7 +8,7 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
-abstract class AbstractKafkaProducer implements ProducerInterface
+abstract class AbstractKafkaProducer implements KafkaProducerInterface
 {
 
     /**
