@@ -18,7 +18,7 @@ interface TopicSubscriptionInterface
     public function getPartitions(): array;
 
     /**
-     * @return int
+     * @return integer
      */
     public function getOffset(): int;
 }

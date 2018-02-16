@@ -32,8 +32,8 @@ class Message implements MessageInterface
     /**
      * @param null|string $body
      * @param string      $topicName
-     * @param int         $partition
-     * @param int         $offset
+     * @param integer     $partition
+     * @param integer     $offset
      */
     public function __construct(
         ?string $body,
@@ -64,7 +64,7 @@ class Message implements MessageInterface
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function getOffset(): int
     {
@@ -72,7 +72,7 @@ class Message implements MessageInterface
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function getPartition(): int
     {

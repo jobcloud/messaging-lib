@@ -27,8 +27,8 @@ class TopicSubscription implements TopicSubscriptionInterface
     private $offset;
 
     /**
-     * @param string $topicName
-     * @param int    $offset
+     * @param string  $topicName
+     * @param integer $offset
      */
     public function __construct(string $topicName, int $offset = RD_KAFKA_OFFSET_STORED)
     {
@@ -45,8 +45,8 @@ class TopicSubscription implements TopicSubscriptionInterface
     }
 
     /**
-     * @param int $partitionId
-     * @param int $offset
+     * @param integer $partitionId
+     * @param integer $offset
      * @return self
      */
     public function addPartition(int $partitionId, int $offset = null): self
@@ -65,7 +65,7 @@ class TopicSubscription implements TopicSubscriptionInterface
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function getOffset(): int
     {

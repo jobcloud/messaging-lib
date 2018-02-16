@@ -68,8 +68,8 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @return MessageInterface|Message|null
-     * @throws ConsumerException
+     * @return MessageInterface|null
+     * @throws KafkaConsumerConsumeException
      */
     public function consume(): ?MessageInterface
     {
@@ -78,7 +78,10 @@ final class KafkaConsumer implements ConsumerInterface
         }
 
         if (null === $rdKafkaMessage = $this->queue->consume($this->timeout)) {
-            throw new KafkaConsumerConsumeException(rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT), RD_KAFKA_RESP_ERR__TIMED_OUT);
+            throw new KafkaConsumerConsumeException(
+                rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT),
+                RD_KAFKA_RESP_ERR__TIMED_OUT
+            );
         }
 
         if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
@@ -168,7 +171,8 @@ final class KafkaConsumer implements ConsumerInterface
             }
 
             $this->topics[$message->getTopicName()]->offsetStore(
-                $message->getPartition(), $message->getOffset()
+                $message->getPartition(),
+                $message->getOffset()
             );
         }
     }
@@ -193,7 +197,7 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isSubscribed(): bool
     {

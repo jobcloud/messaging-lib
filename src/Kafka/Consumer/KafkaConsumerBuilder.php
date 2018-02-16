@@ -76,8 +76,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param string $topic
-     * @param array  $partitions
+     * @param TopicSubscriptionInterface $topicSubscription
      * @return KafkaConsumerBuilder
      */
     public function addSubscription(TopicSubscriptionInterface $topicSubscription): self

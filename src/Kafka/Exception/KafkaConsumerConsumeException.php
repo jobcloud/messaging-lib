@@ -17,12 +17,16 @@ class KafkaConsumerConsumeException extends ConsumerException
 
     /**
      * @param string          $message
-     * @param int             $code
+     * @param integer         $code
      * @param Message|null    $kafkaMessage
      * @param \Throwable|null $previous
      */
-    public function __construct($message = '', $code = 0, Message $kafkaMessage = null, \Throwable $previous = null)
-    {
+    public function __construct(
+        string $message = '',
+        int $code = 0,
+        Message $kafkaMessage = null,
+        \Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
 
         $this->kafkaMessage = $kafkaMessage;

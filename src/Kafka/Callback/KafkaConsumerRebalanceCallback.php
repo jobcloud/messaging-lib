@@ -29,7 +29,6 @@ final class KafkaConsumerRebalanceCallback
                 default:
                     $consumer->assign(null);
                     break;
-
             }
         } catch (RdKafkaException $e) {
             throw new KafkaRebalanceException($e->getMessage(), $e->getCode(), $e);
