@@ -44,4 +44,14 @@ abstract class AbstractKafkaProducer implements ProducerInterface
 
         return $this->producerTopics[$topic];
     }
+
+
+    /**
+     * @param integer $timeout
+     * @return void
+     */
+    public function poll(int $timeout)
+    {
+        $this->producer->poll($timeout);
+    }
 }

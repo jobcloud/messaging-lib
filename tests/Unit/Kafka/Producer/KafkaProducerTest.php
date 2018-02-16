@@ -124,4 +124,26 @@ class KafkaProducerTest extends TestCase
 
         $producer->produce('test', 'test');
     }
+
+    public function testPoll()
+    {
+        /** @var MockObject|RdKafkaProducer $producerMock */
+        $producerMock = $this->getMockBuilder(RdKafkaProducer::class)
+            ->setMethods(['poll', 'addBrokers'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $producerMock
+            ->expects(self::once())
+            ->method('addBrokers')
+            ->with('localhost');
+
+        $producerMock
+            ->expects(self::any())
+            ->method('poll')
+            ->with(10);
+
+        $producer = new KafkaProducer($producerMock, ['localhost']);
+        $producer->poll(10);
+    }
 }
