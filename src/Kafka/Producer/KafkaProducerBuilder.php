@@ -36,6 +36,11 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $errorCallback;
 
     /**
+     * @var int
+     */
+    private $pollTimeout = 0;
+
+    /**
      * KafkaProducerBuilder constructor.
      */
     private function __construct()
@@ -97,19 +102,11 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * @return array
+     * @param int $pollTimeout
      */
-    public function getConfig(): array
+    public function setPollTimeout(int $pollTimeout): void
     {
-        return $this->config;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBrokers(): array
-    {
-        return $this->brokers;
+        $this->pollTimeout = $pollTimeout;
     }
 
     /**
@@ -122,13 +119,13 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
             throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
-        $kafkaConfig = $this->createKafkaConfig($this->getConfig());
+        $kafkaConfig = $this->createKafkaConfig($this->config);
 
         $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
         $kafkaConfig->setErrorCb($this->errorCallback);
 
         $rdKafkaProducer = new Producer($kafkaConfig);
 
-        return new KafkaProducer($rdKafkaProducer, $this->brokers);
+        return new KafkaProducer($rdKafkaProducer, $this->brokers, $this->pollTimeout);
     }
 }

@@ -31,5 +31,6 @@ final class TopicSubscriptionTest extends TestCase
         );
 
         self::assertEquals($defaultOffset, $topicSubscription->getPartitions()[$otherPartitionId]);
+        self::assertEquals($defaultOffset, $topicSubscription->getDefaultOffset());
     }
 }

@@ -36,13 +36,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     public function testAddBroker()
     {
         self::assertSame($this->kcb, $this->kcb->addBroker('localhost'));
-
-        $property = new \ReflectionProperty($this->kcb, 'brokers');
-        $property->setAccessible(true);
-
-        $brokers = $property->getValue($this->kcb);
-
-        self::assertEquals(['localhost'], $brokers);
+        self::assertAttributeEquals(['localhost'], 'brokers', $this->kcb);
     }
 
     public function testSubscribeToTopic()
@@ -50,13 +44,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $topicSubscription = new TopicSubscription('testTopic');
 
         self::assertSame($this->kcb, $this->kcb->addSubscription($topicSubscription));
-
-        $property = new \ReflectionProperty($this->kcb, 'topics');
-        $property->setAccessible(true);
-
-        $topics = $property->getValue($this->kcb);
-
-        self::assertEquals([$topicSubscription], $topics);
+        self::assertAttributeEquals([$topicSubscription], 'topics', $this->kcb);
     }
 
     public function testSetTimeout()
@@ -64,13 +52,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $timeout = 42;
 
         self::assertSame($this->kcb, $this->kcb->setTimeout($timeout));
-
-        $property = new \ReflectionProperty($this->kcb, 'timeout');
-        $property->setAccessible(true);
-
-        $storedTimeout = $property->getValue($this->kcb);
-
-        self::assertEquals($timeout, $storedTimeout);
+        self::assertAttributeEquals($timeout, 'timeout', $this->kcb);
     }
 
     public function testSetConfig()
@@ -81,24 +63,14 @@ final class KafkaConsumerBuilderTest extends TestCase
             ]
         );
 
-        $property = new \ReflectionProperty($this->kcb, 'config');
-        $property->setAccessible(true);
-
-        $config = $property->getValue($this->kcb);
-
-        self::assertEquals(['timeout' => 100], $config);
+        self::assertAttributeEquals(['timeout' => 100], 'config', $this->kcb);
     }
 
     public function testSetConsumerGroup()
     {
         $this->kcb->setConsumerGroup('funGroup');
 
-        $property = new \ReflectionProperty($this->kcb, 'consumerGroup');
-        $property->setAccessible(true);
-
-        $consumerGroup = $property->getValue($this->kcb);
-
-        self::assertEquals('funGroup', $consumerGroup);
+        self::assertAttributeEquals('funGroup', 'consumerGroup', $this->kcb);
     }
 
     public function testSetErrorCallback()

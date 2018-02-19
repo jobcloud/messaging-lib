@@ -20,5 +20,5 @@ interface TopicSubscriptionInterface
     /**
      * @return integer
      */
-    public function getOffset(): int;
+    public function getDefaultOffset(): int;
 }
