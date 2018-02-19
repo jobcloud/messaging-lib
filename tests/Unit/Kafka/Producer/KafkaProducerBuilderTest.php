@@ -17,44 +17,31 @@ class KafkaProducerBuilderTest extends TestCase
 {
 
     /**
-     * @var $kpb KafkaProducerBuilder
+     * @var $kafkaProducerBuilder KafkaProducerBuilder
      */
-    protected $kpb;
+    protected $kafkaProducerBuilder;
 
     public function setUp()
     {
-        $this->kpb = KafkaProducerBuilder::create();
-    }
-
-    public function testGetConfig()
-    {
-        self::assertInternalType('array', $this->kpb->getConfig());
-    }
-
-    public function testGetBrokers()
-    {
-        self::assertInternalType('array', $this->kpb->getBrokers());
+        $this->kafkaProducerBuilder = KafkaProducerBuilder::create();
     }
 
     public function testSetConfig()
     {
-        $this->kpb->setConfig(
+        $this->kafkaProducerBuilder->setConfig(
             [
                 'timeout' => 100
             ]
         );
 
-        $config = $this->kpb->getConfig();
-
-        self::assertEquals(['timeout' => 100], $config);
+        self::assertAttributeEquals(['timeout' => 100], 'config', $this->kafkaProducerBuilder);
     }
 
     public function testAddBroker()
     {
-        $this->kpb->addBroker('localhost');
-        $brokers = $this->kpb->getBrokers();
+        $this->kafkaProducerBuilder->addBroker('localhost');
 
-        self::assertEquals(['localhost'], $brokers);
+        self::assertAttributeEquals(['localhost'], 'brokers', $this->kafkaProducerBuilder);
     }
 
     public function testSetDeliveryReportCallback()
@@ -63,9 +50,9 @@ class KafkaProducerBuilderTest extends TestCase
             echo 'foo';
         };
 
-        $this->kpb->setDeliveryReportCallback($callback);
+        $this->kafkaProducerBuilder->setDeliveryReportCallback($callback);
 
-        self::assertAttributeEquals($callback, 'deliverReportCallback', $this->kpb);
+        self::assertAttributeEquals($callback, 'deliverReportCallback', $this->kafkaProducerBuilder);
     }
 
     public function testSetErrorCallback()
@@ -74,9 +61,18 @@ class KafkaProducerBuilderTest extends TestCase
             echo 'foo';
         };
 
-        $this->kpb->setErrorCallback($callback);
+        $this->kafkaProducerBuilder->setErrorCallback($callback);
 
-        self::assertAttributeEquals($callback, 'errorCallback', $this->kpb);
+        self::assertAttributeEquals($callback, 'errorCallback', $this->kafkaProducerBuilder);
+    }
+
+    public function testSetPollTimeout()
+    {
+        $pollTimeout = 42;
+
+        $this->kafkaProducerBuilder->setPollTimeout($pollTimeout);
+
+        self::assertAttributeEquals($pollTimeout, 'pollTimeout', $this->kafkaProducerBuilder);
     }
 
     public function testBuildNoBroker()

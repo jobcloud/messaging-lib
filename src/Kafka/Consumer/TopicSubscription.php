@@ -24,16 +24,16 @@ class TopicSubscription implements TopicSubscriptionInterface
     /**
      * @var int
      */
-    private $offset;
+    private $defaultOffset;
 
     /**
      * @param string  $topicName
-     * @param integer $offset
+     * @param integer $defaultOffset
      */
-    public function __construct(string $topicName, int $offset = RD_KAFKA_OFFSET_STORED)
+    public function __construct(string $topicName, int $defaultOffset = RD_KAFKA_OFFSET_STORED)
     {
         $this->topicName  = $topicName;
-        $this->offset = $offset;
+        $this->defaultOffset = $defaultOffset;
     }
 
     /**
@@ -51,7 +51,7 @@ class TopicSubscription implements TopicSubscriptionInterface
      */
     public function addPartition(int $partitionId, int $offset = null): self
     {
-        $this->partitions[$partitionId] = $offset !== null ? $offset : $this->offset;
+        $this->partitions[$partitionId] = $offset !== null ? $offset : $this->defaultOffset;
 
         return $this;
     }
@@ -67,8 +67,8 @@ class TopicSubscription implements TopicSubscriptionInterface
     /**
      * @return integer
      */
-    public function getOffset(): int
+    public function getDefaultOffset(): int
     {
-        return $this->offset;
+        return $this->defaultOffset;
     }
 }

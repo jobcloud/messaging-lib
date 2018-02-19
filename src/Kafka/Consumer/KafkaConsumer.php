@@ -135,7 +135,7 @@ final class KafkaConsumer implements ConsumerInterface
                         foreach ($topicMetadata->getPartitions() as $partition) {
                             $topicSubscription->addPartition(
                                 $partition->getId(),
-                                $topicSubscription->getOffset()
+                                $topicSubscription->getDefaultOffset()
                             );
                         }
                     }

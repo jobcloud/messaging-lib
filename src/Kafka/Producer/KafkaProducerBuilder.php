@@ -36,9 +36,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $errorCallback;
 
     /**
-     * @var null|int
+     * @var int
      */
-    private $pollTimeout = null;
+    private $pollTimeout = 0;
 
     /**
      * KafkaProducerBuilder constructor.
@@ -102,9 +102,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * @param int|null $pollTimeout
+     * @param int $pollTimeout
      */
-    public function setPollTimeout(?int $pollTimeout): void
+    public function setPollTimeout(int $pollTimeout): void
     {
         $this->pollTimeout = $pollTimeout;
     }

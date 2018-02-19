@@ -22,7 +22,7 @@ abstract class AbstractKafkaProducer implements ProducerInterface
     protected $producerTopics = [];
 
     /**
-     * @var null|int
+     * @var int
      */
     protected $pollTimeout;
 
@@ -30,9 +30,9 @@ abstract class AbstractKafkaProducer implements ProducerInterface
      * AbstractKafkaProducer constructor.
      * @param RdKafkaProducer $producer
      * @param array           $brokerList
-     * @param int|null        $pollTimeout
+     * @param int             $pollTimeout
      */
-    public function __construct(RdKafkaProducer $producer, array $brokerList, ?int $pollTimeout)
+    public function __construct(RdKafkaProducer $producer, array $brokerList, int $pollTimeout)
     {
         $this->producer = $producer;
         $this->producer->addBrokers(implode(',', $brokerList));
