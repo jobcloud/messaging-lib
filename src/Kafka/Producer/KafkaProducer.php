@@ -18,5 +18,9 @@ final class KafkaProducer extends AbstractKafkaProducer
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
         $topicProducer->produce($partition, 0, $message);
+
+        if (null !== $this->pollTimeout) {
+            $this->producer->poll($this->pollTimeout);
+        }
     }
 }

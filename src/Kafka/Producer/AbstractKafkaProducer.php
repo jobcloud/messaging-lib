@@ -8,7 +8,7 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
-abstract class AbstractKafkaProducer implements KafkaProducerInterface
+abstract class AbstractKafkaProducer implements ProducerInterface
 {
 
     /**
@@ -22,14 +22,21 @@ abstract class AbstractKafkaProducer implements KafkaProducerInterface
     protected $producerTopics = [];
 
     /**
+     * @var null|int
+     */
+    protected $pollTimeout;
+
+    /**
      * AbstractKafkaProducer constructor.
      * @param RdKafkaProducer $producer
      * @param array           $brokerList
+     * @param int|null        $pollTimeout
      */
-    public function __construct(RdKafkaProducer $producer, array $brokerList)
+    public function __construct(RdKafkaProducer $producer, array $brokerList, ?int $pollTimeout)
     {
         $this->producer = $producer;
         $this->producer->addBrokers(implode(',', $brokerList));
+        $this->pollTimeout = $pollTimeout;
     }
 
     /**
@@ -43,15 +50,5 @@ abstract class AbstractKafkaProducer implements KafkaProducerInterface
         }
 
         return $this->producerTopics[$topic];
-    }
-
-
-    /**
-     * @param integer $timeout
-     * @return void
-     */
-    public function poll(int $timeout)
-    {
-        $this->producer->poll($timeout);
     }
 }
