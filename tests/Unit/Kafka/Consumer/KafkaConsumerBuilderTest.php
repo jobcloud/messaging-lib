@@ -52,7 +52,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $timeout = 42;
 
         self::assertSame($this->kcb, $this->kcb->setTimeout($timeout));
-        self::assertEquals($timeout, 'timeout', $this->kcb);
+        self::assertAttributeEquals($timeout, 'timeout', $this->kcb);
     }
 
     public function testSetConfig()
@@ -63,14 +63,14 @@ final class KafkaConsumerBuilderTest extends TestCase
             ]
         );
 
-        self::assertEquals(['timeout' => 100], 'config', $this->kcb);
+        self::assertAttributeEquals(['timeout' => 100], 'config', $this->kcb);
     }
 
     public function testSetConsumerGroup()
     {
         $this->kcb->setConsumerGroup('funGroup');
 
-        self::assertEquals('funGroup', 'consumerGroup', $this->kcb);
+        self::assertAttributeEquals('funGroup', 'consumerGroup', $this->kcb);
     }
 
     public function testSetErrorCallback()
