@@ -15,7 +15,7 @@ $producer = KafkaProducerBuilder::create()
     ->addBroker('10.0.2.2')
     ->build();
 
-$producer->produce('hello world', 'testTopic', 1);
+$producer->produce('hello world', 'testTopic');
 ```
 
 ### Consumer
