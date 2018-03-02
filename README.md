@@ -25,18 +25,23 @@ $producer->produce('hello world', 'testTopic');
 ```php
 <?php
 
-use \Jobcloud\Messaging\Kafka\Producer\KafkaConsumerBuilder;
+use \Jobcloud\Messaging\Consumer\ConsumerException;
+use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use \Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
+
+$topic = new TopicSubscription('testTopic');
 
 $consumer = KafkaConsumerBuilder::create()
     ->addBroker('10.0.2.2')
     ->setConsumerGroup('testGroup')
-    ->subscribeToTopic('test')
+    ->setTimeout(120 * 10000)
+    ->addSubscription($topic)
     ->build();
 
 while (true) {
     try {
-        $message = $consumer->consume(120 * 10000);
-    } catch (ConsumerExcpetion $e) {
+        $message = $consumer->consume();
+    } catch (ConsumerException $e) {
         // Failed
     } 
 }
