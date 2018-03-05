@@ -12,4 +12,6 @@ interface ConsumerInterface
      * @throws ConsumerException
      */
     public function consume(): ?MessageInterface;
+
+    public function commit($messages);
 }
