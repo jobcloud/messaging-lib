@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use RdKafka\TopicConf;
+
 interface TopicSubscriptionInterface
 {
 
@@ -21,4 +23,9 @@ interface TopicSubscriptionInterface
      * @return integer
      */
     public function getDefaultOffset(): int;
+
+    /**
+     * @return TopicConf
+     */
+    public function getTopicConf(): TopicConf;
 }
