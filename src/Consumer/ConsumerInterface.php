@@ -12,4 +12,10 @@ interface ConsumerInterface
      * @throws ConsumerException
      */
     public function consume(): ?MessageInterface;
+
+    /**
+     * @param MessageInterface[]|MessageInterface $messages
+     * @return void
+     */
+    public function commit($messages): void;
 }

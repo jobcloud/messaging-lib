@@ -66,9 +66,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param string $broker
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function addBroker(string $broker): self
+    public function addBroker(string $broker): KafkaConsumerBuilderInterface
     {
         $this->brokers[] = $broker;
 
@@ -77,9 +77,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param TopicSubscriptionInterface $topicSubscription
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(TopicSubscriptionInterface $topicSubscription): self
+    public function addSubscription(TopicSubscriptionInterface $topicSubscription): KafkaConsumerBuilderInterface
     {
         $this->topics[] = $topicSubscription;
 
@@ -88,9 +88,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param array $config
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function setConfig(array $config): self
+    public function setConfig(array $config): KafkaConsumerBuilderInterface
     {
         $this->config += $config;
 
@@ -99,9 +99,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param integer $timeout
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function setTimeout(int $timeout): self
+    public function setTimeout(int $timeout): KafkaConsumerBuilderInterface
     {
         $this->timeout = $timeout;
 
@@ -110,9 +110,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param string $consumerGroup
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerGroup(string $consumerGroup): self
+    public function setConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
     {
         $this->consumerGroup = $consumerGroup;
 
@@ -121,9 +121,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param callable $errorCallback
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function setErrorCallback(callable $errorCallback): self
+    public function setErrorCallback(callable $errorCallback): KafkaConsumerBuilderInterface
     {
         $this->errorCallback = $errorCallback;
 
@@ -132,9 +132,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * @param callable $rebalanceCallback
-     * @return KafkaConsumerBuilder
+     * @return KafkaConsumerBuilderInterface
      */
-    public function setRebalanceCallback(callable $rebalanceCallback): self
+    public function setRebalanceCallback(callable $rebalanceCallback): KafkaConsumerBuilderInterface
     {
         $this->rebalanceCallback = $rebalanceCallback;
 
@@ -142,10 +142,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @return KafkaConsumer
+     * @return KafkaConsumerInterface
      * @throws KafkaConsumerBuilderException
      */
-    public function build(): KafkaConsumer
+    public function build(): KafkaConsumerInterface
     {
         if ([] === $this->brokers) {
             throw new KafkaConsumerBuilderException('No brokers to connect');

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -15,7 +14,7 @@ use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata;
 use RdKafka\Queue;
 
-final class KafkaConsumer implements ConsumerInterface
+final class KafkaConsumer implements KafkaConsumerInterface
 {
 
     const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
@@ -154,7 +153,7 @@ final class KafkaConsumer implements ConsumerInterface
     }
 
     /**
-     * @param Message[]|Message $messages
+     * @param MessageInterface[]|MessageInterface $messages
      * @return void
      * @throws KafkaConsumerCommitException
      */
