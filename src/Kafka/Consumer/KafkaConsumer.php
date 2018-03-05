@@ -13,6 +13,7 @@ use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata;
 use RdKafka\Queue;
+use RdKafka\TopicConf;
 
 final class KafkaConsumer implements KafkaConsumerInterface
 {
@@ -124,7 +125,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
                 $topicName = $topicSubscription->getTopicName();
 
                 if (false === isset($this->topics[$topicName])) {
-                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);
+                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName, $topicSubscription->getTopicConf());
 
                     // Convert simple TopicSubscription to TopicPartitionSubscription
                     if ([] === $topicSubscription->getPartitions()) {

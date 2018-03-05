@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use RdKafka\TopicConf;
+
 /**
  * This topic subscription needs an concrete subscription to (a subset of available) partitions by using
  * the @see self::addPartition method. Only the partitions explicitly added will be subscribed.
@@ -27,13 +29,21 @@ class TopicSubscription implements TopicSubscriptionInterface
     private $defaultOffset;
 
     /**
+     * @var TopicConf
+     */
+    private $topicConf;
+
+    /**
      * @param string  $topicName
      * @param integer $defaultOffset
      */
-    public function __construct(string $topicName, int $defaultOffset = RD_KAFKA_OFFSET_STORED)
+    public function __construct(string $topicName, int $defaultOffset = RD_KAFKA_OFFSET_STORED, string $offsetCommitInterval = '1000')
     {
         $this->topicName  = $topicName;
         $this->defaultOffset = $defaultOffset;
+        $this->topicConf = new TopicConf();
+        $this->topicConf->set('auto.commit.enable', 'false');
+        $this->topicConf->set('auto.commit.interval.ms', $offsetCommitInterval);
     }
 
     /**
@@ -70,5 +80,10 @@ class TopicSubscription implements TopicSubscriptionInterface
     public function getDefaultOffset(): int
     {
         return $this->defaultOffset;
+    }
+
+    public function getTopicConf(): TopicConf
+    {
+        return $this->topicConf;
     }
 }
