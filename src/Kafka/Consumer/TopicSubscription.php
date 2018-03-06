@@ -34,16 +34,21 @@ class TopicSubscription implements TopicSubscriptionInterface
     private $topicConf;
 
     /**
-     * @param string  $topicName
-     * @param integer $defaultOffset
+     * TopicSubscription constructor.
+     * @param string   $topicName
+     * @param interger $defaultOffset
+     * @param integer  $offsetCommitInterval
      */
-    public function __construct(string $topicName, int $defaultOffset = RD_KAFKA_OFFSET_STORED, string $offsetCommitInterval = '1000')
-    {
+    public function __construct(
+        string $topicName,
+        int $defaultOffset = RD_KAFKA_OFFSET_STORED,
+        int $offsetCommitInterval = 1000
+    ) {
         $this->topicName  = $topicName;
         $this->defaultOffset = $defaultOffset;
         $this->topicConf = new TopicConf();
         $this->topicConf->set('auto.commit.enable', 'false');
-        $this->topicConf->set('auto.commit.interval.ms', $offsetCommitInterval);
+        $this->topicConf->set('auto.commit.interval.ms', strval($offsetCommitInterval));
     }
 
     /**
