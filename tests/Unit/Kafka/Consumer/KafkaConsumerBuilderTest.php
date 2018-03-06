@@ -4,13 +4,10 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
-use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use PHPUnit\Framework\TestCase;
-use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
-use Jobcloud\Messaging\Kafka\Callback\KafkaConsumerRebalanceCallback;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
@@ -128,6 +125,6 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->setErrorCallback($callback)
             ->build();
 
-        self::assertInstanceOf(ConsumerInterface::class, $consumer);
+        self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
     }
 }

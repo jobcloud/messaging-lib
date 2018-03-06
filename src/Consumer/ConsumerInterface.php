@@ -13,5 +13,9 @@ interface ConsumerInterface
      */
     public function consume(): ?MessageInterface;
 
-    public function commit($messages);
+    /**
+     * @param MessageInterface[]|MessageInterface $messages
+     * @return void
+     */
+    public function commit($messages): void;
 }

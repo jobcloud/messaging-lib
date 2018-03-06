@@ -20,7 +20,7 @@ final class TopicSubscriptionTest extends TestCase
         $otherPartitionId = 2;
         $offset = 42;
         $defaultOffset = 1;
-        $offsetCommitInterval = '1100';
+        $offsetCommitInterval = 1100;
 
         $topicSubscription = new TopicSubscription($topicName, $defaultOffset, $offsetCommitInterval);
 
