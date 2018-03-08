@@ -14,30 +14,9 @@ use \InvalidArgumentException;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Producer\KafkaProducer
- * @covers \Jobcloud\Messaging\Kafka\Producer\AbstractKafkaProducer
  */
 class KafkaProducerTest extends TestCase
 {
-
-    public function testGetProducerTopicForTopic()
-    {
-        $producerTopicMock = $this->getMockBuilder(ProducerTopic::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $rdKafkaProducer = $this->getRdKafkaProducer();
-        $rdKafkaProducer
-            ->expects(self::once())
-            ->method('newTopic')
-            ->with('testTopic')
-            ->willReturn($producerTopicMock);
-
-        $producer = new KafkaProducer($rdKafkaProducer, ['localhost'], 0);
-
-        $producerTopic = $producer->getProducerTopicForTopic('testTopic');
-
-        self::assertSame($producerTopicMock, $producerTopic);
-    }
 
     public function testProduceError()
     {
@@ -78,6 +57,14 @@ class KafkaProducerTest extends TestCase
 
     public function testProduceSuccess()
     {
+        $expectedMessage1 = 'message1';
+        $expectedMessage2 = 'message2';
+        $expectedPartition1 = 1;
+        $expectedPartition2 = 2;
+        $expectedTopic = 'topic';
+        $expectedFlags = 0;
+        $expectedTimeout = 10;
+
         $producerTopicMock = $this
             ->getMockBuilder(RdKafkaProducerTopic::class)
             ->disableOriginalConstructor()
@@ -85,30 +72,63 @@ class KafkaProducerTest extends TestCase
             ->getMock();
 
         $producerTopicMock
-            ->expects(self::once())
+            ->expects(self::exactly(2))
             ->method('produce')
-            ->with(RD_KAFKA_PARTITION_UA, 0, 'test');
+            ->willReturnCallback(
+                function (
+                    $partition,
+                    $flags,
+                    $message
+                ) use (
+                    $expectedMessage1,
+                    $expectedMessage2,
+                    $expectedPartition1,
+                    $expectedPartition2,
+                    $expectedTopic,
+                    $expectedFlags
+                ) {
+                    self::assertEquals($expectedFlags, $flags);
+
+                    static $messageCount = 0;
+                    switch ($messageCount++) {
+                        case 0:
+                            self::assertEquals($expectedMessage1, $message);
+                            self::assertEquals($expectedPartition1, $partition);
+
+                            return;
+                        case 1:
+                            self::assertEquals($expectedMessage2, $message);
+                            self::assertEquals($expectedPartition2, $partition);
+
+                            return;
+                        default:
+                            self::assertFileEquals('nonExistingMessage', $message);
+                    }
+                }
+            );
 
         $producerMock = $this->getRdKafkaProducer();
 
         $producerMock
-            ->expects(self::any())
+            ->expects(self::once())
             ->method('newTopic')
+            ->with($expectedTopic)
             ->willReturn($producerTopicMock);
 
         $producerMock
-            ->expects(self::once())
+            ->expects(self::exactly(2))
             ->method('poll')
-            ->with(0);
+            ->with($expectedTimeout);
 
         $producerMock
-            ->expects(self::any())
+            ->expects(self::once())
             ->method('addBrokers')
             ->with('localhost');
 
-        $producer = new KafkaProducer($producerMock, ['localhost'], 0);
+        $producer = new KafkaProducer($producerMock, ['localhost'], $expectedTimeout);
 
-        $producer->produce('test', 'test');
+        $producer->produce($expectedMessage1, $expectedTopic, $expectedPartition1);
+        $producer->produce($expectedMessage2, $expectedTopic, $expectedPartition2);
     }
 
     /**

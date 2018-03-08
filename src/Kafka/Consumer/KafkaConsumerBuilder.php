@@ -170,8 +170,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //create RdConsumer
         $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
-        $rdKafkaConsumer->addBrokers(implode(',', $this->brokers));
 
-        return new KafkaConsumer($rdKafkaConsumer, $this->topics, $this->timeout);
+        return new KafkaConsumer($rdKafkaConsumer, $this->brokers, $this->topics, $this->timeout);
     }
 }
