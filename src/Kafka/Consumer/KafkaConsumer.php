@@ -53,14 +53,25 @@ final class KafkaConsumer implements KafkaConsumerInterface
     protected $queue;
 
     /**
-     * AbstractKafkaConsumer constructor.
-     * @param RdKafkaConsumer                    $consumer
-     * @param array|TopicSubscriptionInterface[] $topicSubscriptions
-     * @param integer                            $timeout
+     * @var array
      */
-    public function __construct(RdKafkaConsumer $consumer, array $topicSubscriptions, int $timeout)
+    protected $brokers;
+
+    /**
+     * @var boolean
+     */
+    protected $isConnected = false;
+
+    /**
+     * @param RdKafkaConsumer $consumer
+     * @param array           $brokers
+     * @param array           $topicSubscriptions
+     * @param integer         $timeout
+     */
+    public function __construct(RdKafkaConsumer $consumer, array $brokers, array $topicSubscriptions, int $timeout)
     {
         $this->consumer = $consumer;
+        $this->brokers = $brokers;
         $this->timeout = $timeout;
         $this->queue = $consumer->newQueue();
         $this->topicSubscriptions = $topicSubscriptions;
@@ -120,12 +131,17 @@ final class KafkaConsumer implements KafkaConsumerInterface
             return;
         }
 
+        $this->connectConsumerToBrokers();
+
         try {
             foreach ($this->topicSubscriptions as $index => $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
 
                 if (false === isset($this->topics[$topicName])) {
-                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName, $topicSubscription->getTopicConf());
+                    $this->topics[$topicName] = $topic = $this->consumer->newTopic(
+                        $topicName,
+                        $topicSubscription->getTopicConf()
+                    );
 
                     // Convert simple TopicSubscription to TopicPartitionSubscription
                     if ([] === $topicSubscription->getPartitions()) {
@@ -211,5 +227,18 @@ final class KafkaConsumer implements KafkaConsumerInterface
     private function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
     {
         return $this->consumer->getMetadata(false, $topic, $this->timeout)->getTopics()->current();
+    }
+
+    /**
+     * @return void
+     */
+    private function connectConsumerToBrokers(): void
+    {
+        if (true === $this->isConnected) {
+            return;
+        }
+
+        $this->consumer->addBrokers(implode(',', $this->brokers));
+        $this->isConnected = true;
     }
 }

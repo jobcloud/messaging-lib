@@ -28,6 +28,7 @@ final class KafkaConsumerTest extends TestCase
         $topicName = 'test';
         $timeout = 0;
         $partitions = [$this->getMetadataPartitionMock(1), $this->getMetadataPartitionMock(2)];
+        $expectedBrokers = ['broker'];
 
         /** @var RdKafkaMessage|MockObject $messageMock */
         $messageMock = $this->getMockBuilder(RdKafkaMessage::class)
@@ -50,8 +51,6 @@ final class KafkaConsumerTest extends TestCase
             ->method('consume')
             ->with($timeout)
             ->willReturn($messageMock);
-
-        $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
         $topicMock = $this->getMockBuilder(ConsumerTopic::class)
             ->disableOriginalConstructor()
@@ -91,6 +90,8 @@ final class KafkaConsumerTest extends TestCase
                 }
             );
 
+        $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
+
         $consumerMock
             ->expects(self::any())
             ->method('consume')
@@ -108,7 +109,12 @@ final class KafkaConsumerTest extends TestCase
             ->with($topicName)
             ->willReturn($topicMock);
 
-        $consumer = new KafkaConsumer($consumerMock, [new TopicSubscription($topicName)], $timeout);
+        $consumerMock
+            ->expects(self::once())
+            ->method('addBrokers')
+            ->with(implode(',', $expectedBrokers));
+
+        $consumer = new KafkaConsumer($consumerMock, $expectedBrokers, [new TopicSubscription($topicName)], $timeout);
 
         $consumer->subscribe();
 
@@ -143,7 +149,7 @@ final class KafkaConsumerTest extends TestCase
         $topicSubscription = new TopicSubscription('test');
         $topicSubscription->addPartition(1);
 
-        $consumer = new KafkaConsumer($consumerMock, [], $timeout);
+        $consumer = new KafkaConsumer($consumerMock, [], [], $timeout);
 
         $consumer->subscribe();
 
@@ -206,7 +212,7 @@ final class KafkaConsumerTest extends TestCase
         $topicSubscription = new TopicSubscription($topicName, $defaultOffset);
         $topicSubscription->addPartition($partitionId);
 
-        $consumer = new KafkaConsumer($consumerMock, [$topicSubscription], $timeout);
+        $consumer = new KafkaConsumer($consumerMock, [], [$topicSubscription], $timeout);
 
         $consumer->subscribe();
 
@@ -269,7 +275,7 @@ final class KafkaConsumerTest extends TestCase
         $topicSubscription = new TopicSubscription($topicName, $defaultOffset);
         $topicSubscription->addPartition($partitionId);
 
-        $consumer = new KafkaConsumer($consumerMock, [$topicSubscription], $timeout);
+        $consumer = new KafkaConsumer($consumerMock, [], [$topicSubscription], $timeout);
 
         $consumer->subscribe();
 
@@ -291,7 +297,7 @@ final class KafkaConsumerTest extends TestCase
 
         $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
-        $consumer = new KafkaConsumer($consumerMock, ['test'], 0);
+        $consumer = new KafkaConsumer($consumerMock, [], ['test'], 0);
 
         $consumer->consume();
     }
@@ -302,7 +308,7 @@ final class KafkaConsumerTest extends TestCase
 
         $consumerMock = $this->getRdKafkaConsumerMock($this->getRdKafkaQueue());
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         self::assertSame($topics, $consumer->getTopicSubscriptions());
     }
@@ -339,7 +345,7 @@ final class KafkaConsumerTest extends TestCase
             ->with($topicName)
             ->willReturn($topicMock);
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         $consumer->subscribe();
     }
@@ -363,7 +369,7 @@ final class KafkaConsumerTest extends TestCase
             ->expects(self::never())
             ->method('newTopic');
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         $subcribedProperty = new \ReflectionProperty(KafkaConsumer::class, 'subscribed');
         $subcribedProperty->setAccessible(true);
@@ -391,7 +397,7 @@ final class KafkaConsumerTest extends TestCase
             ->with($topicName)
             ->willThrowException(new RdKafkaException($exceptionMessage));
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         $consumer->subscribe($topicName);
 
@@ -436,7 +442,7 @@ final class KafkaConsumerTest extends TestCase
             ->with($topicName)
             ->willReturn($topicMock);
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         $consumer->subscribe();
 
@@ -455,7 +461,7 @@ final class KafkaConsumerTest extends TestCase
 
         $consumerMock = $this->getRdKafkaConsumerMock($this->getRdKafkaQueue());
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         self::assertFalse($consumer->isSubscribed());
     }
@@ -483,7 +489,7 @@ final class KafkaConsumerTest extends TestCase
             ->method('offsetStore')
             ->with($message->getPartition(), $message->getOffset());
 
-        $consumer = new KafkaConsumer($consumerMock, [], 0);
+        $consumer = new KafkaConsumer($consumerMock, [], [], 0);
 
         $topicProperty->setValue($consumer, [$topicName => $topicMock]);
 
@@ -515,7 +521,7 @@ final class KafkaConsumerTest extends TestCase
             ->expects(self::never())
             ->method('offsetStore');
 
-        $consumer = new KafkaConsumer($consumerMock, [], 0);
+        $consumer = new KafkaConsumer($consumerMock, [], [], 0);
 
         $topicProperty->setValue($consumer, [$topicName => $topicMock]);
 
@@ -546,7 +552,7 @@ final class KafkaConsumerTest extends TestCase
 
         $consumerMock = $this->getRdKafkaConsumerMock($queueMock);
 
-        $consumer = new KafkaConsumer($consumerMock, $topics, 0);
+        $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         self::assertFalse($consumer->isSubscribed());
 
@@ -574,7 +580,7 @@ final class KafkaConsumerTest extends TestCase
     {
         /** @var RdKafkaConsumer|MockObject $consumerMock */
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
-            ->setMethods(['consume', 'newQueue', 'newTopic', 'getMetadata'])
+            ->setMethods(['consume', 'newQueue', 'newTopic', 'getMetadata', 'addBrokers'])
             ->disableOriginalConstructor()
             ->getMock();
 
