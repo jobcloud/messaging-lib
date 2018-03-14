@@ -18,6 +18,10 @@ final class KafkaErrorCallback
      */
     public function __invoke($kafka, int $errorCode, string $reason)
     {
+        if (RD_KAFKA_RESP_ERR__TRANSPORT === $errorCode) {
+            return;
+        }
+
         throw new KafkaBrokerException(
             $reason,
             $errorCode
