@@ -2,7 +2,6 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Callback;
 
-
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
@@ -41,7 +40,7 @@ class KafkaErrorCallbackTest extends TestCase
         call_user_func($callback, $consumerMock, 1, 'error');
     }
 
-    public function testInvokeWithAcceptableError ()
+    public function testInvokeWithAcceptableError()
     {
         $consumerMock = $this->getConsumerMock();
 

@@ -13,7 +13,6 @@ use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata;
 use RdKafka\Queue;
-use RdKafka\TopicConf;
 
 final class KafkaConsumer implements KafkaConsumerInterface
 {
@@ -134,7 +133,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
         $this->connectConsumerToBrokers();
 
         try {
-            foreach ($this->topicSubscriptions as $index => $topicSubscription) {
+            foreach ($this->topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
 
                 if (false === isset($this->topics[$topicName])) {

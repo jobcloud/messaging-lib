@@ -34,10 +34,9 @@ class TopicSubscription implements TopicSubscriptionInterface
     private $topicConf;
 
     /**
-     * TopicSubscription constructor.
-     * @param string   $topicName
-     * @param interger $defaultOffset
-     * @param integer  $offsetCommitInterval
+     * @param string  $topicName
+     * @param integer $defaultOffset
+     * @param integer $offsetCommitInterval
      */
     public function __construct(
         string $topicName,
@@ -87,6 +86,9 @@ class TopicSubscription implements TopicSubscriptionInterface
         return $this->defaultOffset;
     }
 
+    /**
+     * @return TopicConf
+     */
     public function getTopicConf(): TopicConf
     {
         return $this->topicConf;

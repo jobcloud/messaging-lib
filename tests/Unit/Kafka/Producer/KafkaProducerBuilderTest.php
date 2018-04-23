@@ -2,10 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
-use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
-use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use PHPUnit\Framework\TestCase;

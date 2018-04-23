@@ -102,7 +102,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * @param int $pollTimeout
+     * @param integer $pollTimeout
+     * @return void
      */
     public function setPollTimeout(int $pollTimeout): void
     {
