@@ -8,9 +8,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Producer as RdKafkaProducer;
 use PHPUnit\Framework\TestCase;
-use RdKafka\ProducerTopic;
-use RdKafka\Conf;
-use \InvalidArgumentException;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Producer\KafkaProducer

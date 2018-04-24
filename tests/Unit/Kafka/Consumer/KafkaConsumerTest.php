@@ -400,8 +400,6 @@ final class KafkaConsumerTest extends TestCase
         $consumer = new KafkaConsumer($consumerMock, [], $topics, 0);
 
         $consumer->subscribe($topicName);
-
-        return $consumerMock;
     }
 
     public function testSubscribeUseExistingTopicsForResubscribe()
