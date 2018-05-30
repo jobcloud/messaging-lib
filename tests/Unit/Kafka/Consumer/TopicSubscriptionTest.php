@@ -20,9 +20,8 @@ final class TopicSubscriptionTest extends TestCase
         $otherPartitionId = 2;
         $offset = 42;
         $defaultOffset = 1;
-        $offsetCommitInterval = 1100;
 
-        $topicSubscription = new TopicSubscription($topicName, $defaultOffset, $offsetCommitInterval);
+        $topicSubscription = new TopicSubscription($topicName, $defaultOffset);
 
         self::assertSame($topicSubscription, $topicSubscription->addPartition($partitionId, $offset));
         self::assertSame($topicSubscription, $topicSubscription->addPartition($otherPartitionId));
@@ -39,8 +38,7 @@ final class TopicSubscriptionTest extends TestCase
         $config = $topicConf->dump();
         self::assertArraySubset(
             [
-                'auto.commit.enable' => 'false',
-                'auto.commit.interval.ms' => '1100'
+                'auto.commit.enable' => 'false'
             ],
             $config
         );
