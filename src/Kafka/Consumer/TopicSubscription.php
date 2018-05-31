@@ -41,7 +41,6 @@ class TopicSubscription implements TopicSubscriptionInterface
         $this->topicName  = $topicName;
         $this->defaultOffset = $defaultOffset;
         $this->topicConf = new TopicConf();
-        $this->topicConf->set('auto.commit.enable', 'false');
     }
 
     /**
