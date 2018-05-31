@@ -157,6 +157,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
+        $this->config['enable.auto.offset.store'] = false;
 
         //create config from given settings
         $kafkaConfig = $this->createKafkaConfig($this->config);
