@@ -38,7 +38,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * @var int
      */
-    private $pollTimeout = 0;
+    private $pollTimeout = 1;
 
     /**
      * KafkaProducerBuilder constructor.

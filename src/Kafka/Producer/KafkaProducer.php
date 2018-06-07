@@ -63,7 +63,9 @@ final class KafkaProducer implements ProducerInterface
 
         $topicProducer->produce($partition, 0, $message);
 
-        $this->producer->poll($this->pollTimeout);
+        while ($this->producer->getOutQLen() > 0) {
+            $this->producer->poll($this->pollTimeout);
+        }
     }
 
     /**
