@@ -120,6 +120,15 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
             throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
+        //Thread termination improvement (https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings)
+        $this->config['socket.blocking.max.ms'] = 50;
+        if (function_exists('pcntl_sigprocmask')) {
+            pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
+            $this->config['internal.termination.signal'] = SIGIO;
+        } else {
+            $this->config['queue.buffering.max.ms'] = 1;
+        }
+
         $kafkaConfig = $this->createKafkaConfig($this->config);
 
         $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
