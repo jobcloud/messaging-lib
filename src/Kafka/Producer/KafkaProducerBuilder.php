@@ -122,9 +122,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         //Thread termination improvement (https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings)
         $this->config['socket.blocking.max.ms'] = 50;
-        //Increase default of 900k to 3MB
-        $this->config['message.max.bytes'] = 3145728;
-
         if (function_exists('pcntl_sigprocmask')) {
             pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
             $this->config['internal.termination.signal'] = SIGIO;
