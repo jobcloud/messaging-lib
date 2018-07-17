@@ -107,6 +107,22 @@ class KafkaProducerTest extends TestCase
         $producerMock = $this->getRdKafkaProducer();
 
         $producerMock
+            ->expects(self::exactly(4))
+            ->method('getOutQLen')
+            ->willReturnCallback(
+              function () {
+                  static $messageCount = 0;
+                  switch ($messageCount++) {
+                      case 0:
+                      case 1:
+                          return 1;
+                      default:
+                          return 0;
+                  }
+              }
+            );
+
+        $producerMock
             ->expects(self::once())
             ->method('newTopic')
             ->with($expectedTopic)
@@ -134,7 +150,7 @@ class KafkaProducerTest extends TestCase
     private function getRdKafkaProducer(): RdKafkaProducer
     {
         $producerMock = $this->getMockBuilder(RdKafkaProducer::class)
-            ->setMethods(['newTopic', 'addBrokers', 'poll'])
+            ->setMethods(['newTopic', 'addBrokers', 'poll', 'getOutQLen'])
             ->disableOriginalConstructor()
             ->getMock();
 
