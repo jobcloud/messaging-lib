@@ -21,15 +21,16 @@ final class ProducerPool implements ProducerInterface
     }
 
     /**
-     * @param string  $message
-     * @param string  $topic
-     * @param integer $partition
+     * @param string      $message
+     * @param string      $topic
+     * @param integer     $partition
+     * @param string|null $key
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA)
+    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA, string $key = null)
     {
         foreach ($this->producers as $producer) {
-            $producer->produce($message, $topic, $partition);
+            $producer->produce($message, $topic, $partition, $key);
         }
     }
 

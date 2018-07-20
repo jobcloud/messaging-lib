@@ -8,10 +8,11 @@ interface ProducerInterface
 {
 
     /**
-     * @param string  $message
-     * @param string  $topic
-     * @param integer $partition
+     * @param string      $message
+     * @param string      $topic
+     * @param integer     $partition
+     * @param string|null $key
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition);
+    public function produce(string $message, string $topic, int $partition, string $key = null);
 }
