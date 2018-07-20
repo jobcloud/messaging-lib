@@ -35,4 +35,28 @@ final class TopicSubscriptionTest extends TestCase
         self::assertEquals($defaultOffset, $topicSubscription->getDefaultOffset());
         self::assertInstanceOf(TopicConf::class, $topicSubscription->getTopicConf());
     }
+
+    public function testDefaultSettings()
+    {
+        $topicSubscription = new TopicSubscription('test');
+
+        self::assertAttributeEquals(['auto.offset.reset' => 'smallest'],'topicSettings', $topicSubscription);
+    }
+
+    public function testOverrideSettings()
+    {
+        $topicSubscription = new TopicSubscription('test', RD_KAFKA_OFFSET_STORED, ['auto.offset.reset' => 'latest']);
+
+        self::assertAttributeEquals(['auto.offset.reset' => 'latest'],'topicSettings', $topicSubscription);
+    }
+
+    public function testAppendSettings()
+    {
+        $topicSubscription = new TopicSubscription('test', RD_KAFKA_OFFSET_STORED, ['request.required.acks' => '1']);
+
+        self::assertAttributeEquals(
+            ['auto.offset.reset' => 'smallest', 'request.required.acks' => '1'],
+            'topicSettings',
+            $topicSubscription);
+    }
 }
