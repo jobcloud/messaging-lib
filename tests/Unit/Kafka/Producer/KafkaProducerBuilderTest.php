@@ -92,4 +92,24 @@ class KafkaProducerBuilderTest extends TestCase
 
         self::assertInstanceOf(ProducerInterface::class, $producer);
     }
+
+    public function testKafkaProducerBuilderConfig()
+    {
+        $callback = function ($kafka, $errId, $msg) {
+            //do nothing
+        };
+
+        $producerBuilder = KafkaProducerBuilder::create();
+
+        $producerBuilder->addBroker('localhost')->setDeliveryReportCallback($callback)->build();
+
+        self::assertAttributeEquals(
+            [
+                'socket.blocking.max.ms' => 50,
+                'internal.termination.signal' => SIGIO
+            ],
+            'config',
+            $producerBuilder
+        );
+    }
 }

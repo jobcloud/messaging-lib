@@ -56,6 +56,7 @@ class KafkaProducerTest extends TestCase
     {
         $expectedMessage1 = 'message1';
         $expectedMessage2 = 'message2';
+        $expectedKey2 = 'foopass';
         $expectedPartition1 = 1;
         $expectedPartition2 = 2;
         $expectedTopic = 'topic';
@@ -75,10 +76,12 @@ class KafkaProducerTest extends TestCase
                 function (
                     $partition,
                     $flags,
-                    $message
+                    $message,
+                    $key
                 ) use (
                     $expectedMessage1,
                     $expectedMessage2,
+                    $expectedKey2,
                     $expectedPartition1,
                     $expectedPartition2,
                     $expectedTopic,
@@ -91,11 +94,13 @@ class KafkaProducerTest extends TestCase
                         case 0:
                             self::assertEquals($expectedMessage1, $message);
                             self::assertEquals($expectedPartition1, $partition);
+                            self::assertNull($key);
 
                             return;
                         case 1:
                             self::assertEquals($expectedMessage2, $message);
                             self::assertEquals($expectedPartition2, $partition);
+                            self::assertEquals($expectedKey2, $key);
 
                             return;
                         default:
@@ -141,7 +146,7 @@ class KafkaProducerTest extends TestCase
         $producer = new KafkaProducer($producerMock, ['localhost'], $expectedTimeout);
 
         $producer->produce($expectedMessage1, $expectedTopic, $expectedPartition1);
-        $producer->produce($expectedMessage2, $expectedTopic, $expectedPartition2);
+        $producer->produce($expectedMessage2, $expectedTopic, $expectedPartition2, $expectedKey2);
     }
 
     /**

@@ -36,17 +36,21 @@ class TopicSubscription implements TopicSubscriptionInterface
     private $topicSettings = ['auto.offset.reset' => 'smallest'];
 
     /**
-     * @param string $topicName
-     * @param int    $defaultOffset
-     * @param array  $topicSettings
+     * @param string  $topicName
+     * @param integer $defaultOffset
+     * @param array   $topicSettings
      */
-    public function __construct(string $topicName, int $defaultOffset = RD_KAFKA_OFFSET_STORED, array $topicSettings = []) {
+    public function __construct(
+        string $topicName,
+        int $defaultOffset = RD_KAFKA_OFFSET_STORED,
+        array $topicSettings = []
+    ) {
         $this->topicSettings = $topicSettings + $this->topicSettings;
         $this->topicName  = $topicName;
         $this->defaultOffset = $defaultOffset;
         $this->topicConf = new TopicConf();
 
-        foreach($this->topicSettings as $settingName => $value) {
+        foreach ($this->topicSettings as $settingName => $value) {
             $this->topicConf->set($settingName, $value);
         }
     }
