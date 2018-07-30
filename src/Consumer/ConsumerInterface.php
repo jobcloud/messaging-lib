@@ -8,10 +8,10 @@ interface ConsumerInterface
 {
     /**
      * Consumes a message and returns it
-     * @return MessageInterface|null The consumed message or null of there isn't any
-     * @throws ConsumerException
+     * @return MessageInterface The consumed message
+     * @throws ConsumerException If no more messages or an error occurs
      */
-    public function consume(): ?MessageInterface;
+    public function consume(): MessageInterface;
 
     /**
      * @param MessageInterface[]|MessageInterface $messages

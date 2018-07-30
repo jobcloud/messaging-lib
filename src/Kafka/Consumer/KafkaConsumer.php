@@ -77,10 +77,10 @@ final class KafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @return MessageInterface|null
+     * @return MessageInterface
      * @throws KafkaConsumerConsumeException
      */
-    public function consume(): ?MessageInterface
+    public function consume(): MessageInterface
     {
         if (false === $this->subscribed) {
             throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
