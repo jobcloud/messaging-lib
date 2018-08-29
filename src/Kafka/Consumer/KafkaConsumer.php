@@ -223,7 +223,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
      * @return Metadata\Topic
      * @throws RdKafkaException
      */
-    private function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
+    public function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
     {
         return $this->consumer->getMetadata(false, $topic, $this->timeout)->getTopics()->current();
     }
