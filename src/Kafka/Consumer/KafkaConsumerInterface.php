@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
+use Jobcloud\Messaging\Consumer\MessageInterface;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {
@@ -24,4 +25,14 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return boolean
      */
     public function isSubscribed(): bool;
+
+    /**
+     * @return MessageInterface
+     */
+    public function consume(): MessageInterface;
+
+    /**
+     * @return array
+     */
+    public function getTopicSubscriptions(): array;
 }
