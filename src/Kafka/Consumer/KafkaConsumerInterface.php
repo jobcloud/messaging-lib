@@ -32,7 +32,7 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function consume(): MessageInterface;
 
     /**
-     * @return array
+     * @return array|TopicSubscriptionInterface[]
      */
     public function getTopicSubscriptions(): array;
 }
