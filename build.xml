@@ -112,6 +112,19 @@
         <echo>${report-gitblame}</echo>
     </target>
 
+    <target name="analyse">
+        <echo>+------------------+</echo>
+        <echo>|      PHPSTAN:    |</echo>
+        <echo>+------------------+</echo>
+        <exec executable="./vendor/bin/phpstan" failonerror="false">
+            <arg value="analyse"/>
+            <arg value="src"/>
+            <arg value="--no-progress"/>
+            <arg value="--level"/>
+            <arg value="5"/>
+        </exec>
+    </target>
+
     <target name="phpunit-dev" depends="phpunit">
         <property name="pdev-in" value="${basedir}/build/logs/coverage/index.html"/>
         <property name="pdev-out" value="${basedir}/build/logs/coverage/dev-perc.txt"/>
