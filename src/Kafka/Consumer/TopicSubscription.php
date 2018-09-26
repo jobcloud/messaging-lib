@@ -10,7 +10,7 @@ use RdKafka\TopicConf;
  * This topic subscription needs an concrete subscription to (a subset of available) partitions by using
  * the @see self::addPartition method. Only the partitions explicitly added will be subscribed.
  */
-class TopicSubscription implements TopicSubscriptionInterface
+final class TopicSubscription implements TopicSubscriptionInterface
 {
 
     /**
