@@ -1,5 +1,17 @@
 # messaging-lib
 
+## Description
+Generic php messaging library
+Supports:
+- Kafka
+
+## Requirements
+- php: ^7.1
+- ext-rdkafka: ^3.0.5
+
+## Installation
+```composer require jobcloud/messaging-lib "~1.0"```
+
 ## Usage
 
 ### Producer
