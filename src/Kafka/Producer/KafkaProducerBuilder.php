@@ -50,7 +50,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * @return KafkaProducerBuilder
+     * @return KafkaProducerBuilderInterface
      */
     public static function create(): KafkaProducerBuilderInterface
     {
@@ -59,7 +59,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @param string $broker
-     * @return KafkaProducerBuilder
+     * @return KafkaProducerBuilderInterface
      */
     public function addBroker(string $broker): KafkaProducerBuilderInterface
     {
@@ -70,7 +70,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @param array $config
-     * @return KafkaProducerBuilder
+     * @return KafkaProducerBuilderInterface
      */
     public function setConfig(array $config): KafkaProducerBuilderInterface
     {
@@ -81,7 +81,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @param callable $deliveryReportCallback
-     * @return KafkaProducerBuilder
+     * @return KafkaProducerBuilderInterface
      */
     public function setDeliveryReportCallback(callable $deliveryReportCallback): KafkaProducerBuilderInterface
     {
@@ -92,7 +92,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @param callable $errorCallback
-     * @return KafkaProducerBuilder
+     * @return KafkaProducerBuilderInterface
      */
     public function setErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
     {
@@ -103,11 +103,13 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * @param integer $pollTimeout
-     * @return void
+     * @return KafkaProducerBuilderInterface
      */
-    public function setPollTimeout(int $pollTimeout): void
+    public function setPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface
     {
         $this->pollTimeout = $pollTimeout;
+
+        return $this;
     }
 
     /**

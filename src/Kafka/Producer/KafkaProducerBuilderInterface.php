@@ -44,7 +44,8 @@ interface KafkaProducerBuilderInterface
 
     /**
      * @param int $pollTimeout
+     * @return KafkaProducerBuilderInterface
      */
-    public function setPollTimeout(int $pollTimeout): void;
+    public function setPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface;
 
 }
