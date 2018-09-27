@@ -52,7 +52,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * @return KafkaProducerBuilder
      */
-    public static function create(): self
+    public static function create(): KafkaProducerBuilderInterface
     {
         return new self();
     }
@@ -61,7 +61,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param string $broker
      * @return KafkaProducerBuilder
      */
-    public function addBroker(string $broker): self
+    public function addBroker(string $broker): KafkaProducerBuilderInterface
     {
         $this->brokers[] = $broker;
 
@@ -72,7 +72,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param array $config
      * @return KafkaProducerBuilder
      */
-    public function setConfig(array $config): self
+    public function setConfig(array $config): KafkaProducerBuilderInterface
     {
         $this->config += $config;
 
@@ -83,7 +83,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilder
      */
-    public function setDeliveryReportCallback(callable $deliveryReportCallback): self
+    public function setDeliveryReportCallback(callable $deliveryReportCallback): KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = $deliveryReportCallback;
 
@@ -94,7 +94,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param callable $errorCallback
      * @return KafkaProducerBuilder
      */
-    public function setErrorCallback(callable $errorCallback): self
+    public function setErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
     {
         $this->errorCallback = $errorCallback;
 
