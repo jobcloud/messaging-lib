@@ -10,6 +10,13 @@ interface TopicSubscriptionInterface
 {
 
     /**
+     * @param int $partitionId
+     * @param int|null $offset
+     * @return TopicSubscriptionInterface
+     */
+    public function addPartition(int $partitionId, int $offset = null): self;
+
+    /**
      * @return string
      */
     public function getTopicName(): string;

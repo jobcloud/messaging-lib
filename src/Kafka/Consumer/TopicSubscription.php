@@ -68,7 +68,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
      * @param integer $offset
      * @return self
      */
-    public function addPartition(int $partitionId, int $offset = null): self
+    public function addPartition(int $partitionId, int $offset = null): TopicSubscriptionInterface
     {
         $this->partitions[$partitionId] = $offset !== null ? $offset : $this->defaultOffset;
 
