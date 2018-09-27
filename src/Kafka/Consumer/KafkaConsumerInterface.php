@@ -35,4 +35,9 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return array|TopicSubscriptionInterface[]
      */
     public function getTopicSubscriptions(): array;
+
+    /**
+     * @param MessageInterface|MessageInterface[] $messages
+     */
+    public function commit($messages): void;
 }
