@@ -1,5 +1,7 @@
 # messaging-lib
 
+SemaphoreCI master: [![Build Status](https://semaphoreci.com/api/v1/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8/branches/master/badge.svg)](https://semaphoreci.com/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8)
+
 ## Description
 Generic php messaging library
 Supports:
