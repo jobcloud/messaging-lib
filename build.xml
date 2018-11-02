@@ -3,16 +3,16 @@
     <import file="php-module-targets.xml"/>
     <property name="php-version" value="7.1" />
     <target name="build"
-            depends="disable-xdebug,prepare,lint,phpcs-ci,enable-xdebug,phpunit,disable-xdebug,phpunit-integration,enable-xdebug"/>
+            depends="prepare,lint,phpcs-ci,phpunit,phpunit-integration"/>
 
     <target name="dev"
-            depends="disable-xdebug,phpunit,phpunit-integration,dev-style,enable-xdebug"/>
+            depends="phpunit,phpunit-integration,dev-style"/>
 
     <target name="dev-cov"
-            depends="enable-xdebug,phpunit-dev,disable-xdebug,dev-style,enable-xdebug"/>
+            depends="phpunit-dev,dev-style"/>
 
     <target name="dev-clean"
-            depends="disable-xdebug,prepare,phpunit,dev-style,enable-xdebug"/>
+            depends="prepare,phpunit,dev-style"/>
 
     <target name="clean" description="Cleanup build artifacts">
         <delete dir="${basedir}/build"/>
@@ -74,14 +74,6 @@
             <arg path="${basedir}/phpunit.xml.dist"/>
             <arg value="--testsuite=Integration"/>
         </exec>
-    </target>
-
-    <target name="enable-xdebug" description="Enables Xdebug for CLI and FPM" depends="enable-xdebug-cli,enable-xdebug-fpm">
-        <echo>enabled xdebug</echo>
-    </target>
-
-    <target name="disable-xdebug" description="Disables Xdebug for CLI and FPM" depends="disable-xdebug-cli,disable-xdebug-fpm">
-        <echo>disabled xdebug</echo>
     </target>
 
     <target name="calc-style-violations">
