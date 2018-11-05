@@ -81,7 +81,7 @@
             <arg value="--extensions=php"/>
             <arg value="--report-full=${basedir}/build/logs/checkstyle-dev-full.txt"/>
             <arg value="--report-gitblame=${basedir}/build/logs/checkstyle-dev-gitblame.txt"/>
-            <arg value="--standard=${basedir}/vendor/jobcloud/unity-coding-standards/ruleset.xml"/>
+            <arg value="--standard=PSR2"/>
             <arg path="${basedir}/src"/>
         </exec>
         <loadfile property="report-full" srcFile="${basedir}/build/logs/checkstyle-dev-full.txt" failonerror="false"/>
