@@ -1,7 +1,7 @@
 # messaging-lib
 
-SemaphoreCI master: [![Build Status](https://semaphoreci.com/api/v1/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8/branches/master/badge.svg)](https://semaphoreci.com/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8)
-
+[![Build Status](https://semaphoreci.com/api/v1/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8/branches/master/shields_badge.svg)](https://semaphoreci.com/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8)
+ [![Maintainability](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/maintainability)](https://codeclimate.com/github/jobcloud/messaging-lib/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/test_coverage)](https://codeclimate.com/github/jobcloud/messaging-lib/test_coverage)
 ## Description
 Generic php messaging library
 Supports:
