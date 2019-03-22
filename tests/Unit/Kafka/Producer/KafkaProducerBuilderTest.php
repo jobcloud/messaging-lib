@@ -105,7 +105,7 @@ class KafkaProducerBuilderTest extends TestCase
 
         self::assertAttributeEquals(
             [
-                'socket.blocking.max.ms' => 50,
+                'socket.timeout.ms' => 50,
                 'internal.termination.signal' => SIGIO
             ],
             'config',

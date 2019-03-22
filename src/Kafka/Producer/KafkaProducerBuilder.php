@@ -123,7 +123,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         }
 
         //Thread termination improvement (https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings)
-        $this->config['socket.blocking.max.ms'] = 50;
+        $this->config['socket.timeout.ms'] = 50;
         $this->config['queue.buffering.max.ms'] = 1;
 
         if (function_exists('pcntl_sigprocmask')) {
