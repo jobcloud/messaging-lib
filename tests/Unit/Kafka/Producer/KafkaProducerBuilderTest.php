@@ -18,7 +18,7 @@ class KafkaProducerBuilderTest extends TestCase
      */
     protected $kafkaProducerBuilder;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->kafkaProducerBuilder = KafkaProducerBuilder::create();
     }
@@ -31,14 +31,20 @@ class KafkaProducerBuilderTest extends TestCase
             ]
         );
 
-        self::assertAttributeEquals(['timeout' => 100], 'config', $this->kafkaProducerBuilder);
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame(['timeout' => 100], $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     public function testAddBroker()
     {
         $this->kafkaProducerBuilder->addBroker('localhost');
 
-        self::assertAttributeEquals(['localhost'], 'brokers', $this->kafkaProducerBuilder);
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'brokers');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     public function testSetDeliveryReportCallback()
@@ -49,7 +55,10 @@ class KafkaProducerBuilderTest extends TestCase
 
         $this->kafkaProducerBuilder->setDeliveryReportCallback($callback);
 
-        self::assertAttributeEquals($callback, 'deliverReportCallback', $this->kafkaProducerBuilder);
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'deliverReportCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     public function testSetErrorCallback()
@@ -60,7 +69,10 @@ class KafkaProducerBuilderTest extends TestCase
 
         $this->kafkaProducerBuilder->setErrorCallback($callback);
 
-        self::assertAttributeEquals($callback, 'errorCallback', $this->kafkaProducerBuilder);
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'errorCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     public function testSetPollTimeout()
@@ -69,7 +81,10 @@ class KafkaProducerBuilderTest extends TestCase
 
         $this->kafkaProducerBuilder->setPollTimeout($pollTimeout);
 
-        self::assertAttributeEquals($pollTimeout, 'pollTimeout', $this->kafkaProducerBuilder);
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'pollTimeout');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($pollTimeout, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     public function testBuildNoBroker()
@@ -103,13 +118,12 @@ class KafkaProducerBuilderTest extends TestCase
 
         $producerBuilder->addBroker('localhost')->setDeliveryReportCallback($callback)->build();
 
-        self::assertAttributeEquals(
-            [
-                'socket.timeout.ms' => 50,
-                'internal.termination.signal' => SIGIO
-            ],
-            'config',
-            $producerBuilder
-        );
+        $reflectionProperty = new \ReflectionProperty($producerBuilder, 'config');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame([
+            'socket.timeout.ms' => 50,
+            'internal.termination.signal' => SIGIO
+        ], $reflectionProperty->getValue($producerBuilder));
     }
 }

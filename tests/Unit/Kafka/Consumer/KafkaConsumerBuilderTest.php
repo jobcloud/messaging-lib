@@ -20,7 +20,7 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     protected $kcb;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->kcb = KafkaConsumerBuilder::create();
     }
@@ -33,7 +33,11 @@ final class KafkaConsumerBuilderTest extends TestCase
     public function testAddBroker()
     {
         self::assertSame($this->kcb, $this->kcb->addBroker('localhost'));
-        self::assertAttributeEquals(['localhost'], 'brokers', $this->kcb);
+
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'brokers');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSubscribeToTopic()
@@ -41,7 +45,11 @@ final class KafkaConsumerBuilderTest extends TestCase
         $topicSubscription = new TopicSubscription('testTopic');
 
         self::assertSame($this->kcb, $this->kcb->addSubscription($topicSubscription));
-        self::assertAttributeEquals([$topicSubscription], 'topics', $this->kcb);
+
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'topics');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame([$topicSubscription], $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSetTimeout()
@@ -49,7 +57,11 @@ final class KafkaConsumerBuilderTest extends TestCase
         $timeout = 42;
 
         self::assertSame($this->kcb, $this->kcb->setTimeout($timeout));
-        self::assertAttributeEquals($timeout, 'timeout', $this->kcb);
+
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'timeout');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($timeout, $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSetConfig()
@@ -60,14 +72,20 @@ final class KafkaConsumerBuilderTest extends TestCase
             ]
         );
 
-        self::assertAttributeEquals(['timeout' => 100], 'config', $this->kcb);
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'config');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame(['timeout' => 100], $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSetConsumerGroup()
     {
         $this->kcb->setConsumerGroup('funGroup');
 
-        self::assertAttributeEquals('funGroup', 'consumerGroup', $this->kcb);
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'consumerGroup');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame('funGroup', $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSetErrorCallback()
@@ -78,7 +96,10 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setErrorCallback($callback);
 
-        self::assertAttributeEquals($callback, 'errorCallback', $this->kcb);
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'errorCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kcb));
     }
 
     public function testSetRebalanceCallback()
@@ -89,7 +110,10 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $this->kcb->setRebalanceCallback($callback);
 
-        self::assertAttributeEquals($callback, 'rebalanceCallback', $this->kcb);
+        $reflectionProperty = new \ReflectionProperty($this->kcb, 'rebalanceCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kcb));
     }
 
     public function testBuildFail()
