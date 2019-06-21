@@ -3,3 +3,4 @@
 /vendor/
 /.idea
 /composer.symlink
+.phpunit.result.cache
