@@ -103,6 +103,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
             $rdKafkaMessage->topic_name,
             $rdKafkaMessage->partition,
             $rdKafkaMessage->offset,
+            $rdKafkaMessage->timestamp,
             $rdKafkaMessage->headers
         );
 

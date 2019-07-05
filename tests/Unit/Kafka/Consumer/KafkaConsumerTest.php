@@ -39,6 +39,7 @@ final class KafkaConsumerTest extends TestCase
         $messageMock->topic_name = 'sample_topic';
         $messageMock->partition = 0;
         $messageMock->offset = 1;
+        $messageMock->timestamp = 1;
 
         $messageMock
             ->expects(self::never())
@@ -239,6 +240,7 @@ final class KafkaConsumerTest extends TestCase
         $messageMock->partition = 1;
         $messageMock->offset = 42;
         $messageMock->topic_name = 'test';
+        $messageMock->timestamp = 1;
 
         $messageMock
             ->expects(self::once())
@@ -470,7 +472,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'topic';
 
-        $message = new Message('some key', 'some message', $topicName, $partition, $offset, null);
+        $message = new Message('some key', 'some message', $topicName, $partition, $offset, 1562324233704, null);
 
         $topicMock = $this->getMockBuilder(ConsumerTopic::class)
             ->disableOriginalConstructor()
