@@ -35,11 +35,6 @@ class Message implements MessageInterface
     private $partition;
 
     /**
-     * @var int
-     */
-    private $timestamp;
-
-    /**
      * @var array|null
      */
     private $headers;
@@ -50,7 +45,6 @@ class Message implements MessageInterface
      * @param string      $topicName
      * @param integer     $partition
      * @param integer     $offset
-     * @param integer     $timestamp
      * @param null|array  $headers
      */
     public function __construct(
@@ -59,7 +53,6 @@ class Message implements MessageInterface
         string $topicName,
         int $partition,
         int $offset,
-        int $timestamp,
         ?array $headers
     ) {
         $this->key          = $key;
@@ -67,6 +60,7 @@ class Message implements MessageInterface
         $this->topicName    = $topicName;
         $this->partition    = $partition;
         $this->offset       = $offset;
+        $this->headers      = $headers;
     }
 
     /**
@@ -107,14 +101,6 @@ class Message implements MessageInterface
     public function getPartition(): int
     {
         return $this->partition;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTimestamp(): int
-    {
-        return $this->timestamp;
     }
 
     /**
