@@ -102,7 +102,9 @@ final class KafkaConsumer implements KafkaConsumerInterface
             $rdKafkaMessage->payload,
             $rdKafkaMessage->topic_name,
             $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset
+            $rdKafkaMessage->offset,
+            $rdKafkaMessage->timestamp,
+            $rdKafkaMessage->headers
         );
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {

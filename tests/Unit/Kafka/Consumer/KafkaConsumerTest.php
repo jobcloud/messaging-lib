@@ -470,7 +470,7 @@ final class KafkaConsumerTest extends TestCase
         $offset = 42;
         $topicName = 'topic';
 
-        $message = new Message('some key', 'some message', $topicName, $partition, $offset);
+        $message = new Message('some key', 'some message', $topicName, $partition, $offset, 1562324233704, null);
 
         $topicMock = $this->getMockBuilder(ConsumerTopic::class)
             ->disableOriginalConstructor()

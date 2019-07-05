@@ -35,18 +35,32 @@ class Message implements MessageInterface
     private $partition;
 
     /**
+     * @var int
+     */
+    private $timestamp;
+
+    /**
+     * @var array|null
+     */
+    private $headers;
+
+    /**
      * @param null|string $key
      * @param null|string $body
      * @param string      $topicName
      * @param integer     $partition
      * @param integer     $offset
+     * @param integer     $timestamp
+     * @param null|array  $headers
      */
     public function __construct(
         ?string $key,
         ?string $body,
         string $topicName,
         int $partition,
-        int $offset
+        int $offset,
+        int $timestamp,
+        ?array $headers
     ) {
         $this->key          = $key;
         $this->body         = $body;
@@ -93,5 +107,21 @@ class Message implements MessageInterface
     public function getPartition(): int
     {
         return $this->partition;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimestamp(): int
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getHeaders(): ?array
+    {
+        return $this->headers;
     }
 }
