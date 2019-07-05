@@ -14,13 +14,15 @@ final class MessageTest extends TestCase
 {
     public function testMessageGettersAndConstructor()
     {
+        $key = '1234-1234-1234';
         $body = 'foo bar baz';
         $topic = 'test';
         $offset = 42;
         $partition = 1;
 
-        $message = new Message($body, $topic, $partition, $offset);
+        $message = new Message($key, $body, $topic, $partition, $offset);
 
+        self::assertEquals($key, $message->getKey());
         self::assertEquals($body, $message->getBody());
         self::assertEquals($topic, $message->getTopicName());
         self::assertEquals($offset, $message->getOffset());

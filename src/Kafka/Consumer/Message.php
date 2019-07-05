@@ -12,6 +12,11 @@ class Message implements MessageInterface
     /**
      * @var string|null
      */
+    private $key;
+
+    /**
+     * @var string|null
+     */
     private $body;
 
     /**
@@ -30,21 +35,32 @@ class Message implements MessageInterface
     private $partition;
 
     /**
+     * @param null|string $key
      * @param null|string $body
      * @param string      $topicName
      * @param integer     $partition
      * @param integer     $offset
      */
     public function __construct(
+        ?string $key,
         ?string $body,
         string $topicName,
         int $partition,
         int $offset
     ) {
+        $this->key          = $key;
         $this->body         = $body;
         $this->topicName    = $topicName;
         $this->partition    = $partition;
         $this->offset       = $offset;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getKey(): ?string
+    {
+        return $this->key;
     }
 
     /**

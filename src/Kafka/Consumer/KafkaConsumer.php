@@ -98,6 +98,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
         }
 
         $message = new Message(
+            $rdKafkaMessage->key,
             $rdKafkaMessage->payload,
             $rdKafkaMessage->topic_name,
             $rdKafkaMessage->partition,
