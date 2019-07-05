@@ -40,6 +40,7 @@ final class KafkaConsumerTest extends TestCase
         $messageMock->partition = 0;
         $messageMock->offset = 1;
         $messageMock->timestamp = 1;
+        $messageMock->headers = null;
 
         $messageMock
             ->expects(self::never())
@@ -241,6 +242,7 @@ final class KafkaConsumerTest extends TestCase
         $messageMock->offset = 42;
         $messageMock->topic_name = 'test';
         $messageMock->timestamp = 1;
+        $messageMock->headers = [ 'key' => 'value'];
 
         $messageMock
             ->expects(self::once())
