@@ -98,13 +98,10 @@ final class KafkaConsumer implements KafkaConsumerInterface
         }
 
         $message = new Message(
-            $rdKafkaMessage->key,
             $rdKafkaMessage->payload,
             $rdKafkaMessage->topic_name,
             $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset,
-            $rdKafkaMessage->timestamp,
-            $rdKafkaMessage->headers
+            $rdKafkaMessage->offset
         );
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
