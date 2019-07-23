@@ -9,7 +9,7 @@ Supports:
 
 ## Requirements
 - php: ^7.1
-- ext-rdkafka: ^3.0.5
+- ext-rdkafka: ^3.1.0
 
 ## Installation
 ```composer require jobcloud/messaging-lib "~1.0"```
