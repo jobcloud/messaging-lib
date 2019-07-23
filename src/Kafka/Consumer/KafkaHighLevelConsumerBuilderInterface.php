@@ -13,7 +13,7 @@ interface KafkaHighLevelConsumerBuilderInterface
      * @param string $broker
      * @return KafkaHighLevelConsumerBuilderInterface
      */
-    public function addBroker(string $broker): self;
+    public function setBroker(string $broker): self;
 
     /**
      * @param integer $timeout

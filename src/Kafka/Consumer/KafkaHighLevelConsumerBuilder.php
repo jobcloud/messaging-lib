@@ -13,9 +13,9 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
     use KafkaConfigTrait;
 
     /**
-     * @var array
+     * @var string
      */
-    private $brokers = [];
+    private $broker;
 
     /**
      * @var array
@@ -44,9 +44,9 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
      * @param string $broker
      * @return KafkaHighLevelConsumerBuilderInterface
      */
-    public function addBroker(string $broker): KafkaHighLevelConsumerBuilderInterface
+    public function setBroker(string $broker): KafkaHighLevelConsumerBuilderInterface
     {
-        $this->brokers[] = $broker;
+        $this->broker = $broker;
 
         return $this;
     }
@@ -86,10 +86,16 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
 
     /**
      * @return KafkaConsumer
+     * @throws KafkaConsumerBuilderException
      */
     public function build(): KafkaConsumer
     {
+        if (null === $this->broker) {
+            throw new KafkaConsumerBuilderException('No brokers to connect');
+        }
+
         $this->config['group.id'] = $this->consumerGroup;
+        $this->config['metadata.broker.list'] = $this->broker;
 
         $kafkaConfig = $this->createKafkaConfig($this->config);
 
