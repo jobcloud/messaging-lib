@@ -10,14 +10,26 @@ interface KafkaHighLevelConsumerBuilderInterface
 {
 
     /**
+     * @param string $broker
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function addBroker(string $broker): self;
+
+    /**
+     * @param integer $timeout
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function setTimeout(int $timeout): self;
+
+    /**
      * @param array $config
-     * @return KafkaConsumerBuilderInterface
+     * @return KafkaHighLevelConsumerBuilderInterface
      */
     public function setConfig(array $config): self;
 
     /**
      * @param string $consumerGroup
-     * @return KafkaConsumerBuilderInterface
+     * @return KafkaHighLevelConsumerBuilderInterface
      */
     public function setConsumerGroup(string $consumerGroup): self;
 

@@ -15,7 +15,17 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
     /**
      * @var array
      */
+    private $brokers = [];
+
+    /**
+     * @var array
+     */
     private $config = [];
+
+    /**
+     * @var int
+     */
+    private $timeout = 1000;
 
     /**
      * @var string
@@ -28,6 +38,28 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
     public static function create(): self
     {
         return new self();
+    }
+
+    /**
+     * @param string $broker
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function addBroker(string $broker): KafkaHighLevelConsumerBuilderInterface
+    {
+        $this->brokers[] = $broker;
+
+        return $this;
+    }
+
+    /**
+     * @param integer $timeout
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function setTimeout(int $timeout): KafkaHighLevelConsumerBuilderInterface
+    {
+        $this->timeout = $timeout;
+
+        return $this;
     }
 
     /**
