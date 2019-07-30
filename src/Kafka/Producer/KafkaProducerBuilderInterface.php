@@ -43,7 +43,7 @@ interface KafkaProducerBuilderInterface
     public function setErrorCallback(callable $errorCallback): self;
 
     /**
-     * @param int $pollTimeout
+     * @param integer $pollTimeout
      * @return KafkaProducerBuilderInterface
      */
     public function setPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface;
