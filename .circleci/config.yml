@@ -54,8 +54,6 @@ jobs:
 
   coverage:
     machine: true
-    environment:
-      - CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
     steps:
       - restore
       - run:
