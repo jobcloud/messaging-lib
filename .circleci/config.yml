@@ -58,11 +58,11 @@ jobs:
       - CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
     steps:
       - run:
-        name:  Download cc-test-reporter
-        command: |
-          mkdir -p tmp/
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
-          chmod +x ./tmp/cc-test-reporter
+          name:  Download cc-test-reporter
+          command: |
+            mkdir -p tmp/
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
+            chmod +x ./tmp/cc-test-reporter
       - restore
       - execute-in-container:
           info: Execute tests with code coverage
