@@ -110,8 +110,8 @@ commands:
       - run:
           name: Persist docker layers
           command: |
-            DOCKER_IMAGES=$(cd ./docker && docker-compose -f docker-compose.yml images -q)
-            DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
+            export DOCKER_IMAGES=$(docker images -q)
+            export DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
             docker save -o ~/docker-layers.tar $DOCKER_LAYERS
 
   load-docker-layers:
