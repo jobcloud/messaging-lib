@@ -97,20 +97,20 @@ commands:
     steps:
       - run:
           name: Run docker
-          command: cd ./docker && docker-compose -f docker-compose.ci.yml up -d
+          command: cd ./docker && docker-compose -f docker-compose.yml up -d
 
   build-docker-images:
     steps:
       - run:
           name: Build docker
-          command: cd ./docker && docker-compose -f docker-compose.ci.yml build
+          command: cd ./docker && docker-compose -f docker-compose.yml build
 
   persist-docker-layers:
     steps:
       - run:
           name: Persist docker layers
           command: |
-            DOCKER_IMAGES=$(cd ./docker && docker-compose -f docker-compose.ci.yml images -q)
+            DOCKER_IMAGES=$(cd ./docker && docker-compose -f docker-compose.yml images -q)
             DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
             docker save -o ~/docker-layers.tar $DOCKER_LAYERS
 
@@ -127,7 +127,7 @@ commands:
     steps:
       - save_cache:
           name: Cache docker layers
-          key: docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.ci.yml" }}
+          key: docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.yml" }}
           paths:
             - ~/docker-layers.tar
 
@@ -136,7 +136,7 @@ commands:
       - restore_cache:
           name: Load docker layers from cache
           keys:
-            - docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.ci.yml" }}
+            - docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.yml" }}
 
   cache-persist-vendor:
     steps:
@@ -165,4 +165,4 @@ commands:
     steps:
       - run:
           name: << parameters.info >>
-          command: cd ./docker && docker-compose -f docker-compose.ci.yml exec << parameters.container >> /bin/bash -c "<< parameters.command >>"
+          command: cd ./docker && docker-compose -f docker-compose.yml exec << parameters.container >> /bin/bash -c "<< parameters.command >>"
