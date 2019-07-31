@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2adc7cc64c9664a44dfb17c6e2b046be",
+    "content-hash": "8ceeac273d859849b942ba300aa017f6",
     "packages": [],
     "packages-dev": [
         {
@@ -191,54 +191,6 @@
             ],
             "description": "Rdkafka extension stubs for your IDE",
             "time": "2019-07-04T20:53:47+00:00"
-        },
-        {
-            "name": "mavimo/phpstan-junit",
-            "version": "0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mavimo/phpstan-junit.git",
-                "reference": "3110a468b344d2080c81508dba122be26b6e76ee"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mavimo/phpstan-junit/zipball/3110a468b344d2080c81508dba122be26b6e76ee",
-                "reference": "3110a468b344d2080c81508dba122be26b6e76ee",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~7.1",
-                "phpstan/phpstan": "^0.11"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0",
-                "slevomat/coding-standard": "^5.0"
-            },
-            "type": "phpstan-extension",
-            "extra": {
-                "phpstan": {
-                    "includes": [
-                        "extension.neon"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Mavimo\\PHPStan\\ErrorFormatter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Vito Moscaritolo",
-                    "email": "mavimo@gmail.com"
-                }
-            ],
-            "description": "PHPStan JUnit error reporter",
-            "time": "2019-07-06T11:34:39+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1397,50 +1349,6 @@
                 "stub"
             ],
             "time": "2019-06-13T12:50:23+00:00"
-        },
-        {
-            "name": "phpstan/extension-installer",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpstan/extension-installer.git",
-                "reference": "9dcaf22162affff49f8f166a18d4ed8bfd71da98"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/extension-installer/zipball/9dcaf22162affff49f8f166a18d4ed8bfd71da98",
-                "reference": "9dcaf22162affff49f8f166a18d4ed8bfd71da98",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.1",
-                "php": "^7.1",
-                "phpstan/phpstan": ">=0.11.6"
-            },
-            "require-dev": {
-                "composer/composer": "^1.8",
-                "consistence/coding-standard": "^3.8",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-                "jakub-onderka/php-parallel-lint": "^1.0",
-                "phing/phing": "^2.16",
-                "phpstan/phpstan-strict-rules": "^0.11",
-                "slevomat/coding-standard": "^5.0.4"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "PHPStan\\ExtensionInstaller\\Plugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "PHPStan\\ExtensionInstaller\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Composer plugin for automatic installation of PHPStan extensions",
-            "time": "2019-05-20T12:22:00+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",

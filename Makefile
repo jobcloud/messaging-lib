@@ -22,7 +22,7 @@ test: xdebug-disable
 
 static-analysis: xdebug-disable
 	mkdir -p build/logs/phpstan
-	${PHPSTAN} analyse src --no-progress --level=7 --error-format=junit > build/logs/phpstan/junit.xml
+	${PHPSTAN} analyse src --no-progress --level=7
 
 update-dependencies:
 	composer update

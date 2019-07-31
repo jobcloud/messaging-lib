@@ -29,8 +29,7 @@
     </testsuites>
     <logging>
         <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
-        <log type="coverage-html" target="build/logs/phpunit/coverage"/>
-        <log type="junit" target="build/logs/phpunit/junit.xml"/>
+        <log type="coverage-clover" target="coverage.xml"/>
     </logging>
     <filter>
         <whitelist>
