@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Upload coverage results to Code Climate
           command: |
-            ./tmp/cc-test-reporter after-build -p /home/circleci/project --coverage-input-type clover;
+            ./tmp/cc-test-reporter after-build -p /var/www/html --coverage-input-type clover;
 
   code-style:
     machine: true
