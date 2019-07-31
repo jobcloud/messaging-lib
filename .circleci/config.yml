@@ -1,0 +1,170 @@
+version: 2.1 # CircleCI version
+
+workflows:
+  version: 2
+  test-messaging-lib:
+    jobs:
+      - build-docker
+      - install-dependencies:
+          requires:
+            - build-docker
+      - coverage:
+          requires:
+            - install-dependencies
+      - code-style:
+          requires:
+            - install-dependencies
+      - static-analysis:
+          requires:
+            - install-dependencies
+
+
+jobs:
+  build-docker:
+    machine: true
+    steps:
+      - checkout
+      - cache-load-docker-layers
+      - run:
+          name: Check for existing docker layers
+          command: |
+            if [[ -f ~/docker-layers.tar ]]; then
+              circleci step halt
+            fi
+      - build-docker-images
+      - persist-docker-layers
+      - cache-persist-docker-layers
+
+  install-dependencies:
+    machine: true
+    steps:
+      - checkout
+      - cache-load-vendor
+      - run:
+          name: Check for existing vendor
+          command: |
+            if [[ -d ./vendor ]]; then
+              circleci step halt
+            fi
+      - cache-load-docker-layers
+      - load-docker-layers
+      - run-docker
+      - execute-in-container:
+          info: Install dependencies
+          command: make install-dependencies
+      - cache-persist-vendor
+
+  coverage:
+      machine: true
+      steps:
+        - restore
+        - execute-in-container:
+            info: Execute tests with code coverage
+            command: make coverage
+        - store_artifacts:
+            path: ./build/logs/phpunit/coverage
+        - store_test_results:
+            path: ./build/logs/phpunit
+
+  code-style:
+    machine: true
+    steps:
+      - restore
+      - execute-in-container:
+          info: Check code style
+          command: make code-style
+      - store_test_results:
+          path: ./build/logs/phpcs
+
+  static-analysis:
+    machine: true
+    steps:
+      - restore
+      - execute-in-container:
+          info: Execute static analysis
+          command: make static-analysis
+      - store_test_results:
+          path: ./build/logs/phpstan
+
+
+commands:
+  restore:
+    steps:
+      - checkout
+      - cache-load-docker-layers
+      - load-docker-layers
+      - cache-load-vendor
+      - run-docker
+  run-docker:
+    steps:
+      - run:
+          name: Run docker
+          command: cd ./docker && docker-compose -f docker-compose.ci.yml up -d
+
+  build-docker-images:
+    steps:
+      - run:
+          name: Build docker
+          command: cd ./docker && docker-compose -f docker-compose.ci.yml build
+
+  persist-docker-layers:
+    steps:
+      - run:
+          name: Persist docker layers
+          command: |
+            DOCKER_IMAGES=$(cd ./docker && docker-compose -f docker-compose.ci.yml images -q)
+            DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
+            docker save -o ~/docker-layers.tar $DOCKER_LAYERS
+
+  load-docker-layers:
+    steps:
+      - run:
+          name: Load docker layers
+          command: |
+            if [[ -f ~/docker-layers.tar ]]; then
+              docker load -i ~/docker-layers.tar
+            fi
+
+  cache-persist-docker-layers:
+    steps:
+      - save_cache:
+          name: Cache docker layers
+          key: docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.ci.yml" }}
+          paths:
+            - ~/docker-layers.tar
+
+  cache-load-docker-layers:
+    steps:
+      - restore_cache:
+          name: Load docker layers from cache
+          keys:
+            - docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.ci.yml" }}
+
+  cache-persist-vendor:
+    steps:
+      - save_cache:
+          name: Cache vendor
+          key: vendor-{{ checksum "./composer.lock" }}
+          paths:
+            - ./vendor/
+
+  cache-load-vendor:
+    steps:
+      - restore_cache:
+          name: Load vendor from cache
+          keys:
+            - vendor-{{ checksum "./composer.lock" }}
+
+  execute-in-container:
+    parameters:
+      info:
+        type: string
+      container:
+        type: string
+        default: php
+      command:
+        type: string
+    steps:
+      - run:
+          name: << parameters.info >>
+          command: cd ./docker && docker-compose -f docker-compose.ci.yml exec << parameters.container >> /bin/bash -c "<< parameters.command >>"
