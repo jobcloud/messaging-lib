@@ -2,31 +2,43 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Helper;
 
-use PHPUnit\Framework\TestCase;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
-use RdKafka\Conf;
+use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait
  */
 class KafkaConfigTraitTest extends TestCase
 {
-    public function testCreateKafkaConfig()
+    private const TEST_CONFIGURATION_NAME = 'group.id';
+    private const TEST_CONFIGURATION_VALUE = 'TEST_CONFIGURATION_VALUE';
+
+    /**
+     * @return void
+     */
+    public function testCreateKafkaConfig(): void
     {
-        $sot = new class {
+        $anonymousConfigTraitUserClass = new class
+        {
             use KafkaConfigTrait;
 
-            public function createTraitKafkaConfig(array $config)
+            public function createTraitKafkaConfig(array $config): KafkaConfiguration
             {
-                return $this->createKafkaConfig($config);
+                return $this->createKafkaConfig($config, [], [], 0);
             }
         };
 
-        $config = $sot->createTraitKafkaConfig(['group.id' => 'testGroup']);
-        self::assertInstanceOf(Conf::class, $config);
+        /** @var KafkaConfiguration $config */
+        $config = $anonymousConfigTraitUserClass->createTraitKafkaConfig(
+            [
+                self::TEST_CONFIGURATION_NAME => self::TEST_CONFIGURATION_VALUE
+            ]
+        );
+        self::assertInstanceOf(KafkaConfiguration::class, $config);
 
         $configArray = $config->dump();
-        self::assertTrue(isset($configArray['group.id']));
-        self::assertEquals($configArray['group.id'], 'testGroup');
+        self::assertTrue(isset($configArray[self::TEST_CONFIGURATION_NAME]));
+        self::assertEquals($configArray[self::TEST_CONFIGURATION_NAME], self::TEST_CONFIGURATION_VALUE);
     }
 }

@@ -46,7 +46,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
         array $topicSettings = []
     ) {
         $this->topicSettings = $topicSettings + $this->topicSettings;
-        $this->topicName  = $topicName;
+        $this->topicName = $topicName;
         $this->defaultOffset = $defaultOffset;
         $this->topicConf = new TopicConf();
 

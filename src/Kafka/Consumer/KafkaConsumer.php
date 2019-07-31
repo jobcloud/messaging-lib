@@ -8,6 +8,7 @@ use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
+use Jobcloud\Messaging\Kafka\KafkaConfiguration;
 use RdKafka\Consumer as RdKafkaConsumer;
 use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -17,63 +18,40 @@ use RdKafka\Queue;
 final class KafkaConsumer implements KafkaConsumerInterface
 {
 
+    /** @var int */
     const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
+    /** @var int */
     const OFFSET_END = RD_KAFKA_OFFSET_END;
+    /** @var int */
     const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
 
-    /**
-     * @var RdKafkaConsumer
-     */
+    /** @var RdKafkaConsumer */
     protected $consumer;
 
-    /**
-     * @var array|ConsumerTopic[]
-     */
+    /** @var KafkaConfiguration */
+    protected $kafkaConfiguration;
+
+    /** @var array|ConsumerTopic[] */
     protected $topics = [];
 
-    /**
-     * @var array|TopicSubscriptionInterface[]
-     */
-    protected $topicSubscriptions;
-
-    /**
-     * @var boolean
-     */
+    /** @var boolean */
     protected $subscribed = false;
 
-    /**
-     * @var integer
-     */
-    protected $timeout;
-
-    /**
-     * @var Queue
-     */
+    /** @var Queue */
     protected $queue;
 
-    /**
-     * @var array
-     */
-    protected $brokers;
-
-    /**
-     * @var boolean
-     */
+    /** @var boolean */
     protected $isConnected = false;
 
     /**
-     * @param RdKafkaConsumer $consumer
-     * @param array           $brokers
-     * @param array           $topicSubscriptions
-     * @param integer         $timeout
+     * @param RdKafkaConsumer    $consumer
+     * @param KafkaConfiguration $kafkaConfiguration
      */
-    public function __construct(RdKafkaConsumer $consumer, array $brokers, array $topicSubscriptions, int $timeout)
+    public function __construct(RdKafkaConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
     {
         $this->consumer = $consumer;
-        $this->brokers = $brokers;
-        $this->timeout = $timeout;
+        $this->kafkaConfiguration = $kafkaConfiguration;
         $this->queue = $consumer->newQueue();
-        $this->topicSubscriptions = $topicSubscriptions;
     }
 
     /**
@@ -86,7 +64,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
         }
 
-        if (null === $rdKafkaMessage = $this->queue->consume($this->timeout)) {
+        if (null === $rdKafkaMessage = $this->queue->consume($this->kafkaConfiguration->getTimeout())) {
             throw new KafkaConsumerConsumeException(
                 rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT),
                 RD_KAFKA_RESP_ERR__TIMED_OUT
@@ -119,7 +97,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
      */
     public function getTopicSubscriptions(): array
     {
-        return $this->topicSubscriptions;
+        return $this->kafkaConfiguration->getTopicSubscriptions();
     }
 
     /**
@@ -136,7 +114,8 @@ final class KafkaConsumer implements KafkaConsumerInterface
         $this->connectConsumerToBrokers();
 
         try {
-            foreach ($this->topicSubscriptions as $topicSubscription) {
+            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+            foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
 
                 if (false === isset($this->topics[$topicName])) {
@@ -204,7 +183,8 @@ final class KafkaConsumer implements KafkaConsumerInterface
             return;
         }
 
-        foreach ($this->topicSubscriptions as $topicSubscription) {
+        $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+        foreach ($topicSubscriptions as $topicSubscription) {
             foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
                 $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
             }
@@ -222,13 +202,28 @@ final class KafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * @return KafkaConfiguration
+     */
+    public function getConfiguration(): KafkaConfiguration
+    {
+        return $this->kafkaConfiguration;
+    }
+
+    /**
      * @param ConsumerTopic $topic
      * @return Metadata\Topic
      * @throws RdKafkaException
      */
     private function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
     {
-        return $this->consumer->getMetadata(false, $topic, $this->timeout)->getTopics()->current();
+        return $this->consumer
+            ->getMetadata(
+                false,
+                $topic,
+                $this->kafkaConfiguration->getTimeout()
+            )
+            ->getTopics()
+            ->current();
     }
 
     /**
@@ -240,7 +235,7 @@ final class KafkaConsumer implements KafkaConsumerInterface
             return;
         }
 
-        $this->consumer->addBrokers(implode(',', $this->brokers));
+        $this->consumer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
         $this->isConnected = true;
     }
 }
