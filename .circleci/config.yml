@@ -17,8 +17,6 @@ workflows:
       - static-analysis:
           requires:
             - install-dependencies
-
-
 jobs:
   build-docker:
     machine: true
