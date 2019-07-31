@@ -64,14 +64,27 @@ class KafkaConfigurationTest extends TestCase
      * @param array $topicSubscriptions
      * @return void
      */
-    public function testGetValidConfiguration(array $brokers, array $topicSubscriptions): void
+    public function testGetConfiguration(array $brokers, array $topicSubscriptions): void
+    {
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
+
+        self::assertEquals($kafkaConfiguration->dump(), $kafkaConfiguration->getConfiguration());
+    }
+
+    /**
+     * @dataProvider kafkaConfigurationDataProvider
+     * @param array $brokers
+     * @param array $topicSubscriptions
+     * @return void
+     */
+    public function testGetValidSetting(array $brokers, array $topicSubscriptions): void
     {
         $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
         $kafkaConfiguration->set(self::TEST_VALID_CONFIGURATION, self::TEST_VALID_CONFIGURATION_VALUE);
 
         self::assertEquals(
             self::TEST_VALID_CONFIGURATION_VALUE,
-            $kafkaConfiguration->getConfiguration(self::TEST_VALID_CONFIGURATION)
+            $kafkaConfiguration->getSetting(self::TEST_VALID_CONFIGURATION)
         );
     }
 
@@ -81,11 +94,11 @@ class KafkaConfigurationTest extends TestCase
      * @param array $topicSubscriptions
      * @return void
      */
-    public function testGetInvalidConfiguration(array $brokers, array $topicSubscriptions): void
+    public function testGetInvalidSetting(array $brokers, array $topicSubscriptions): void
     {
         self::expectException(\InvalidArgumentException::class);
 
         $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
-        $kafkaConfiguration->getConfiguration(self::TEST_INVALID_CONFIGURATION);
+        $kafkaConfiguration->getSetting(self::TEST_INVALID_CONFIGURATION);
     }
 }

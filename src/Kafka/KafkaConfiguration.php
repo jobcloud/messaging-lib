@@ -55,17 +55,23 @@ class KafkaConfiguration extends Conf
     }
 
     /**
+     * @return array
+     */
+    public function getConfiguration(): array
+    {
+        return $this->dump();
+    }
+
+    /**
      * @param string $name
      * @return string
      * @throws \InvalidArgumentException
      */
-    public function getConfiguration(string $name): string
+    public function getSetting(string $name): string
     {
         $configuration = $this->dump();
-        foreach ($configuration as $configurationKey => $configurationValue) {
-            if ($configurationKey === $name) {
-                return $configurationValue;
-            }
+        if (isset($configuration[$name])) {
+            return $configuration[$name];
         }
 
         throw new \InvalidArgumentException(
