@@ -29,7 +29,7 @@
     </testsuites>
     <logging>
         <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
-        <log type="coverage-clover" target="coverage.xml"/>
+        <log type="coverage-clover" target="clover.xml"/>
     </logging>
     <filter>
         <whitelist>
