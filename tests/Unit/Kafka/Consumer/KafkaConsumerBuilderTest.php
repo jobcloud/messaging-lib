@@ -2,12 +2,15 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use PHPUnit\Framework\TestCase;
+use RdKafka\Consumer;
+use RdKafka\KafkaConsumer;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
@@ -61,16 +64,30 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSubscribeToTopic(): void
+    public function testSubscribeToLowLevelTopic(): void
     {
         $topicSubscription = new TopicSubscription(self::TEST_TOPIC);
 
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription($topicSubscription));
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addLowLevelSubscription($topicSubscription));
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame([$topicSubscription], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testSubscribeToHighKLevelTopic(): void
+    {
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription(self::TEST_TOPIC));
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame([self::TEST_TOPIC], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
@@ -114,6 +131,40 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(self::TEST_CONSUMER_GROUP, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetConsumerTypeLow(): void
+    {
+        $this->kafkaConsumerBuilder->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL);
+
+        $actualConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumerType');
+        $actualConsumerType->setAccessible(true);
+        $actualRdKafkaConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'rdKafkaConsumerType');
+        $actualRdKafkaConsumerType->setAccessible(true);
+
+        self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(Consumer::class, $actualRdKafkaConsumerType->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetConsumerTypeHigh(): void
+    {
+        $this->kafkaConsumerBuilder->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL);
+
+        $actualConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumerType');
+        $actualConsumerType->setAccessible(true);
+        $actualRdKafkaConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'rdKafkaConsumerType');
+        $actualRdKafkaConsumerType->setAccessible(true);
+
+        self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(KafkaConsumer::class, $actualRdKafkaConsumerType->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
@@ -183,14 +234,37 @@ final class KafkaConsumerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        /** @var $consumer KafkaConsumer */
+        /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->addBroker(self::TEST_BROKER)
-            ->addSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
 
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
+        self::assertInstanceOf(KafkaHighLevelConsumer::class, $consumer);
+    }
+
+    /**
+     * @return void
+     */
+    public function testBuildLowLevelSuccess(): void
+    {
+        $callback = function ($kafka, $errId, $msg) {
+            // Anonymous test method, no logic required
+        };
+
+        /** @var $consumer KafkaLowLevelConsumer */
+        $consumer = $this->kafkaConsumerBuilder
+            ->addBroker(self::TEST_BROKER)
+            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->setRebalanceCallback($callback)
+            ->setErrorCallback($callback)
+            ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
+            ->build();
+
+        self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
+        self::assertInstanceOf(KafkaLowLevelConsumer::class, $consumer);
     }
 }

@@ -3,11 +3,11 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka;
 
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\KafkaConfiguration
+ * @covers \Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration
  */
 class KafkaConfigurationTest extends TestCase
 {

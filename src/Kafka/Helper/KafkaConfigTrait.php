@@ -2,7 +2,7 @@
 
 namespace Jobcloud\Messaging\Kafka\Helper;
 
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 
 trait KafkaConfigTrait
 {

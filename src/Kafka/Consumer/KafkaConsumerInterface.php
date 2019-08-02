@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {

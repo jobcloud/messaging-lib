@@ -2,13 +2,13 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\Message;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer as RdKafkaConsumer;
@@ -22,9 +22,10 @@ use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Queue as RdKafkaQueue;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\AbstractKafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer
  */
-final class KafkaConsumerTest extends TestCase
+final class KafkaLowLevelConsumerTest extends TestCase
 {
 
     /** @var string */
@@ -51,7 +52,7 @@ final class KafkaConsumerTest extends TestCase
     /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
 
-    /** @var KafkaConsumer */
+    /** @var KafkaLowLevelConsumer */
     private $kafkaConsumer;
 
     /**
@@ -66,7 +67,7 @@ final class KafkaConsumerTest extends TestCase
             ->method('newQueue')
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $this->kafkaConsumer = new KafkaConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
     }
 
     /**
@@ -309,7 +310,7 @@ final class KafkaConsumerTest extends TestCase
      */
     public function testSubscribeEarlyReturnsIfAlreadySubscribed(): void
     {
-        $subscribedProperty = new \ReflectionProperty(KafkaConsumer::class, 'subscribed');
+        $subscribedProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'subscribed');
         $subscribedProperty->setAccessible(true);
         $subscribedProperty->setValue($this->kafkaConsumer, true);
 
@@ -405,7 +406,7 @@ final class KafkaConsumerTest extends TestCase
             ->method('offsetStore')
             ->with($message->getPartition(), $message->getOffset());
 
-        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaConsumer::class, 'topics');
+        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'topics');
         $rdKafkaConsumerMockProperty->setAccessible(true);
         $rdKafkaConsumerMockProperty->setValue(
             $this->kafkaConsumer,
@@ -434,7 +435,7 @@ final class KafkaConsumerTest extends TestCase
             ->expects(self::never())
             ->method('offsetStore');
 
-        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaConsumer::class, 'topics');
+        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'topics');
         $rdKafkaConsumerMockProperty->setAccessible(true);
         $rdKafkaConsumerMockProperty->setValue($this->kafkaConsumer, [self::TEST_TOPIC => $rdKafkaConsumerTopicMock]);
 

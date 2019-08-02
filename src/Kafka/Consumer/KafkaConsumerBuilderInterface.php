@@ -16,7 +16,13 @@ interface KafkaConsumerBuilderInterface
      * @param TopicSubscriptionInterface $topicSubscription
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(TopicSubscriptionInterface $topicSubscription): self;
+    public function addLowLevelSubscription(TopicSubscriptionInterface $topicSubscription): self;
+
+    /**
+     * @param string $topicName
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addSubscription(string $topicName): self;
 
     /**
      * @param array $config
@@ -35,6 +41,12 @@ interface KafkaConsumerBuilderInterface
      * @return KafkaConsumerBuilderInterface
      */
     public function setConsumerGroup(string $consumerGroup): self;
+
+    /**
+     * @param string $consumerType
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumerType(string $consumerType): self;
 
     /**
      * @param callable $errorCallback

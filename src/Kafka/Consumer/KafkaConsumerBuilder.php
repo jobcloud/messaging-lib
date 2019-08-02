@@ -6,12 +6,18 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
-use RdKafka\Consumer as RdKafkaConsumer;
+use RdKafka\Consumer as RdKafkaLowLevelConsumer;
+use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
 
     use KafkaConfigTrait;
+
+    const CONSUMER_TYPE_LOW_LEVEL = KafkaLowLevelConsumer::class;
+    const CONSUMER_TYPE_HIGH_LEVEL = KafkaHighLevelConsumer::class;
+    private const RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL = RdKafkaLowLevelConsumer::class;
+    private const RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL = RdKafkaHighLevelConsumer::class;
 
     /**
      * @var array
@@ -32,6 +38,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var string
      */
     private $consumerGroup = 'default';
+
+    /**
+     * @var string
+     */
+    private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
+
+    /**
+     * @var string
+     */
+    private $rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL;
 
     /**
      * @var int
@@ -79,9 +95,21 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param TopicSubscriptionInterface $topicSubscription
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(TopicSubscriptionInterface $topicSubscription): KafkaConsumerBuilderInterface
-    {
+    public function addLowLevelSubscription(
+        TopicSubscriptionInterface $topicSubscription
+    ): KafkaConsumerBuilderInterface {
         $this->topics[] = $topicSubscription;
+
+        return $this;
+    }
+
+    /**
+     * @param string $topicName
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addSubscription(string $topicName): KafkaConsumerBuilderInterface
+    {
+        $this->topics[] = $topicName;
 
         return $this;
     }
@@ -115,6 +143,23 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function setConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
     {
         $this->consumerGroup = $consumerGroup;
+
+        return $this;
+    }
+
+    /**
+     * @param string $consumerType
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumerType(string $consumerType): KafkaConsumerBuilderInterface
+    {
+        $this->consumerType = $consumerType;
+
+        if (self::CONSUMER_TYPE_HIGH_LEVEL === $consumerType) {
+            $this->rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL;
+        } elseif (self::CONSUMER_TYPE_LOW_LEVEL === $consumerType) {
+            $this->rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL;
+        }
 
         return $this;
     }
@@ -169,8 +214,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         //create RdConsumer
-        $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
+        $rdKafkaConsumer = new $this->rdKafkaConsumerType($kafkaConfig);
 
-        return new KafkaConsumer($rdKafkaConsumer, $kafkaConfig);
+        return new $this->consumerType($rdKafkaConsumer, $kafkaConfig);
     }
 }

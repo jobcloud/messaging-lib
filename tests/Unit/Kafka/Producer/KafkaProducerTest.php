@@ -3,7 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

@@ -8,40 +8,21 @@ use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use RdKafka\Consumer as RdKafkaConsumer;
 use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata;
 use RdKafka\Queue;
 
-final class KafkaConsumer implements KafkaConsumerInterface
+final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
 {
-
-    /** @var int */
-    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
-    /** @var int */
-    const OFFSET_END = RD_KAFKA_OFFSET_END;
-    /** @var int */
-    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
-
-    /** @var RdKafkaConsumer */
-    protected $consumer;
-
-    /** @var KafkaConfiguration */
-    protected $kafkaConfiguration;
 
     /** @var array|ConsumerTopic[] */
     protected $topics = [];
 
-    /** @var boolean */
-    protected $subscribed = false;
-
     /** @var Queue */
     protected $queue;
-
-    /** @var boolean */
-    protected $isConnected = false;
 
     /**
      * @param RdKafkaConsumer    $consumer
@@ -93,14 +74,6 @@ final class KafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @return array|TopicSubscriptionInterface[]
-     */
-    public function getTopicSubscriptions(): array
-    {
-        return $this->kafkaConfiguration->getTopicSubscriptions();
-    }
-
-    /**
      * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
      * @return void
      * @throws KafkaConsumerSubscriptionException
@@ -124,17 +97,8 @@ final class KafkaConsumer implements KafkaConsumerInterface
                         $topicSubscription->getTopicConf()
                     );
 
-                    // Convert simple TopicSubscription to TopicPartitionSubscription
-                    if ([] === $topicSubscription->getPartitions()) {
-                        $topicMetadata = $this->getMetadataForTopic($topic);
-
-                        foreach ($topicMetadata->getPartitions() as $partition) {
-                            $topicSubscription->addPartition(
-                                $partition->getId(),
-                                $topicSubscription->getDefaultOffset()
-                            );
-                        }
-                    }
+                    //Check partition subscription, if not set, subscribe to all partitions
+                    $this->verifyAndSetPartitionSubcriptions($topic, $topicSubscription);
                 } else {
                     $topic = $this->topics[$topicName];
                 }
@@ -184,6 +148,8 @@ final class KafkaConsumer implements KafkaConsumerInterface
         }
 
         $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+
+        /** @var TopicSubscription $topicSubscription */
         foreach ($topicSubscriptions as $topicSubscription) {
             foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
                 $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
@@ -191,22 +157,6 @@ final class KafkaConsumer implements KafkaConsumerInterface
         }
 
         $this->subscribed = false;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isSubscribed(): bool
-    {
-        return $this->subscribed;
-    }
-
-    /**
-     * @return KafkaConfiguration
-     */
-    public function getConfiguration(): KafkaConfiguration
-    {
-        return $this->kafkaConfiguration;
     }
 
     /**
@@ -227,15 +177,22 @@ final class KafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * @param ConsumerTopic     $topic
+     * @param TopicSubscription $topicSubscription
+     * @throws RdKafkaException
      * @return void
      */
-    private function connectConsumerToBrokers(): void
+    private function verifyAndSetPartitionSubcriptions(ConsumerTopic $topic, TopicSubscription $topicSubscription): void
     {
-        if (true === $this->isConnected) {
-            return;
-        }
+        if ([] === $topicSubscription->getPartitions()) {
+            $topicMetadata = $this->getMetadataForTopic($topic);
 
-        $this->consumer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
-        $this->isConnected = true;
+            foreach ($topicMetadata->getPartitions() as $partition) {
+                $topicSubscription->addPartition(
+                    $partition->getId(),
+                    $topicSubscription->getDefaultOffset()
+                );
+            }
+        }
     }
 }

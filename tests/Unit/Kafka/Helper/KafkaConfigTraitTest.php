@@ -3,7 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Helper;
 
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
 
 /**
