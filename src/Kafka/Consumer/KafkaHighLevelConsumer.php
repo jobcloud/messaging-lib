@@ -65,21 +65,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      */
     public function commit($messages): void
     {
-        $messages = is_array($messages) ? $messages : [$messages];
-
-        foreach ($messages as $i => $message) {
-            if (false === $message instanceof Message) {
-                throw new KafkaConsumerCommitException(
-                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
-                );
-            }
-
-            try {
-                $this->consumer->commit($message);
-            } catch (RdKafkaException $e) {
-                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
-            }
-        }
+        $this->commitMessages($messages);
     }
 
     /**
@@ -103,21 +89,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      */
     public function commitAsync($messages): void
     {
-        $messages = is_array($messages) ? $messages : [$messages];
-
-        foreach ($messages as $i => $message) {
-            if (false === $message instanceof Message) {
-                throw new KafkaConsumerCommitException(
-                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
-                );
-            }
-
-            try {
-                $this->consumer->commitAsync($message);
-            } catch (RdKafkaException $e) {
-                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
-            }
-        }
+        $this->commitMessages($messages, true);
     }
 
     /**
@@ -156,5 +128,34 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     protected function kafkaConsume(int $timeout): ?RdKafkaMessage
     {
         return $this->consumer->consume($timeout);
+    }
+
+    /**
+     * @param MessageInterface|MessageInterface[] $messages
+     * @param bool                                $asAsync
+     * @throws KafkaConsumerCommitException
+     * @return void
+     */
+    private function commitMessages($messages, bool $asAsync = false): void
+    {
+        $messages = is_array($messages) ? $messages : [$messages];
+
+        foreach ($messages as $i => $message) {
+            if (false === $message instanceof Message) {
+                throw new KafkaConsumerCommitException(
+                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
+                );
+            }
+
+            try {
+                if (true === $asAsync) {
+                    $this->consumer->commitAsync($message);
+                } else {
+                    $this->consumer->commit($message);
+                }
+            } catch (RdKafkaException $e) {
+                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
+            }
+        }
     }
 }
