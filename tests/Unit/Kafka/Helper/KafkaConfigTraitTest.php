@@ -2,12 +2,12 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Helper;
 
-use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait
+ * @covers \Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait
  */
 class KafkaConfigTraitTest extends TestCase
 {

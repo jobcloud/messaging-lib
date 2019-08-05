@@ -7,7 +7,7 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer;
 

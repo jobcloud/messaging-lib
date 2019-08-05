@@ -147,10 +147,6 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('newTopic')
             ->with(self::TEST_TOPIC)
             ->willReturn($rdKafkaConsumerTopicMock);
-        $this->rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('addBrokers')
-            ->with(implode(',', [self::TEST_BROKER]));
 
         $this->kafkaConsumer->subscribe();
         $message = $this->kafkaConsumer->consume();

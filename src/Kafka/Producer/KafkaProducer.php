@@ -21,9 +21,6 @@ final class KafkaProducer implements ProducerInterface
     /** @var array */
     protected $producerTopics = [];
 
-    /** @var boolean */
-    protected $isConnected = false;
-
     /**
      * KafkaProducer constructor.
      * @param RdKafkaProducer    $producer
@@ -44,8 +41,6 @@ final class KafkaProducer implements ProducerInterface
      */
     public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA, string $key = null)
     {
-        $this->connectProducerToBrokers();
-
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
         $topicProducer->produce($partition, 0, $message, $key);
@@ -66,18 +61,5 @@ final class KafkaProducer implements ProducerInterface
         }
 
         return $this->producerTopics[$topic];
-    }
-
-    /**
-     * @return void
-     */
-    private function connectProducerToBrokers(): void
-    {
-        if (true === $this->isConnected) {
-            return;
-        }
-
-        $this->producer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
-        $this->isConnected = true;
     }
 }
