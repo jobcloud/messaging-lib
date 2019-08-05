@@ -18,6 +18,9 @@ use RdKafka\TopicPartition;
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
 
+    /** @var RdKafkaLowLevelConsumer */
+    protected $consumer;
+
     /** @var array|ConsumerTopic[] */
     protected $topics = [];
 
