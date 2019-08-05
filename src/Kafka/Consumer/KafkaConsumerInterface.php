@@ -7,6 +7,8 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use RdKafka\ConsumerTopic;
+use RdKafka\Metadata;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {
@@ -33,11 +35,6 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function consume(): MessageInterface;
 
     /**
-     * @return array|TopicSubscriptionInterface[]
-     */
-    public function getTopicSubscriptions(): array;
-
-    /**
      * @param MessageInterface|MessageInterface[] $messages
      * @return void
      */
@@ -47,4 +44,11 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return KafkaConfiguration
      */
     public function getConfiguration(): KafkaConfiguration;
+
+    /**
+     * @param ConsumerTopic $topic
+     * @return Metadata\Topic
+     */
+    public function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic;
+
 }

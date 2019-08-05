@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
@@ -63,6 +64,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var callable
      */
     private $rebalanceCallback;
+
+    /**
+     * @var callable
+     */
+    private $consumeCallback;
+
+    /**
+     * @var callable
+     */
+    private $offsetCommitCallback;
 
     /**
      * KafkaConsumerBuilder constructor.
@@ -187,6 +198,28 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * @param callable $consumeCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumeCb(callable $consumeCallback): KafkaConsumerBuilderInterface
+    {
+        $this->consumeCallback = $consumeCallback;
+
+        return $this;
+    }
+
+    /**
+     * @param callable $offsetCommitCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setOffsetCommitCallback(callable $offsetCommitCallback): KafkaConsumerBuilderInterface
+    {
+        $this->offsetCommitCallback = $offsetCommitCallback;
+
+        return $this;
+    }
+
+    /**
      * @return KafkaConsumerInterface
      * @throws KafkaConsumerBuilderException
      */
@@ -208,14 +241,32 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
 
         //set consumer callbacks
-        $kafkaConfig->setErrorCb($this->errorCallback);
-        if (null !== $this->rebalanceCallback) {
-            $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
-        }
+        $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
         $rdKafkaConsumer = new $this->rdKafkaConsumerType($kafkaConfig);
 
         return new $this->consumerType($rdKafkaConsumer, $kafkaConfig);
+    }
+
+    /**
+     * @param KafkaConfiguration $conf
+     * @return void
+     */
+    private function registerCallbacks(KafkaConfiguration $conf): void
+    {
+        $conf->setErrorCb($this->errorCallback);
+
+        if (null !== $this->rebalanceCallback) {
+            $conf->setRebalanceCb($this->rebalanceCallback);
+        }
+
+        if (null !== $this->rebalanceCallback) {
+            $conf->setConsumeCb($this->rebalanceCallback);
+        }
+
+        if (null !== $this->rebalanceCallback) {
+            $conf->setOffsetCommitCb($this->rebalanceCallback);
+        }
     }
 }

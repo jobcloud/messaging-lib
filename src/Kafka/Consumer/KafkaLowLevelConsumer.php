@@ -6,16 +6,16 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
-use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use RdKafka\Consumer as RdKafkaConsumer;
+use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
-use RdKafka\Metadata;
+use RdKafka\Message as RdKafkaMessage;
 use RdKafka\Queue;
+use RdKafka\TopicPartition;
 
-final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
+final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
 
     /** @var array|ConsumerTopic[] */
@@ -25,52 +25,14 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
     protected $queue;
 
     /**
-     * @param RdKafkaConsumer    $consumer
-     * @param KafkaConfiguration $kafkaConfiguration
+     * @param RdKafkaLowLevelConsumer $consumer
+     * @param KafkaConfiguration      $kafkaConfiguration
      */
-    public function __construct(RdKafkaConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
+    public function __construct(RdKafkaLowLevelConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
     {
         $this->consumer = $consumer;
         $this->kafkaConfiguration = $kafkaConfiguration;
         $this->queue = $consumer->newQueue();
-    }
-
-    /**
-     * @return MessageInterface
-     * @throws KafkaConsumerConsumeException
-     */
-    public function consume(): MessageInterface
-    {
-        if (false === $this->subscribed) {
-            throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
-        }
-
-        if (null === $rdKafkaMessage = $this->queue->consume($this->kafkaConfiguration->getTimeout())) {
-            throw new KafkaConsumerConsumeException(
-                rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT),
-                RD_KAFKA_RESP_ERR__TIMED_OUT
-            );
-        }
-
-        if ($rdKafkaMessage->topic_name === null && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
-        }
-
-        $message = new Message(
-            $rdKafkaMessage->key,
-            $rdKafkaMessage->payload,
-            $rdKafkaMessage->topic_name,
-            $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset,
-            $rdKafkaMessage->timestamp,
-            $rdKafkaMessage->headers
-        );
-
-        if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
-        }
-
-        return $message;
     }
 
     /**
@@ -80,14 +42,14 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
      */
     public function subscribe(): void
     {
-        if (true === $this->subscribed) {
+        if (true === $this->isSubscribed()) {
             return;
         }
 
         $this->connectConsumerToBrokers();
 
         try {
-            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+            $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
             foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
 
@@ -143,11 +105,11 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
      */
     public function unsubscribe(): void
     {
-        if (false === $this->subscribed) {
+        if (false === $this->isSubscribed()) {
             return;
         }
 
-        $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+        $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
 
         /** @var TopicSubscription $topicSubscription */
         foreach ($topicSubscriptions as $topicSubscription) {
@@ -157,23 +119,6 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
         }
 
         $this->subscribed = false;
-    }
-
-    /**
-     * @param ConsumerTopic $topic
-     * @return Metadata\Topic
-     * @throws RdKafkaException
-     */
-    private function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
-    {
-        return $this->consumer
-            ->getMetadata(
-                false,
-                $topic,
-                $this->kafkaConfiguration->getTimeout()
-            )
-            ->getTopics()
-            ->current();
     }
 
     /**
@@ -194,5 +139,42 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer
                 );
             }
         }
+    }
+
+    /**
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
+     * @return array
+     */
+    public function offsetsForTimes(array $topicPartitions, int $timeout): array
+    {
+        return $this->consumer->offsetsForTimes($topicPartitions, $timeout);
+    }
+
+    /**
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $lowOffset
+     * @param integer $highOffset
+     * @param integer $timeout
+     * @return void
+     */
+    public function getBrokerHighLowOffsets(
+        string $topic,
+        int $partition,
+        int &$lowOffset,
+        int &$highOffset,
+        int $timeout
+    ): void {
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+    }
+
+    /**
+     * @param integer $timeout
+     * @return null|RdKafkaMessage
+     */
+    protected function kafkaConsume(int $timeout): ?RdKafkaMessage
+    {
+        return $this->queue->consume($timeout);
     }
 }

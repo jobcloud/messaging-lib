@@ -11,7 +11,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use RdKafka\Consumer as RdKafkaConsumer;
+use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
@@ -46,7 +46,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /** @var RdKafkaQueue|MockObject */
     private $rdKafkaQueueMock;
 
-    /** @var RdKafkaConsumer|MockObject */
+    /** @var RdKafkaLowLevelConsumer|MockObject */
     private $rdKafkaConsumerMock;
 
     /** @var KafkaConfiguration|MockObject */
@@ -61,7 +61,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     public function setUp(): void
     {
         $this->rdKafkaQueueMock = $this->createMock(RdKafkaQueue::class);
-        $this->rdKafkaConsumerMock = $this->createMock(RdKafkaConsumer::class);
+        $this->rdKafkaConsumerMock = $this->createMock(RdKafkaLowLevelConsumer::class);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newQueue')
@@ -463,25 +463,39 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /**
      * @return void
      */
-    public function testGetTopicSubscriptions(): void
+    public function testGetConfiguration(): void
     {
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC, self::TEST_OFFSET);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1);
-
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTopicSubscriptions')
-            ->willReturn([$topicSubscription]);
-
-        self::assertEquals([$topicSubscription], $this->kafkaConsumer->getTopicSubscriptions());
+        self::assertEquals($this->kafkaConfigurationMock, $this->kafkaConsumer->getConfiguration());
     }
 
     /**
      * @return void
      */
-    public function testGetConfiguration(): void
+    public function testOffsetsForTimes(): void
     {
-        self::assertEquals($this->kafkaConfigurationMock, $this->kafkaConsumer->getConfiguration());
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('offsetsForTimes')
+            ->with([], self::TEST_TIMEOUT)
+            ->willReturn([]);
+
+        $this->kafkaConsumer->offsetsForTimes([], self::TEST_TIMEOUT);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetBrokerHighLowOffsets(): void
+    {
+        $lowOffset = 0;
+        $highOffset = 0;
+
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with(self::TEST_TOPIC, self::TEST_PARTITION_ID_1, $lowOffset, $highOffset, self::TEST_TIMEOUT);
+
+        $this->kafkaConsumer->getBrokerHighLowOffsets(self::TEST_TOPIC, self::TEST_PARTITION_ID_1, $lowOffset, $highOffset, self::TEST_TIMEOUT);
     }
 
     /**

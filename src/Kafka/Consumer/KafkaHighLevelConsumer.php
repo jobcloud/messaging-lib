@@ -4,66 +4,157 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
+use RdKafka\Exception as RdKafkaException;
+use RdKafka\Message as RdKafkaMessage;
+use RdKafka\TopicPartition;
+use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
-class KafkaHighLevelConsumer implements KafkaConsumerInterface
+final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements KafkaHighLevelConsumerInterface
 {
 
     /**
-     * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
+     * @param RdKafkaHighLevelConsumer $consumer
+     * @param KafkaConfiguration       $kafkaConfiguration
+     */
+    public function __construct(RdKafkaHighLevelConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
+    {
+        $this->consumer = $consumer;
+        $this->kafkaConfiguration = $kafkaConfiguration;
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function subscribe(): void
     {
-        // TODO: Implement subscribe() method.
+        if (true === $this->isSubscribed()) {
+            return;
+        }
+
+        $this->connectConsumerToBrokers();
+
+        try {
+            $this->consumer->subscribe($this->getConfiguration()->getTopicSubscriptions());
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
-     * Unsubscribes this consumer from all currently subscribed topics
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function unsubscribe(): void
     {
-        // TODO: Implement unsubscribe() method.
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isSubscribed(): bool
-    {
-        // TODO: Implement isSubscribed() method.
-    }
-
-    /**
-     * @return MessageInterface
-     */
-    public function consume(): MessageInterface
-    {
-        // TODO: Implement consume() method.
-    }
-
-    /**
-     * @return array|TopicSubscriptionInterface[]
-     */
-    public function getTopicSubscriptions(): array
-    {
-        // TODO: Implement getTopicSubscriptions() method.
+        try {
+            $this->consumer->unsubscribe();
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
      * @param MessageInterface|MessageInterface[] $messages
+     * @throws KafkaConsumerCommitException
      * @return void
      */
     public function commit($messages): void
     {
-        // TODO: Implement commit() method.
+        $messages = is_array($messages) ? $messages : [$messages];
+
+        foreach ($messages as $i => $message) {
+            if (false === $message instanceof Message) {
+                throw new KafkaConsumerCommitException(
+                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
+                );
+            }
+
+            try {
+                $this->consumer->commit($message);
+            } catch (RdKafkaException $e) {
+                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
+            }
+        }
     }
 
     /**
-     * @return KafkaConfiguration
+     * @param array $topicPartitions
+     * @throws KafkaConsumerAssignmentException
+     * @return void
      */
-    public function getConfiguration(): KafkaConfiguration
+    public function assign(array $topicPartitions): void
     {
-        // TODO: Implement getConfiguration() method.
+        try {
+            $this->consumer->assign($topicPartitions);
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerAssignmentException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param MessageInterface|MessageInterface[] $messages
+     * @throws KafkaConsumerCommitException
+     * @return void
+     */
+    public function commitAsync($messages): void
+    {
+        $messages = is_array($messages) ? $messages : [$messages];
+
+        foreach ($messages as $i => $message) {
+            if (false === $message instanceof Message) {
+                throw new KafkaConsumerCommitException(
+                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
+                );
+            }
+
+            try {
+                $this->consumer->commitAsync($message);
+            } catch (RdKafkaException $e) {
+                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
+            }
+        }
+    }
+
+    /**
+     * @return array
+     * @throws KafkaConsumerAssignmentException
+     */
+    public function getAssignment(): array
+    {
+        try {
+            return $this->consumer->getAssignment();
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerAssignmentException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
+     * @return array|TopicPartition[]
+     * @throws KafkaConsumerRequestException
+     */
+    public function getCommittedOffsets(array $topicPartitions, int $timeout): array
+    {
+        try {
+            return $this->consumer->getCommittedOffsets($topicPartitions, $timeout);
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerRequestException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param integer $timeout
+     * @return RdKafkaMessage|null
+     * @throws RdKafkaException
+     */
+    protected function kafkaConsume(int $timeout): ?RdKafkaMessage
+    {
+        return $this->consumer->consume($timeout);
     }
 }

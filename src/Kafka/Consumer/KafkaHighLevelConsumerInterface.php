@@ -12,14 +12,16 @@ use RdKafka\TopicPartition;
 interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
 {
     /**
+     * @param array $topicPartitions
      * @return void
      */
-    public function assign(): void;
+    public function assign(array $topicPartitions): void;
 
     /**
+     * @param MessageInterface|MessageInterface[] $messages
      * @return void
      */
-    public function commitAsync(): void;
+    public function commitAsync($messages): void;
 
     /**
      * @return array|TopicPartition[]
@@ -27,7 +29,9 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     public function getAssignment(): array;
 
     /**
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
      * @return array|TopicPartition[]
      */
-    public function getCommittedOffsets(): array;
+    public function getCommittedOffsets(array $topicPartitions, int $timeout): array;
 }
