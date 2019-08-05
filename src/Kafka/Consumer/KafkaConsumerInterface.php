@@ -50,5 +50,4 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return Metadata\Topic
      */
     public function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic;
-
 }
