@@ -25,6 +25,8 @@ trait KafkaConfigTrait
             $conf->set($name, is_bool($value) ? (false === $value ? 'false' : 'true') : $value);
         }
 
+        $conf->set('metadata.broker.list', implode(',', $this->kafkaConfiguration->getBrokers()));
+
         return $conf;
     }
 }

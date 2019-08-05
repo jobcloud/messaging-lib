@@ -46,8 +46,6 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
             return;
         }
 
-        $this->connectConsumerToBrokers();
-
         try {
             $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
             foreach ($topicSubscriptions as $topicSubscription) {

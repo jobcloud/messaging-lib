@@ -36,8 +36,6 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             return;
         }
 
-        $this->connectConsumerToBrokers();
-
         try {
             $this->consumer->subscribe($this->getConfiguration()->getTopicSubscriptions());
         } catch (RdKafkaException $e) {

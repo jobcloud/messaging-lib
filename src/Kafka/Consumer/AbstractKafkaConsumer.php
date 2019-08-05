@@ -28,9 +28,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /** @var boolean */
     protected $subscribed = false;
 
-    /** @var boolean */
-    protected $isConnected = false;
-
     /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
     protected $consumer;
 
@@ -86,19 +83,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         }
 
         return $message;
-    }
-
-    /**
-     * @return void
-     */
-    protected function connectConsumerToBrokers(): void
-    {
-        if (true === $this->isConnected) {
-            return;
-        }
-
-        $this->consumer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
-        $this->isConnected = true;
     }
 
     /**
