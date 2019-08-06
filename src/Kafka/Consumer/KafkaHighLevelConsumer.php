@@ -35,12 +35,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      */
     public function subscribe(): void
     {
-        if (true === $this->isSubscribed()) {
-            return;
-        }
-
         try {
             $this->consumer->subscribe($this->getConfiguration()->getTopicSubscriptions());
+            $this->subscribed = true;
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
         }
@@ -54,6 +51,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     {
         try {
             $this->consumer->unsubscribe();
+            $this->subscribed = true;
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
         }
@@ -141,22 +139,14 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     {
         $messages = is_array($messages) ? $messages : [$messages];
 
-        foreach ($messages as $i => $message) {
-            if (false === $message instanceof Message) {
-                throw new KafkaConsumerCommitException(
-                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, Message::class)
-                );
+        try {
+            if (true === $asAsync) {
+                $this->consumer->commitAsync($messages);
+            } else {
+                $this->consumer->commit($messages);
             }
-
-            try {
-                if (true === $asAsync) {
-                    $this->consumer->commitAsync($message);
-                } else {
-                    $this->consumer->commit($message);
-                }
-            } catch (RdKafkaException $e) {
-                throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
-            }
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
         }
     }
 }

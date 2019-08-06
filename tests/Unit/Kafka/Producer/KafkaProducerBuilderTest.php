@@ -127,8 +127,9 @@ class KafkaProducerBuilderTest extends TestCase
         };
 
         $producer = $this->kafkaProducerBuilder
-            ->addBroker(self::TEST_BROKER)
+            ->addBroker('localhost')
             ->setDeliveryReportCallback($callback)
+            ->setErrorCallback($callback)
             ->build();
 
         self::assertInstanceOf(ProducerInterface::class, $producer);

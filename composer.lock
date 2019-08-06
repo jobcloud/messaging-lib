@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ceeac273d859849b942ba300aa017f6",
+    "content-hash": "9dd8a559232fda4a7311fee11850660f",
     "packages": [],
     "packages-dev": [
         {
@@ -157,6 +157,54 @@
                 "versions"
             ],
             "time": "2018-06-13T13:22:40+00:00"
+        },
+        {
+            "name": "johnkary/phpunit-speedtrap",
+            "version": "v3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnkary/phpunit-speedtrap.git",
+                "reference": "dac11b8640d4be7a70f336616947fa84f169835a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnkary/phpunit-speedtrap/zipball/dac11b8640d4be7a70f336616947fa84f169835a",
+                "reference": "dac11b8640d4be7a70f336616947fa84f169835a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "phpunit/phpunit": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JohnKary\\PHPUnit\\Listener\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Kary",
+                    "email": "john@johnkary.net"
+                }
+            ],
+            "description": "Find slow tests in your PHPUnit test suite",
+            "homepage": "https://github.com/johnkary/phpunit-speedtrap",
+            "keywords": [
+                "phpunit",
+                "profile",
+                "slow"
+            ],
+            "time": "2019-02-24T02:40:12+00:00"
         },
         {
             "name": "kwn/php-rdkafka-stubs",
@@ -3026,7 +3074,7 @@
     "platform": {
         "php": "^7.1",
         "ext-pcntl": "^7.1",
-        "ext-rdkafka": "^3.0.5"
+        "ext-rdkafka": "^3.1.2"
     },
     "platform-dev": []
 }

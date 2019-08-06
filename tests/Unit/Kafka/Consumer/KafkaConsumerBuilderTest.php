@@ -207,6 +207,42 @@ final class KafkaConsumerBuilderTest extends TestCase
 
     /**
      * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetConsumeCallback(): void
+    {
+        $callback = function () {
+            // Anonymous test method, no logic required
+        };
+
+        $this->kafkaConsumerBuilder->setConsumeCb($callback);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumeCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetOffsetCommitCallback(): void
+    {
+        $callback = function () {
+            // Anonymous test method, no logic required
+        };
+
+        $this->kafkaConsumerBuilder->setOffsetCommitCallback($callback);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'offsetCommitCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
      * @throws KafkaConsumerBuilderException
      */
     public function testBuildFailMissingBrokers(): void
