@@ -12,7 +12,8 @@ interface ProducerInterface
      * @param string      $topic
      * @param integer     $partition
      * @param string|null $key
+     * @param array|null  $headers
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition, string $key = null);
+    public function produce(string $message, string $topic, int $partition, string $key = null, ?array $headers = null);
 }

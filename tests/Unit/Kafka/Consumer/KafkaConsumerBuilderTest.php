@@ -3,10 +3,12 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer;
@@ -265,6 +267,27 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->build();
 
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
-        self::assertInstanceOf(KafkaLowLevelConsumer::class, $consumer);
+        self::assertInstanceOf(KafkaLowLevelConsumerInterface::class, $consumer);
+    }
+
+    /**
+     * @return void
+     */
+    public function testBuildHighLevelSuccess(): void
+    {
+        $callback = function ($kafka, $errId, $msg) {
+            // Anonymous test method, no logic required
+        };
+
+        /** @var $consumer KafkaHighLevelConsumer */
+        $consumer = $this->kafkaConsumerBuilder
+            ->addBroker(self::TEST_BROKER)
+            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->setRebalanceCallback($callback)
+            ->setErrorCallback($callback)
+            ->build();
+
+        self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
+        self::assertInstanceOf(KafkaHighLevelConsumerInterface::class, $consumer);
     }
 }

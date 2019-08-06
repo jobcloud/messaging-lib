@@ -49,14 +49,10 @@ class KafkaProducerTest extends TestCase
         $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
         $rdKafkaProducerTopicMock
             ->expects(self::once())
-            ->method('produce')
+            ->method('producev')
             ->with(RD_KAFKA_PARTITION_UA, 0, 'test')
             ->willThrowException(new KafkaProducerException());
 
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getBrokers')
-            ->willReturn([self::TEST_BROKER]);
         $this->rdKafkaProducerMock
             ->expects(self::any())
             ->method('newTopic')
@@ -78,7 +74,7 @@ class KafkaProducerTest extends TestCase
         $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
         $rdKafkaProducerTopicMock
             ->expects(self::exactly(2))
-            ->method('produce')
+            ->method('producev')
             ->willReturnCallback(
                 function (
                     $partition,
@@ -115,10 +111,6 @@ class KafkaProducerTest extends TestCase
                 }
             );
 
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getBrokers')
-            ->willReturn([self::TEST_BROKER]);
         $this->kafkaConfigurationMock
             ->expects(self::exactly(2))
             ->method('getTimeout')

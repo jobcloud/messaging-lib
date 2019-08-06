@@ -37,13 +37,19 @@ final class KafkaProducer implements ProducerInterface
      * @param string      $topic
      * @param integer     $partition
      * @param string|null $key
+     * @param array|null  $headers
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA, string $key = null)
-    {
+    public function produce(
+        string $message,
+        string $topic,
+        int $partition = RD_KAFKA_PARTITION_UA,
+        string $key = null,
+        ?array $headers = null
+    ) {
         $topicProducer = $this->getProducerTopicForTopic($topic);
 
-        $topicProducer->produce($partition, 0, $message, $key);
+        $topicProducer->producev($partition, 0, $message, $key, $headers);
 
         while ($this->producer->getOutQLen() > 0) {
             $this->producer->poll($this->kafkaConfiguration->getTimeout());

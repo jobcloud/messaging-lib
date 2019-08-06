@@ -127,10 +127,6 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
-            ->method('getBrokers')
-            ->willReturn([self::TEST_BROKER]);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
             ->method('getTopicSubscriptions')
             ->willReturn([new TopicSubscription(self::TEST_TOPIC)]);
         $this->kafkaConfigurationMock
