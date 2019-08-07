@@ -463,20 +463,6 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /**
      * @return void
      */
-    public function testOffsetsForTimes(): void
-    {
-        $this->rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('offsetsForTimes')
-            ->with([], self::TEST_TIMEOUT)
-            ->willReturn([]);
-
-        $this->kafkaConsumer->offsetsForTimes([], self::TEST_TIMEOUT);
-    }
-
-    /**
-     * @return void
-     */
     public function testGetBrokerHighLowOffsets(): void
     {
         $lowOffset = 0;
