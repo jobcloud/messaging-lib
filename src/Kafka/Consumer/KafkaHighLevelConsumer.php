@@ -120,6 +120,15 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * @param array|TopicPartition[] $topicPartitions
+     * @return array
+     */
+    public function getOffsetPositions(array $topicPartitions): array
+    {
+        return $this->consumer->getOffsetPositions($topicPartitions);
+    }
+
+    /**
      * @param integer $timeout
      * @return RdKafkaMessage|null
      * @throws RdKafkaException
