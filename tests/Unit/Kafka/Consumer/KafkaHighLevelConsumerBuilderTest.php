@@ -4,6 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer;
 
@@ -37,14 +38,14 @@ final class KafkaHighLevelConsumerBuilderTest extends TestCase
     /**
      * @return void
      */
-    public function testSetBroker(): void
+    public function testAddBroker(): void
     {
-        self::assertSame($this->kafkaHighLevelConsumerBuilder, $this->kafkaHighLevelConsumerBuilder->setBroker('localhost'));
+        self::assertSame($this->kafkaHighLevelConsumerBuilder, $this->kafkaHighLevelConsumerBuilder->addBroker('localhost'));
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaHighLevelConsumerBuilder, 'broker');
+        $reflectionProperty = new \ReflectionProperty($this->kafkaHighLevelConsumerBuilder, 'brokers');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame('localhost', $reflectionProperty->getValue($this->kafkaHighLevelConsumerBuilder));
+        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaHighLevelConsumerBuilder));
     }
 
     /**
@@ -110,7 +111,8 @@ final class KafkaHighLevelConsumerBuilderTest extends TestCase
     public function testBuildSuccess(): void
     {
         $consumer = KafkaHighLevelConsumerBuilder::create()
-            ->setBroker('localhost')
+            ->addBroker('localhost')
+            ->addSubscription(new TopicSubscription('TEST_TOPIC'))
             ->build();
 
         self::assertInstanceOf(KafkaConsumer::class, $consumer);

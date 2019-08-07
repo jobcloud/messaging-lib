@@ -13,14 +13,19 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
     use KafkaConfigTrait;
 
     /**
-     * @var string
+     * @var array
      */
-    private $broker;
+    private $brokers = [];
 
     /**
      * @var array
      */
     private $config = [];
+
+    /**
+     * @var array
+     */
+    private $topics = [];
 
     /**
      * @var int
@@ -44,20 +49,9 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
      * @param string $broker
      * @return KafkaHighLevelConsumerBuilderInterface
      */
-    public function setBroker(string $broker): KafkaHighLevelConsumerBuilderInterface
+    public function addBroker(string $broker): KafkaHighLevelConsumerBuilderInterface
     {
-        $this->broker = $broker;
-
-        return $this;
-    }
-
-    /**
-     * @param integer $timeout
-     * @return KafkaHighLevelConsumerBuilderInterface
-     */
-    public function setTimeout(int $timeout): KafkaHighLevelConsumerBuilderInterface
-    {
-        $this->timeout = $timeout;
+        $this->brokers[] = $broker;
 
         return $this;
     }
@@ -69,6 +63,28 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
     public function setConfig(array $config): KafkaHighLevelConsumerBuilderInterface
     {
         $this->config += $config;
+
+        return $this;
+    }
+
+    /**
+     * @param TopicSubscriptionInterface $topicSubscription
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function addSubscription(TopicSubscriptionInterface $topicSubscription): KafkaHighLevelConsumerBuilderInterface
+    {
+        $this->topics[] = $topicSubscription;
+
+        return $this;
+    }
+
+    /**
+     * @param integer $timeout
+     * @return KafkaHighLevelConsumerBuilderInterface
+     */
+    public function setTimeout(int $timeout): KafkaHighLevelConsumerBuilderInterface
+    {
+        $this->timeout = $timeout;
 
         return $this;
     }
@@ -90,14 +106,18 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
      */
     public function build(): KafkaConsumer
     {
-        if (null === $this->broker) {
+        if ([] === $this->brokers) {
             throw new KafkaConsumerBuilderException('No brokers to connect');
         }
 
-        $this->config['group.id'] = $this->consumerGroup;
-        $this->config['metadata.broker.list'] = $this->broker;
+        if ([] === $this->topics) {
+            throw new KafkaConsumerBuilderException('No topics set to consume');
+        }
 
-        $kafkaConfig = $this->createKafkaConfig($this->config);
+        $this->config['group.id'] = $this->consumerGroup;
+        $this->config['metadata.broker.list'] = $this->brokers[0];
+
+        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
 
         return new KafkaConsumer($kafkaConfig);
     }

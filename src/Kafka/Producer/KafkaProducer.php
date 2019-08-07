@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\KafkaConfiguration;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
@@ -11,42 +12,27 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 final class KafkaProducer implements ProducerInterface
 {
 
-    /**
-     * @var RdKafkaProducer
-     */
+    /** @var RdKafkaProducer */
     protected $producer;
 
-    /**
-     * @var array
-     */
+    /** @var KafkaConfiguration */
+    protected $kafkaConfiguration;
+
+    /** @var array */
     protected $producerTopics = [];
 
-    /**
-     * @var int
-     */
-    protected $pollTimeout;
-
-    /**
-     * @var array
-     */
-    protected $brokers;
-
-    /**
-     * @var boolean
-     */
+    /** @var boolean */
     protected $isConnected = false;
 
     /**
-     * AbstractKafkaProducer constructor.
-     * @param RdKafkaProducer $producer
-     * @param array           $brokers
-     * @param integer         $pollTimeout
+     * KafkaProducer constructor.
+     * @param RdKafkaProducer    $producer
+     * @param KafkaConfiguration $kafkaConfiguration
      */
-    public function __construct(RdKafkaProducer $producer, array $brokers, int $pollTimeout)
+    public function __construct(RdKafkaProducer $producer, KafkaConfiguration $kafkaConfiguration)
     {
         $this->producer = $producer;
-        $this->brokers = $brokers;
-        $this->pollTimeout = $pollTimeout;
+        $this->kafkaConfiguration = $kafkaConfiguration;
     }
 
     /**
@@ -65,7 +51,7 @@ final class KafkaProducer implements ProducerInterface
         $topicProducer->produce($partition, 0, $message, $key);
 
         while ($this->producer->getOutQLen() > 0) {
-            $this->producer->poll($this->pollTimeout);
+            $this->producer->poll($this->kafkaConfiguration->getTimeout());
         }
     }
 
@@ -91,7 +77,7 @@ final class KafkaProducer implements ProducerInterface
             return;
         }
 
-        $this->producer->addBrokers(implode(',', $this->brokers));
+        $this->producer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
         $this->isConnected = true;
     }
 }

@@ -160,11 +160,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->config['enable.auto.offset.store'] = false;
 
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->config);
+        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
 
         //set consumer callbacks
         $kafkaConfig->setErrorCb($this->errorCallback);
-
         if (null !== $this->rebalanceCallback) {
             $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
         }
@@ -172,6 +171,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //create RdConsumer
         $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
 
-        return new KafkaConsumer($rdKafkaConsumer, $this->brokers, $this->topics, $this->timeout);
+        return new KafkaConsumer($rdKafkaConsumer, $kafkaConfig);
     }
 }
