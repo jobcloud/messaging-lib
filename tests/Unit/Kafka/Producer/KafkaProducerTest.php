@@ -143,4 +143,18 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->produce($expectedMessage1, self::TEST_TOPIC, $expectedPartition1);
         $this->kafkaProducer->produce($expectedMessage2, self::TEST_TOPIC, $expectedPartition2, $expectedKey2);
     }
+
+    /**
+     * @return void
+     */
+    public function testPurge(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('purge')
+            ->with(RD_KAFKA_PURGE_F_QUEUE)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        $this->kafkaProducer->purge(RD_KAFKA_PURGE_F_QUEUE);
+    }
 }

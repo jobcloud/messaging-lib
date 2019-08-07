@@ -9,7 +9,7 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
-final class KafkaProducer implements ProducerInterface
+final class KafkaProducer implements KafkaProducerInterface
 {
 
     /** @var RdKafkaProducer */
@@ -67,5 +67,14 @@ final class KafkaProducer implements ProducerInterface
         }
 
         return $this->producerTopics[$topic];
+    }
+
+    /**
+     * @param integer $purgeFlags
+     * @return integer
+     */
+    public function purge(int $purgeFlags): int
+    {
+        return $this->producer->purge($purgeFlags);
     }
 }

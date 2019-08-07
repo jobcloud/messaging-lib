@@ -161,6 +161,16 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
+     * @return array
+     */
+    public function offsetsForTimes(array $topicPartitions, int $timeout): array
+    {
+        return $this->consumer->offsetsForTimes($topicPartitions, $timeout);
+    }
+
+    /**
      * @param integer $timeout
      * @return null|RdKafkaMessage
      */
