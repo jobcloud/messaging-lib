@@ -66,23 +66,7 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSubscribeToLowLevelTopic(): void
-    {
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC);
-
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addLowLevelSubscription($topicSubscription));
-
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame([$topicSubscription], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testSubscribeToHighKLevelTopic(): void
+    public function testSubscribeToTopic(): void
     {
         self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription(self::TEST_TOPIC));
 
@@ -275,7 +259,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addSubscription(self::TEST_TOPIC)
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
@@ -296,7 +280,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addSubscription(self::TEST_TOPIC)
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
@@ -318,7 +302,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         /** @var $consumer KafkaHighLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addSubscription(self::TEST_TOPIC)
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();

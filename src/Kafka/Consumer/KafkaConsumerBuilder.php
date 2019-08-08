@@ -9,6 +9,7 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
+use RdKafka\TopicPartition;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
@@ -103,15 +104,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param TopicSubscriptionInterface $topicSubscription
-     * @return KafkaConsumerBuilderInterface
+     * @return void
      */
-    public function addLowLevelSubscription(
-        TopicSubscriptionInterface $topicSubscription
-    ): KafkaConsumerBuilderInterface {
-        $this->topics[] = $topicSubscription;
+    private function convertSubscriptionsToLowLevel(): void
+    {
+        $topicSubscriptions = [];
 
-        return $this;
+        foreach ($this->topics as $topic) {
+            $topicSubscriptions[] = new TopicSubscription($topic);
+        }
+
+        $this->topics = $topicSubscriptions;
     }
 
     /**
@@ -236,6 +239,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['enable.auto.offset.store'] = false;
+
+        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
+            $this->convertSubscriptionsToLowLevel();
+        }
 
         //create config from given settings
         $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
