@@ -84,30 +84,41 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetConfig(): void
+    public function testAddConfig(): void
     {
-        $config = ['timeout' => 1000];
-        $this->kafkaConsumerBuilder->setConfig($config);
+        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group'];
+        $newConfig = ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3];
+        $this->kafkaConsumerBuilder->addConfig($intialConfig);
+        $this->kafkaConsumerBuilder->addConfig($newConfig);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'config');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($config, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3, 'group.id' => 'test-group'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetTopicConfig(): void
+    public function testAddTopicConfig(): void
     {
-        $config = ['auto.offset.reset' => 'earliest'];
-        $this->kafkaConsumerBuilder->setTopicConfig($config);
+        $intialConfig = ['auto.offset.reset' => 'earliest', 'auto.commit.interval.ms' => 1e3];
+        $newConfig = ['auto.offset.reset' => 'latest', 'offset.store.sync.interval.ms' => 60e3];
+        $this->kafkaConsumerBuilder->addTopicConfig($intialConfig);
+        $this->kafkaConsumerBuilder->addTopicConfig($newConfig);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topicConfig');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($config, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(
+            [
+                'auto.offset.reset' => 'latest',
+                'offset.store.sync.interval.ms' => 60e3,
+                'auto.commit.interval.ms' => 1e3,
+            ],
+            $reflectionProperty->getValue($this->kafkaConsumerBuilder)
+        );
     }
 
     /**

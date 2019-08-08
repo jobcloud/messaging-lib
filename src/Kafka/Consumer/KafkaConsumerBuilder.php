@@ -9,7 +9,6 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
-use RdKafka\TopicPartition;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
@@ -137,9 +136,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConfig(array $config): KafkaConsumerBuilderInterface
+    public function addConfig(array $config): KafkaConsumerBuilderInterface
     {
-        $this->config += $config;
+        $this->config = $config + $this->config;
 
         return $this;
     }
@@ -148,9 +147,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param array $topicConfig
      * @return KafkaConsumerBuilderInterface
      */
-    public function setTopicConfig(array $topicConfig): KafkaConsumerBuilderInterface
+    public function addTopicConfig(array $topicConfig): KafkaConsumerBuilderInterface
     {
-        $this->topicConfig += $topicConfig;
+        $this->topicConfig = $topicConfig + $this->topicConfig;
 
         return $this;
     }
