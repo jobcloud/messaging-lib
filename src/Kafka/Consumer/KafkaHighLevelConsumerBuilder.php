@@ -71,8 +71,9 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
      * @param TopicSubscriptionInterface $topicSubscription
      * @return KafkaHighLevelConsumerBuilderInterface
      */
-    public function addSubscription(TopicSubscriptionInterface $topicSubscription): KafkaHighLevelConsumerBuilderInterface
-    {
+    public function addSubscription(
+        TopicSubscriptionInterface $topicSubscription
+    ): KafkaHighLevelConsumerBuilderInterface {
         $this->topics[] = $topicSubscription;
 
         return $this;
@@ -115,7 +116,7 @@ final class KafkaHighLevelConsumerBuilder implements KafkaHighLevelConsumerBuild
         }
 
         $this->config['group.id'] = $this->consumerGroup;
-        $this->config['metadata.broker.list'] = $this->brokers[0];
+        $this->config['metadata.broker.list'] = implode(',', $this->brokers);
 
         $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
 
