@@ -56,8 +56,8 @@ class ProducerPoolTest extends TestCase
         $this->kafkaProducerMock
             ->expects(self::once())
             ->method('produce')
-            ->with(self::TEST_MESSAGE, self::TEST_TOPIC, self::TEST_PARTITION, self::TEST_KEY);
+            ->with(self::TEST_MESSAGE, 'test-topic', self::TEST_PARTITION, self::TEST_KEY);
         $this->producerPool->addProducer($this->kafkaProducerMock);
-        $this->producerPool->produce(self::TEST_MESSAGE, self::TEST_TOPIC, self::TEST_PARTITION, self::TEST_KEY);
+        $this->producerPool->produce(self::TEST_MESSAGE, 'test-topic', self::TEST_PARTITION, self::TEST_KEY);
     }
 }

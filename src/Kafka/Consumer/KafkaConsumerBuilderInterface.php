@@ -25,6 +25,12 @@ interface KafkaConsumerBuilderInterface
     public function setConfig(array $config): self;
 
     /**
+     * @param array $topicConfig
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setTopicConfig(array $topicConfig): self;
+
+    /**
      * @param integer $timeout
      * @return KafkaConsumerBuilderInterface
      */

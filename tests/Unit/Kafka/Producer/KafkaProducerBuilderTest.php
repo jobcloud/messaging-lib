@@ -12,10 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 class KafkaProducerBuilderTest extends TestCase
 {
-    /** @var int */
-    private const TEST_TIMEOUT = 9999;
-    /** @var string */
-    private const TEST_BROKER = 'TEST_BROKER';
 
     /** @var $kafkaProducerBuilder KafkaProducerBuilder */
     protected $kafkaProducerBuilder;
@@ -34,7 +30,7 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testSetConfig(): void
     {
-        $config = ['timeout' => self::TEST_TIMEOUT];
+        $config = ['timeout' => 1000];
         $this->kafkaProducerBuilder->setConfig($config);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
@@ -49,12 +45,12 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testAddBroker(): void
     {
-        $this->kafkaProducerBuilder->addBroker(self::TEST_BROKER);
+        $this->kafkaProducerBuilder->addBroker('localhost');
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'brokers');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame([self::TEST_BROKER], $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**
@@ -99,12 +95,12 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testSetPollTimeout(): void
     {
-        $this->kafkaProducerBuilder->setPollTimeout(self::TEST_TIMEOUT);
+        $this->kafkaProducerBuilder->setPollTimeout(1000);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'pollTimeout');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(self::TEST_TIMEOUT, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame(1000, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**

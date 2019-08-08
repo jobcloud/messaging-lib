@@ -15,12 +15,6 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
  */
 class KafkaProducerTest extends TestCase
 {
-    /** @var int */
-    private const TEST_TIMEOUT = 9999;
-    /** @var string */
-    private const TEST_BROKER = 'TEST_BROKER';
-    /** @var string */
-    private const TEST_TOPIC = 'TEST_TOPIC';
 
     /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
@@ -114,7 +108,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaConfigurationMock
             ->expects(self::exactly(2))
             ->method('getTimeout')
-            ->willReturn(self::TEST_TIMEOUT);
+            ->willReturn(1000);
         $this->rdKafkaProducerMock
             ->expects(self::exactly(4))
             ->method('getOutQLen')
@@ -133,14 +127,14 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willReturn($rdKafkaProducerTopicMock);
         $this->rdKafkaProducerMock
             ->expects(self::exactly(2))
             ->method('poll')
-            ->with(self::TEST_TIMEOUT);
+            ->with(1000);
 
-        $this->kafkaProducer->produce($expectedMessage1, self::TEST_TOPIC, $expectedPartition1);
-        $this->kafkaProducer->produce($expectedMessage2, self::TEST_TOPIC, $expectedPartition2, $expectedKey2);
+        $this->kafkaProducer->produce($expectedMessage1, 'test-topic', $expectedPartition1);
+        $this->kafkaProducer->produce($expectedMessage2, 'test-topic', $expectedPartition2, $expectedKey2);
     }
 }

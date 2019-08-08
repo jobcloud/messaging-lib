@@ -34,6 +34,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @var array
      */
+    private $topicConfig = [];
+
+    /**
+     * @var array
+     */
     private $topics = [];
 
     /**
@@ -135,6 +140,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function setConfig(array $config): KafkaConsumerBuilderInterface
     {
         $this->config += $config;
+
+        return $this;
+    }
+
+    /**
+     * @param array $topicConfig
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setTopicConfig(array $topicConfig): KafkaConsumerBuilderInterface
+    {
+        $this->topicConfig += $topicConfig;
 
         return $this;
     }
@@ -245,7 +261,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
+        $kafkaConfig = $this->createKafkaConfig($this->config, $this->topicConfig, $this->brokers, $this->topics, $this->timeout);
 
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);

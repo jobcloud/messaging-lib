@@ -11,20 +11,13 @@ use PHPUnit\Framework\TestCase;
  */
 class KafkaConfigurationTest extends TestCase
 {
-    /** @var int */
-    private const TEST_TIMEOUT = 99999;
-    private const TEST_BROKER = 'TEST_BROKER';
-    private const TEST_TOPIC_NAME = 'TEST_TOPIC_NAME';
-    private const TEST_VALID_CONFIGURATION = 'group.id';
-    private const TEST_VALID_CONFIGURATION_VALUE = 'TEST_VALID_CONFIGURATION_VALUE';
-    private const TEST_INVALID_CONFIGURATION = 'configuration.test';
 
     /**
      * @return void
      */
     public function testInstance(): void
     {
-        self::assertInstanceOf(KafkaConfiguration::class, new KafkaConfiguration([], [], self::TEST_TIMEOUT));
+        self::assertInstanceOf(KafkaConfiguration::class, new KafkaConfiguration([], [], 1000));
     }
 
     /**
@@ -32,8 +25,8 @@ class KafkaConfigurationTest extends TestCase
      */
     public function kafkaConfigurationDataProvider(): array
     {
-        $brokers = [self::TEST_BROKER];
-        $topicSubscriptions = [new TopicSubscription(self::TEST_TOPIC_NAME)];
+        $brokers = ['localhost'];
+        $topicSubscriptions = [new TopicSubscription('test-topic')];
 
         return [
             [
@@ -51,11 +44,11 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testGettersAndSetters(array $brokers, array $topicSubscriptions): void
     {
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
 
         self::assertEquals($brokers, $kafkaConfiguration->getBrokers());
         self::assertEquals($topicSubscriptions, $kafkaConfiguration->getTopicSubscriptions());
-        self::assertEquals(self::TEST_TIMEOUT, $kafkaConfiguration->getTimeout());
+        self::assertEquals(1000, $kafkaConfiguration->getTimeout());
     }
 
     /**
@@ -66,7 +59,7 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testGetConfiguration(array $brokers, array $topicSubscriptions): void
     {
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
 
         self::assertEquals($kafkaConfiguration->dump(), $kafkaConfiguration->getConfiguration());
     }
@@ -79,12 +72,12 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testGetValidSetting(array $brokers, array $topicSubscriptions): void
     {
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
-        $kafkaConfiguration->set(self::TEST_VALID_CONFIGURATION, self::TEST_VALID_CONFIGURATION_VALUE);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
+        $kafkaConfiguration->set('group.id', 'test-group');
 
         self::assertEquals(
-            self::TEST_VALID_CONFIGURATION_VALUE,
-            $kafkaConfiguration->getSetting(self::TEST_VALID_CONFIGURATION)
+            'test-group',
+            $kafkaConfiguration->getSetting('group.id')
         );
     }
 
@@ -98,7 +91,7 @@ class KafkaConfigurationTest extends TestCase
     {
         self::expectException(\InvalidArgumentException::class);
 
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, self::TEST_TIMEOUT);
-        $kafkaConfiguration->getSetting(self::TEST_INVALID_CONFIGURATION);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
+        $kafkaConfiguration->getSetting('some.none.existing.config');
     }
 }
