@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use RdKafka\TopicConf;
+use RdKafka\TopicConf as RdKafkaTopicConf;
 
 /**
  * This topic subscription needs an concrete subscription to (a subset of available) partitions by using
@@ -29,7 +29,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
     private $defaultOffset;
 
     /**
-     * @var TopicConf
+     * @var RdKafkaTopicConf
      */
     private $topicConf;
 
@@ -48,7 +48,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
         $this->topicSettings = $topicSettings + $this->topicSettings;
         $this->topicName = $topicName;
         $this->defaultOffset = $defaultOffset;
-        $this->topicConf = new TopicConf();
+        $this->topicConf = new RdKafkaTopicConf();
 
         foreach ($this->topicSettings as $settingName => $value) {
             $this->topicConf->set($settingName, $value);
@@ -92,9 +92,9 @@ final class TopicSubscription implements TopicSubscriptionInterface
     }
 
     /**
-     * @return TopicConf
+     * @return RdKafkaTopicConf
      */
-    public function getTopicConf(): TopicConf
+    public function getTopicConf(): RdKafkaTopicConf
     {
         return $this->topicConf;
     }

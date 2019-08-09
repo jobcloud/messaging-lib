@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
-use RdKafka\TopicPartition;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
 {
@@ -22,14 +22,14 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     public function commitAsync($messages): void;
 
     /**
-     * @return array|TopicPartition[]
+     * @return array|RdKafkaTopicPartition[]
      */
     public function getAssignment(): array;
 
     /**
-     * @param array|TopicPartition[] $topicPartitions
-     * @param integer                $timeout
-     * @return array|TopicPartition[]
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @param integer                       $timeout
+     * @return array|RdKafkaTopicPartition[]
      */
     public function getCommittedOffsets(array $topicPartitions, int $timeout): array;
 

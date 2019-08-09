@@ -9,10 +9,10 @@ Supports:
 
 ## Requirements
 - php: ^7.1
-- ext-rdkafka: ^3.0.5
+- ext-rdkafka: ^3.1.2
 
 ## Installation
-```composer require jobcloud/messaging-lib "~1.0"```
+```composer require jobcloud/messaging-lib "~4.0"```
 
 ## Usage
 
@@ -41,20 +41,21 @@ $producer->produce('hello world', 'testTopic');
 
 use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use \Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
-
-$topic = new TopicSubscription('testTopic');
 
 $consumer = KafkaConsumerBuilder::create()
     ->addBroker('10.0.2.2')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
-    ->addSubscription($topic)
+    ->addSubscription('test-topic')
     ->build();
+
+$consumer->subscribe();
 
 while (true) {
     try {
         $message = $consumer->consume();
+        // your business logic
+        $consumer->commit($message);
     } catch (ConsumerException $e) {
         // Failed
     } 

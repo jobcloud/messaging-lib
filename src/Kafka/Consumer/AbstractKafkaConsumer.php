@@ -7,10 +7,10 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
-use RdKafka\ConsumerTopic;
+use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
-use RdKafka\Metadata;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Message as RdKafkaMessage;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
@@ -87,11 +87,11 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @param ConsumerTopic $topic
-     * @return Metadata\Topic
+     * @param RdKafkaConsumerTopic $topic
+     * @return RdKafkaMetadataTopic
      * @throws RdKafkaException
      */
-    public function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic
+    public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic
     {
         return $this->consumer
             ->getMetadata(

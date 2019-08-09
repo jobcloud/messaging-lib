@@ -9,7 +9,7 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Producer\ProducerInterface;
-use RdKafka\Producer;
+use RdKafka\Producer as RdKafkaProducer;
 
 final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 {
@@ -137,7 +137,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
         $kafkaConfig->setErrorCb($this->errorCallback);
 
-        $rdKafkaProducer = new Producer($kafkaConfig);
+        $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
         return new KafkaProducer($rdKafkaProducer, $kafkaConfig);
     }
