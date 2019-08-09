@@ -13,12 +13,6 @@ interface KafkaConsumerBuilderInterface
     public function addBroker(string $broker): self;
 
     /**
-     * @param TopicSubscriptionInterface $topicSubscription
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function addLowLevelSubscription(TopicSubscriptionInterface $topicSubscription): self;
-
-    /**
      * @param string $topicName
      * @return KafkaConsumerBuilderInterface
      */
@@ -28,7 +22,13 @@ interface KafkaConsumerBuilderInterface
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConfig(array $config): self;
+    public function addConfig(array $config): self;
+
+    /**
+     * @param array $topicConfig
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addTopicConfig(array $topicConfig): self;
 
     /**
      * @param integer $timeout

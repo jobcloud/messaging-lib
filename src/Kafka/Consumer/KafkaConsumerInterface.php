@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use RdKafka\ConsumerTopic;
 use RdKafka\Metadata;
@@ -30,12 +31,12 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function isSubscribed(): bool;
 
     /**
-     * @return MessageInterface
+     * @return KafkaMessageInterface
      */
     public function consume(): MessageInterface;
 
     /**
-     * @param MessageInterface|MessageInterface[] $messages
+     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @return void
      */
     public function commit($messages): void;

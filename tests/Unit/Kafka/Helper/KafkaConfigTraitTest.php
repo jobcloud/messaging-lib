@@ -11,34 +11,61 @@ use PHPUnit\Framework\TestCase;
  */
 class KafkaConfigTraitTest extends TestCase
 {
-    private const TEST_CONFIGURATION_NAME = 'group.id';
-    private const TEST_CONFIGURATION_VALUE = 'TEST_CONFIGURATION_VALUE';
+
+    private $traitClass;
+
+    public function setUp(): void
+    {
+        $this->traitClass = new class
+        {
+            use KafkaConfigTrait;
+
+            public function createTraitKafkaConfig(array $config, array $topicConfig): KafkaConfiguration
+            {
+                return $this->createKafkaConfig($config, $topicConfig, [], [], 0);
+            }
+        };
+    }
 
     /**
      * @return void
      */
     public function testCreateKafkaConfig(): void
     {
-        $anonymousConfigTraitUserClass = new class
-        {
-            use KafkaConfigTrait;
-
-            public function createTraitKafkaConfig(array $config): KafkaConfiguration
-            {
-                return $this->createKafkaConfig($config, [], [], 0);
-            }
-        };
 
         /** @var KafkaConfiguration $config */
-        $config = $anonymousConfigTraitUserClass->createTraitKafkaConfig(
+        $config = $this->traitClass->createTraitKafkaConfig(
             [
-                self::TEST_CONFIGURATION_NAME => self::TEST_CONFIGURATION_VALUE
+                'group.id' => 'test-group'
+            ],
+            []
+        );
+        self::assertInstanceOf(KafkaConfiguration::class, $config);
+
+        $configArray = $config->dump();
+        self::assertTrue(isset($configArray['group.id']));
+        self::assertEquals($configArray['group.id'], 'test-group');
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateKafkaConfigWithTopicConfiguration(): void
+    {
+
+        /** @var KafkaConfiguration $config */
+        $config = $this->traitClass->createTraitKafkaConfig(
+            [
+                'group.id' => 'test-group'
+            ],
+            [
+                'auto.offset.reset' => 'earliest'
             ]
         );
         self::assertInstanceOf(KafkaConfiguration::class, $config);
 
         $configArray = $config->dump();
-        self::assertTrue(isset($configArray[self::TEST_CONFIGURATION_NAME]));
-        self::assertEquals($configArray[self::TEST_CONFIGURATION_NAME], self::TEST_CONFIGURATION_VALUE);
+        self::assertTrue(isset($configArray['group.id']));
+        self::assertEquals($configArray['group.id'], 'test-group');
     }
 }

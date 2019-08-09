@@ -7,6 +7,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -29,6 +30,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var array
      */
     private $config = [];
+
+    /**
+     * @var array
+     */
+    private $topicConfig = [];
 
     /**
      * @var array
@@ -103,15 +109,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param TopicSubscriptionInterface $topicSubscription
-     * @return KafkaConsumerBuilderInterface
+     * @return void
      */
-    public function addLowLevelSubscription(
-        TopicSubscriptionInterface $topicSubscription
-    ): KafkaConsumerBuilderInterface {
-        $this->topics[] = $topicSubscription;
+    private function convertSubscriptionsToLowLevel(): void
+    {
+        $topicSubscriptions = [];
 
-        return $this;
+        foreach ($this->topics as $topic) {
+            $topicSubscriptions[] = new TopicSubscription($topic);
+        }
+
+        $this->topics = $topicSubscriptions;
     }
 
     /**
@@ -129,9 +137,20 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConfig(array $config): KafkaConsumerBuilderInterface
+    public function addConfig(array $config): KafkaConsumerBuilderInterface
     {
-        $this->config += $config;
+        $this->config = $config + $this->config;
+
+        return $this;
+    }
+
+    /**
+     * @param array $topicConfig
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addTopicConfig(array $topicConfig): KafkaConsumerBuilderInterface
+    {
+        $this->topicConfig = $topicConfig + $this->topicConfig;
 
         return $this;
     }
@@ -226,19 +245,29 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function build(): KafkaConsumerInterface
     {
         if ([] === $this->brokers) {
-            throw new KafkaConsumerBuilderException('No brokers to connect');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
         if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException('No topics set to consume');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
         }
 
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['enable.auto.offset.store'] = false;
 
+        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
+            $this->convertSubscriptionsToLowLevel();
+        }
+
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
+        $kafkaConfig = $this->createKafkaConfig(
+            $this->config,
+            $this->topicConfig,
+            $this->brokers,
+            $this->topics,
+            $this->timeout
+        );
 
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);

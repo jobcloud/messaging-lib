@@ -5,6 +5,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -54,7 +55,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     public function consume(): MessageInterface
     {
         if (false === $this->isSubscribed()) {
-            throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
+            throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
         }
 
         if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {
@@ -68,7 +69,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = new Message(
+        $message = new KafkaMessage(
             $rdKafkaMessage->key,
             $rdKafkaMessage->payload,
             $rdKafkaMessage->topic_name,

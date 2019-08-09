@@ -6,10 +6,9 @@ use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumerInterface;
-use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer;
 use RdKafka\KafkaConsumer;
@@ -19,15 +18,6 @@ use RdKafka\KafkaConsumer;
  */
 final class KafkaConsumerBuilderTest extends TestCase
 {
-
-    /** @var string */
-    private const TEST_BROKER = 'TEST_BROKER';
-    /** @var string */
-    private const TEST_TOPIC = 'TEST_TOPIC';
-    /** @var int */
-    private const TEST_TIMEOUT = 9999;
-    /** @var string */
-    private const TEST_CONSUMER_GROUP = 'TEST_CONSUMER_GROUP';
 
     /** @var KafkaConsumerBuilder */
     private $kafkaConsumerBuilder;
@@ -54,42 +44,26 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testAddBroker(): void
     {
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addBroker(self::TEST_BROKER));
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addBroker('localhost'));
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'brokers');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame([self::TEST_BROKER], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
      * @return void
      * @throws \ReflectionException
      */
-    public function testSubscribeToLowLevelTopic(): void
+    public function testSubscribeToTopic(): void
     {
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC);
-
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addLowLevelSubscription($topicSubscription));
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription('test-topic'));
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame([$topicSubscription], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testSubscribeToHighKLevelTopic(): void
-    {
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription(self::TEST_TOPIC));
-
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame([self::TEST_TOPIC], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(['test-topic'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
@@ -98,27 +72,53 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testSetTimeout(): void
     {
-        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->setTimeout(self::TEST_TIMEOUT));
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->setTimeout(1000));
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'timeout');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(self::TEST_TIMEOUT, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(1000, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetConfig(): void
+    public function testAddConfig(): void
     {
-        $config = ['timeout' => self::TEST_TIMEOUT];
-        $this->kafkaConsumerBuilder->setConfig($config);
+        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group'];
+        $newConfig = ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3];
+        $this->kafkaConsumerBuilder->addConfig($intialConfig);
+        $this->kafkaConsumerBuilder->addConfig($newConfig);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'config');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($config, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame(['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3, 'group.id' => 'test-group'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testAddTopicConfig(): void
+    {
+        $intialConfig = ['auto.offset.reset' => 'earliest', 'auto.commit.interval.ms' => 1e3];
+        $newConfig = ['auto.offset.reset' => 'latest', 'offset.store.sync.interval.ms' => 60e3];
+        $this->kafkaConsumerBuilder->addTopicConfig($intialConfig);
+        $this->kafkaConsumerBuilder->addTopicConfig($newConfig);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topicConfig');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame(
+            [
+                'auto.offset.reset' => 'latest',
+                'offset.store.sync.interval.ms' => 60e3,
+                'auto.commit.interval.ms' => 1e3,
+            ],
+            $reflectionProperty->getValue($this->kafkaConsumerBuilder)
+        );
     }
 
     /**
@@ -127,12 +127,12 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testSetConsumerGroup(): void
     {
-        $this->kafkaConsumerBuilder->setConsumerGroup(self::TEST_CONSUMER_GROUP);
+        $this->kafkaConsumerBuilder->setConsumerGroup('test-consumer');
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumerGroup');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(self::TEST_CONSUMER_GROUP, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertSame('test-consumer', $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
@@ -260,7 +260,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     {
         self::expectException(KafkaConsumerBuilderException::class);
 
-        $this->kafkaConsumerBuilder->addBroker(self::TEST_BROKER)->build();
+        $this->kafkaConsumerBuilder->addBroker('localhost')->build();
     }
 
     /**
@@ -274,8 +274,8 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
-            ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addBroker('localhost')
+            ->addSubscription('test-topic')
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
@@ -295,8 +295,8 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
-            ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addBroker('localhost')
+            ->addSubscription('test-topic')
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
@@ -317,8 +317,8 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         /** @var $consumer KafkaHighLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
-            ->addBroker(self::TEST_BROKER)
-            ->addLowLevelSubscription(new TopicSubscription(self::TEST_TOPIC))
+            ->addBroker('localhost')
+            ->addSubscription('test-topic')
             ->setRebalanceCallback($callback)
             ->setErrorCallback($callback)
             ->build();
