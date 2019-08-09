@@ -8,8 +8,8 @@ use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use RdKafka\ConsumerTopic;
-use RdKafka\Metadata;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {
@@ -47,8 +47,8 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function getConfiguration(): KafkaConfiguration;
 
     /**
-     * @param ConsumerTopic $topic
-     * @return Metadata\Topic
+     * @param RdKafkaConsumerTopic $topic
+     * @return RdKafkaMetadataTopic
      */
-    public function getMetadataForTopic(ConsumerTopic $topic): Metadata\Topic;
+    public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
 }

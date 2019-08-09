@@ -10,10 +10,10 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
-use RdKafka\ConsumerTopic;
+use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
-use RdKafka\Queue;
+use RdKafka\Queue as RdKafkaQueue;
 
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
@@ -21,10 +21,10 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /** @var RdKafkaLowLevelConsumer */
     protected $consumer;
 
-    /** @var array|ConsumerTopic[] */
+    /** @var array|RdKafkaConsumerTopic[] */
     protected $topics = [];
 
-    /** @var Queue */
+    /** @var RdKafkaQueue */
     protected $queue;
 
     /**
@@ -123,13 +123,15 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
-     * @param ConsumerTopic     $topic
-     * @param TopicSubscription $topicSubscription
+     * @param RdKafkaConsumerTopic $topic
+     * @param TopicSubscription    $topicSubscription
      * @throws RdKafkaException
      * @return void
      */
-    private function verifyAndSetPartitionSubcriptions(ConsumerTopic $topic, TopicSubscription $topicSubscription): void
-    {
+    private function verifyAndSetPartitionSubcriptions(
+        RdKafkaConsumerTopic $topic,
+        TopicSubscription $topicSubscription
+    ): void {
         if ([] === $topicSubscription->getPartitions()) {
             $topicMetadata = $this->getMetadataForTopic($topic);
 

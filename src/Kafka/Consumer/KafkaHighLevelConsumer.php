@@ -10,7 +10,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
-use RdKafka\TopicPartition;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements KafkaHighLevelConsumerInterface
@@ -105,9 +105,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array|TopicPartition[] $topicPartitions
-     * @param integer                $timeout
-     * @return array|TopicPartition[]
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @param integer                       $timeout
+     * @return array|RdKafkaTopicPartition[]
      * @throws KafkaConsumerRequestException
      */
     public function getCommittedOffsets(array $topicPartitions, int $timeout): array
@@ -150,7 +150,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
                 continue;
             }
 
-            $offsetsToCommit[$topicPartition] = new TopicPartition(
+            $offsetsToCommit[$topicPartition] = new RdKafkaTopicPartition(
                 $message->getTopicName(),
                 $message->getPartition(),
                 $message->getOffset() + 1
