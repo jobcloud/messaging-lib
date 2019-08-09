@@ -145,8 +145,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             $topicPartition = $message->getTopicName().$message->getPartition();
 
             if (true === isset($offsetsToCommit[$topicPartition])) {
-                if ($message->getOffset() > $offsetsToCommit[$topicPartition]) {
-                    $offsetsToCommit[$topicPartition]->setOffset($message->getOffset());
+                if ($message->getOffset() + 1 > $offsetsToCommit[$topicPartition]) {
+                    $offsetsToCommit[$topicPartition]->setOffset($message->getOffset() + 1);
                 }
                 continue;
             }
@@ -154,7 +154,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             $offsetsToCommit[$topicPartition] = new TopicPartition(
                 $message->getTopicName(),
                 $message->getPartition(),
-                $message->getOffset()
+                $message->getOffset() + 1
             );
         }
 
