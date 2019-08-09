@@ -7,6 +7,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -244,11 +245,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function build(): KafkaConsumerInterface
     {
         if ([] === $this->brokers) {
-            throw new KafkaConsumerBuilderException('No brokers to connect');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
         if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException('No topics set to consume');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
         }
 
         //set additional config
@@ -260,7 +261,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->config, $this->topicConfig, $this->brokers, $this->topics, $this->timeout);
+        $kafkaConfig = $this->createKafkaConfig(
+            $this->config,
+            $this->topicConfig,
+            $this->brokers,
+            $this->topics,
+            $this->timeout
+        );
 
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);

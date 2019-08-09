@@ -14,7 +14,6 @@ use RdKafka\ConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\Queue;
-use RdKafka\TopicPartition;
 
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {

@@ -1,0 +1,5 @@
+parameters:
+    level: 7
+    paths: [ src ]
+    ignoreErrors:
+        - '#Class RdKafka\\TopicPartition constructor invoked with 3 parameters, 0 required#'

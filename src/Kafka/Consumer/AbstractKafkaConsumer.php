@@ -55,7 +55,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     public function consume(): MessageInterface
     {
         if (false === $this->isSubscribed()) {
-            throw new KafkaConsumerConsumeException('This consumer is currently not subscribed');
+            throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
         }
 
         if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {

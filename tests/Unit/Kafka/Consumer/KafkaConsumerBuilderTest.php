@@ -6,7 +6,7 @@ use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumerInterface;
 use PHPUnit\Framework\TestCase;

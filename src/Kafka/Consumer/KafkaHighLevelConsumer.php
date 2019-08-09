@@ -2,7 +2,6 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
@@ -132,7 +131,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
-     * @param boolean                             $asAsync
+     * @param boolean                                       $asAsync
      * @throws KafkaConsumerCommitException
      * @return void
      */
