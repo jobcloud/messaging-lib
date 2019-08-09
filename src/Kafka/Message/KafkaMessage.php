@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Consumer;
+namespace Jobcloud\Messaging\Kafka\Message;
 
-use Jobcloud\Messaging\Consumer\MessageInterface;
-
-class Message implements MessageInterface
+final class KafkaMessage implements KafkaMessageInterface
 {
 
     /**

@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Exception;
 
 use Jobcloud\Messaging\Consumer\ConsumerException;
-use Jobcloud\Messaging\Kafka\Consumer\Message;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 
 class KafkaConsumerConsumeException extends ConsumerException
 {
 
     /**
-     * @var Message|null
+     * @var KafkaMessage|null
      */
     private $kafkaMessage;
 
     /**
-     * @param string          $message
-     * @param integer         $code
-     * @param Message|null    $kafkaMessage
-     * @param \Throwable|null $previous
+     * @param string            $message
+     * @param integer           $code
+     * @param KafkaMessage|null $kafkaMessage
+     * @param \Throwable|null   $previous
      */
     public function __construct(
         string $message = '',
         int $code = 0,
-        Message $kafkaMessage = null,
+        KafkaMessage $kafkaMessage = null,
         \Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
@@ -35,7 +35,7 @@ class KafkaConsumerConsumeException extends ConsumerException
     /**
      * @return Message
      */
-    public function getKafkaMessage(): ?Message
+    public function getKafkaMessage(): ?KafkaMessage
     {
         return $this->kafkaMessage;
     }

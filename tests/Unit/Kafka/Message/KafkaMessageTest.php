@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\Message;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Consumer\Message
+ * @covers \Jobcloud\Messaging\Kafka\Message\KafkaMessage
  */
-final class MessageTest extends TestCase
+final class KafkaMessageTest extends TestCase
 {
     public function testMessageGettersAndConstructor()
     {
@@ -22,7 +22,7 @@ final class MessageTest extends TestCase
         $timestamp = 1562324233704;
         $headers = [ 'key' => 'value' ];
 
-        $message = new Message($key, $body, $topic, $partition, $offset, $timestamp, $headers);
+        $message = new KafkaMessage($key, $body, $topic, $partition, $offset, $timestamp, $headers);
 
         self::assertEquals($key, $message->getKey());
         self::assertEquals($body, $message->getBody());

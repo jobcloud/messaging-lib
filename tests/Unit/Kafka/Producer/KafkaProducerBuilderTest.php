@@ -141,7 +141,11 @@ class KafkaProducerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        $this->kafkaProducerBuilder->addBroker('localhost')->setDeliveryReportCallback($callback)->build();
+        $this->kafkaProducerBuilder
+            ->addBroker('localhost')
+            ->setDeliveryReportCallback($callback)
+            ->setErrorCallback($callback)
+            ->build();
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
         $reflectionProperty->setAccessible(true);

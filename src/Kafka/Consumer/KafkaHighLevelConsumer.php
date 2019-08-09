@@ -8,6 +8,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\TopicPartition;
@@ -58,7 +59,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param MessageInterface|MessageInterface[] $messages
+     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @throws KafkaConsumerCommitException
      * @return void
      */
@@ -82,7 +83,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param MessageInterface|MessageInterface[] $messages
+     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @throws KafkaConsumerCommitException
      * @return void
      */
@@ -130,7 +131,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param MessageInterface|MessageInterface[] $messages
+     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @param boolean                             $asAsync
      * @throws KafkaConsumerCommitException
      * @return void
@@ -138,12 +139,30 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     private function commitMessages($messages, bool $asAsync = false): void
     {
         $messages = is_array($messages) ? $messages : [$messages];
+        $offsetsToCommit = [];
+
+        foreach ($messages as $message) {
+            $topicPartition = $message->getTopicName().$message->getPartition();
+
+            if (true === isset($offsetsToCommit[$topicPartition])) {
+                if ($message->getOffset() > $offsetsToCommit[$topicPartition]) {
+                    $offsetsToCommit[$topicPartition]->setOffset($message->getOffset());
+                }
+                continue;
+            }
+
+            $offsetsToCommit[$topicPartition] = new TopicPartition(
+                $message->getTopicName(),
+                $message->getPartition(),
+                $message->getOffset()
+            );
+        }
 
         try {
             if (true === $asAsync) {
-                $this->consumer->commitAsync($messages);
+                $this->consumer->commitAsync($offsetsToCommit);
             } else {
-                $this->consumer->commit($messages);
+                $this->consumer->commit($offsetsToCommit);
             }
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());

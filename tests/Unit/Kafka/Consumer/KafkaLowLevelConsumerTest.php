@@ -3,7 +3,7 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
-use Jobcloud\Messaging\Kafka\Consumer\Message;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -132,7 +132,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->kafkaConsumer->subscribe();
         $message = $this->kafkaConsumer->consume();
 
-        self::assertInstanceOf(Message::class, $message);
+        self::assertInstanceOf(KafkaMessage::class, $message);
 
         self::assertEquals($rdKafkaMessageMock->payload, $message->getBody());
         self::assertEquals($rdKafkaMessageMock->offset, $message->getOffset());
@@ -366,7 +366,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
      */
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
-        $message = new Message(
+        $message = new KafkaMessage(
             'some key',
             'some message',
             'test-topic',
@@ -401,7 +401,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     {
         self::expectException(KafkaConsumerCommitException::class);
         self::expectExceptionMessage(
-            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Consumer\Message"'
+            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Message\KafkaMessage"'
         );
 
         $message = new \stdClass();
