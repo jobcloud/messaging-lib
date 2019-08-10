@@ -104,7 +104,7 @@ class KafkaProducerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
+     * @throws KafkaProducerException
      */
     public function testBuildNoBroker(): void
     {

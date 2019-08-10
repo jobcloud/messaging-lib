@@ -101,30 +101,6 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testAddTopicConfig(): void
-    {
-        $intialConfig = ['auto.offset.reset' => 'earliest', 'auto.commit.interval.ms' => 1e3];
-        $newConfig = ['auto.offset.reset' => 'latest', 'offset.store.sync.interval.ms' => 60e3];
-        $this->kafkaConsumerBuilder->addTopicConfig($intialConfig);
-        $this->kafkaConsumerBuilder->addTopicConfig($newConfig);
-
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topicConfig');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame(
-            [
-                'auto.offset.reset' => 'latest',
-                'offset.store.sync.interval.ms' => 60e3,
-                'auto.commit.interval.ms' => 1e3,
-            ],
-            $reflectionProperty->getValue($this->kafkaConsumerBuilder)
-        );
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
     public function testSetConsumerGroup(): void
     {
         $this->kafkaConsumerBuilder->setConsumerGroup('test-consumer');

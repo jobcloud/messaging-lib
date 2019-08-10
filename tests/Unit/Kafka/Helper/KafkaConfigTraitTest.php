@@ -20,9 +20,9 @@ class KafkaConfigTraitTest extends TestCase
         {
             use KafkaConfigTrait;
 
-            public function createTraitKafkaConfig(array $config, array $topicConfig): KafkaConfiguration
+            public function createTraitKafkaConfig(array $config): KafkaConfiguration
             {
-                return $this->createKafkaConfig($config, $topicConfig, [], [], 0);
+                return $this->createKafkaConfig($config, [], [], 0);
             }
         };
     }
@@ -39,28 +39,6 @@ class KafkaConfigTraitTest extends TestCase
                 'group.id' => 'test-group'
             ],
             []
-        );
-        self::assertInstanceOf(KafkaConfiguration::class, $config);
-
-        $configArray = $config->dump();
-        self::assertTrue(isset($configArray['group.id']));
-        self::assertEquals($configArray['group.id'], 'test-group');
-    }
-
-    /**
-     * @return void
-     */
-    public function testCreateKafkaConfigWithTopicConfiguration(): void
-    {
-
-        /** @var KafkaConfiguration $config */
-        $config = $this->traitClass->createTraitKafkaConfig(
-            [
-                'group.id' => 'test-group'
-            ],
-            [
-                'auto.offset.reset' => 'earliest'
-            ]
         );
         self::assertInstanceOf(KafkaConfiguration::class, $config);
 
