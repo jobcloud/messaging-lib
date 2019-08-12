@@ -16,9 +16,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     use KafkaConfigTrait;
 
-    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
-    const OFFSET_END = RD_KAFKA_OFFSET_END;
-    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
     const CONSUMER_TYPE_LOW_LEVEL = KafkaLowLevelConsumer::class;
     const CONSUMER_TYPE_HIGH_LEVEL = KafkaHighLevelConsumer::class;
     private const RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL = RdKafkaLowLevelConsumer::class;
@@ -107,15 +104,15 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param string       $topicName
-     * @param array        $partitions
-     * @param integer|null $offset
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
     public function addSubscription(
         string $topicName,
         array $partitions = [],
-        ?int $offset = self::OFFSET_STORED
+        int $offset = self::OFFSET_STORED
     ): KafkaConsumerBuilderInterface {
 
         $this->topics[] = new TopicSubscription($topicName, $partitions, $offset);

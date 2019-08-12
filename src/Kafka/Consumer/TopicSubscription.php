@@ -23,14 +23,14 @@ final class TopicSubscription implements TopicSubscriptionInterface
     private $offset;
 
     /**
-     * @param string       $topicName
-     * @param array        $partitions
-     * @param integer|null $offset
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
      */
     public function __construct(
         string $topicName,
         array $partitions = [],
-        ?int $offset = RD_KAFKA_OFFSET_STORED
+        int $offset = RD_KAFKA_OFFSET_STORED
     ) {
         $this->topicName = $topicName;
         $this->partitions = $partitions;
