@@ -22,7 +22,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
     private $partitions = [];
 
     /**
-     * @var int
+     * @var int|null
      */
     private $offset;
 
@@ -69,8 +69,8 @@ final class TopicSubscription implements TopicSubscriptionInterface
     /**
      * @return integer
      */
-    public function getOffset(): ?int
+    public function getOffset(): int
     {
-        return $this->offset;
+        return $this->offset ?? RD_KAFKA_OFFSET_STORED;
     }
 }

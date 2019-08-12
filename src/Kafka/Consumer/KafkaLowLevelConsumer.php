@@ -53,7 +53,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
             $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
             foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
-                $offset = $topicSubscription->getOffset() ?? RD_KAFKA_OFFSET_STORED;
+                $offset = $topicSubscription->getOffset();
 
                 if (false === isset($this->topics[$topicName])) {
                     $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);

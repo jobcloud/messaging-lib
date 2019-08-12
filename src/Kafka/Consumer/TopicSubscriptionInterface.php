@@ -24,7 +24,7 @@ interface TopicSubscriptionInterface
     public function setPartitions(array $partitions): void;
 
     /**
-     * @return integer|null
+     * @return integer
      */
-    public function getOffset(): ?int;
+    public function getOffset(): int;
 }

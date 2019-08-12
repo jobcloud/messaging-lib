@@ -210,7 +210,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
                 continue;
             }
 
-            $offset = $topicSubscription->getOffset() ?? RD_KAFKA_OFFSET_STORED;
+            $offset = $topicSubscription->getOffset();
 
             foreach ($topicSubscription->getPartitions() as $partitionId) {
                 $assignments[] = new RdKafkaTopicPartition(
