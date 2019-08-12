@@ -192,7 +192,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        $this->kafkaConsumerBuilder->setConsumeCb($callback);
+        $this->kafkaConsumerBuilder->setConsumeCallback($callback);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumeCallback');
         $reflectionProperty->setAccessible(true);
@@ -254,6 +254,8 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->addBroker('localhost')
             ->addSubscription('test-topic')
             ->setRebalanceCallback($callback)
+            ->setOffsetCommitCallback($callback)
+            ->setConsumeCallback($callback)
             ->setErrorCallback($callback)
             ->build();
 

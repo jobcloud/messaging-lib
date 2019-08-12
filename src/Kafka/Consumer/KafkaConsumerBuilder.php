@@ -196,7 +196,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param callable $consumeCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumeCb(callable $consumeCallback): KafkaConsumerBuilderInterface
+    public function setConsumeCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
     {
         $this->consumeCallback = $consumeCallback;
 
@@ -261,11 +261,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             $conf->setRebalanceCb($this->rebalanceCallback);
         }
 
-        if (null !== $this->rebalanceCallback) {
+        if (null !== $this->consumeCallback) {
             $conf->setConsumeCb($this->rebalanceCallback);
         }
 
-        if (null !== $this->rebalanceCallback) {
+        if (null !== $this->offsetCommitCallback) {
             $conf->setOffsetCommitCb($this->rebalanceCallback);
         }
     }
