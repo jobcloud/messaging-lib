@@ -13,10 +13,12 @@ interface KafkaConsumerBuilderInterface
     public function addBroker(string $broker): self;
 
     /**
-     * @param string $topicName
+     * @param string       $topicName
+     * @param array        $partitions
+     * @param integer|null $offset
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(string $topicName): self;
+    public function addSubscription(string $topicName, array $partitions = [], ?int $offset = null): self;
 
     /**
      * @param array $config

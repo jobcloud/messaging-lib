@@ -16,13 +16,6 @@ use RdKafka\Message as RdKafkaMessage;
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
 
-    /** @var int */
-    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
-    /** @var int */
-    const OFFSET_END = RD_KAFKA_OFFSET_END;
-    /** @var int */
-    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
-
     /** @var KafkaConfiguration */
     protected $kafkaConfiguration;
 

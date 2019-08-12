@@ -53,20 +53,22 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
             $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
             foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
+                $offset = $topicSubscription->getOffset() ?? RD_KAFKA_OFFSET_STORED;
 
                 if (false === isset($this->topics[$topicName])) {
-                    $this->topics[$topicName] = $topic = $this->consumer->newTopic(
-                        $topicName,
-                        $topicSubscription->getTopicConf()
-                    );
-
-                    //Check partition subscription, if not set, subscribe to all partitions
-                    $this->verifyAndSetPartitionSubcriptions($topic, $topicSubscription);
+                    $this->topics[$topicName] = $topic = $this->consumer->newTopic($topicName);
                 } else {
                     $topic = $this->topics[$topicName];
                 }
 
-                foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+                $partitions = $topicSubscription->getPartitions();
+
+                if ([] === $partitions) {
+                    $partitions = $this->getAllTopicPartitions($topic);
+                    $topicSubscription->setPartitions($partitions);
+                }
+
+                foreach ($partitions as $partitionId) {
                     $topic->consumeQueueStart($partitionId, $offset, $this->queue);
                 }
             }
@@ -114,34 +116,12 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
 
         /** @var TopicSubscription $topicSubscription */
         foreach ($topicSubscriptions as $topicSubscription) {
-            foreach ($topicSubscription->getPartitions() as $partitionId => $offset) {
+            foreach ($topicSubscription->getPartitions() as $partitionId) {
                 $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
             }
         }
 
         $this->subscribed = false;
-    }
-
-    /**
-     * @param RdKafkaConsumerTopic $topic
-     * @param TopicSubscription    $topicSubscription
-     * @throws RdKafkaException
-     * @return void
-     */
-    private function verifyAndSetPartitionSubcriptions(
-        RdKafkaConsumerTopic $topic,
-        TopicSubscription $topicSubscription
-    ): void {
-        if ([] === $topicSubscription->getPartitions()) {
-            $topicMetadata = $this->getMetadataForTopic($topic);
-
-            foreach ($topicMetadata->getPartitions() as $partition) {
-                $topicSubscription->addPartition(
-                    $partition->getId(),
-                    $topicSubscription->getDefaultOffset()
-                );
-            }
-        }
     }
 
     /**
@@ -169,5 +149,23 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     protected function kafkaConsume(int $timeout): ?RdKafkaMessage
     {
         return $this->queue->consume($timeout);
+    }
+
+    /**
+     * @param RdKafkaConsumerTopic $topic
+     * @return array
+     * @throws RdKafkaException
+     */
+    private function getAllTopicPartitions(RdKafkaConsumerTopic $topic): array
+    {
+
+        $partitions = [];
+        $topicMetadata = $this->getMetadataForTopic($topic);
+
+        foreach ($topicMetadata->getPartitions() as $partition) {
+            $partitions[] = $partition->getId();
+        }
+
+        return $partitions;
     }
 }

@@ -35,8 +35,21 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      */
     public function subscribe(): void
     {
+        $subscriptions = $this->getTopicSubscriptions();
+        $assignments = $this->getTopicAssignments();
+
+        if ([] !== $subscriptions && [] !== $assignments) {
+            throw new KafkaConsumerSubscriptionException(
+                KafkaConsumerSubscriptionException::MIXED_SUBSCRIPTION_EXCEPTION_MESSAGE
+            );
+        }
+
         try {
-            $this->consumer->subscribe($this->getConfiguration()->getTopicSubscriptions());
+            if ([] !== $subscriptions) {
+                $this->consumer->subscribe($subscriptions);
+            } else {
+                $this->consumer->assign($assignments);
+            }
             $this->subscribed = true;
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
@@ -51,7 +64,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     {
         try {
             $this->consumer->unsubscribe();
-            $this->subscribed = true;
+            $this->subscribed = false;
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerSubscriptionException($e->getMessage(), $e->getCode(), $e);
         }
@@ -166,5 +179,48 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
         }
+    }
+
+    /**
+     * @return array
+     */
+    private function getTopicSubscriptions(): array
+    {
+        $subscriptions = [];
+
+        foreach ($this->getConfiguration()->getTopicSubscriptions() as $topicSubscription) {
+            if ([] !== $topicSubscription->getPartitions()) {
+                continue;
+            }
+            $subscriptions[] = $topicSubscription->getTopicName();
+        }
+
+        return $subscriptions;
+    }
+
+    /**
+     * @return array
+     */
+    private function getTopicAssignments(): array
+    {
+        $assignments = [];
+
+        foreach ($this->getConfiguration()->getTopicSubscriptions() as $topicSubscription) {
+            if ([] === $topicSubscription->getPartitions()) {
+                continue;
+            }
+
+            $offset = $topicSubscription->getOffset() ?? RD_KAFKA_OFFSET_STORED;
+
+            foreach ($topicSubscription->getPartitions() as $partitionId) {
+                $assignments[] = new RdKafkaTopicPartition(
+                    $topicSubscription->getTopicName(),
+                    $partitionId,
+                    $offset
+                );
+            }
+        }
+
+        return $assignments;
     }
 }

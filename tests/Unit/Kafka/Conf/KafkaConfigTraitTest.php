@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Messaging\Tests\Unit\Kafka\Helper;
+namespace Jobcloud\Messaging\Tests\Unit\Kafka\Conf;
 
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;

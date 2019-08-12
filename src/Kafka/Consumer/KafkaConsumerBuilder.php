@@ -16,6 +16,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     use KafkaConfigTrait;
 
+    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
+    const OFFSET_END = RD_KAFKA_OFFSET_END;
+    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
     const CONSUMER_TYPE_LOW_LEVEL = KafkaLowLevelConsumer::class;
     const CONSUMER_TYPE_HIGH_LEVEL = KafkaHighLevelConsumer::class;
     private const RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL = RdKafkaLowLevelConsumer::class;
@@ -104,26 +107,18 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @return void
-     */
-    private function convertSubscriptionsToLowLevel(): void
-    {
-        $topicSubscriptions = [];
-
-        foreach ($this->topics as $topic) {
-            $topicSubscriptions[] = new TopicSubscription($topic);
-        }
-
-        $this->topics = $topicSubscriptions;
-    }
-
-    /**
-     * @param string $topicName
+     * @param string       $topicName
+     * @param array        $partitions
+     * @param integer|null $offset
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(string $topicName): KafkaConsumerBuilderInterface
-    {
-        $this->topics[] = $topicName;
+    public function addSubscription(
+        string $topicName,
+        array $partitions = [],
+        ?int $offset = self::OFFSET_STORED
+    ): KafkaConsumerBuilderInterface {
+
+        $this->topics[] = new TopicSubscription($topicName, $partitions, $offset);
 
         return $this;
     }
@@ -239,10 +234,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['enable.auto.offset.store'] = false;
-
-        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
-            $this->convertSubscriptionsToLowLevel();
-        }
 
         //create config from given settings
         $kafkaConfig = $this->createKafkaConfig(

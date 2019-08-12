@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Messaging\Tests\Unit\Kafka;
+namespace Jobcloud\Messaging\Tests\Unit\Kafka\Conf;
 
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;

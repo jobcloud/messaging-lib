@@ -6,6 +6,7 @@ use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumerInterface;
@@ -63,7 +64,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(['test-topic'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::isInstanceOf(TopicSubscription::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**

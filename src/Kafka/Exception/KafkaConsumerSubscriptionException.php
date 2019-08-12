@@ -8,4 +8,6 @@ use Jobcloud\Messaging\Consumer\ConsumerException;
 
 class KafkaConsumerSubscriptionException extends ConsumerException
 {
+    const MIXED_SUBSCRIPTION_EXCEPTION_MESSAGE
+        = 'Dont mix subscriptions and assignments (with and without partitions defined).';
 }

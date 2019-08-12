@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Messaging\Kafka\Conf;
 
+use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use RdKafka\Conf;
 
 class KafkaConfiguration extends Conf
@@ -39,7 +40,7 @@ class KafkaConfiguration extends Conf
     }
 
     /**
-     * @return array
+     * @return array|TopicSubscription[]
      */
     public function getTopicSubscriptions(): array
     {
