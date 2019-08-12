@@ -154,7 +154,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
         $offsetsToCommit = [];
 
         foreach ($messages as $message) {
-            $topicPartition = $message->getTopicName().$message->getPartition();
+            $topicPartition = sprintf('%s-%s', $message->getTopicName(), $message->getPartition());
 
             if (true === isset($offsetsToCommit[$topicPartition])) {
                 if ($message->getOffset() + 1 > $offsetsToCommit[$topicPartition]) {
