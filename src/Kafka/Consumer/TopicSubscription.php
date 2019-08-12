@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-/**
- * This topic subscription needs an concrete subscription to (a subset of available) partitions by using
- * the @see self::addPartition method. Only the partitions explicitly added will be subscribed.
- */
 final class TopicSubscription implements TopicSubscriptionInterface
 {
 
