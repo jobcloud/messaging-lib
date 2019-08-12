@@ -3,9 +3,9 @@
 namespace Jobcloud\Messaging\Kafka\Conf;
 
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
-use RdKafka\Conf;
+use RdKafka\Conf as RdKafkaConf;
 
-class KafkaConfiguration extends Conf
+class KafkaConfiguration extends RdKafkaConf
 {
 
     /** @var array */

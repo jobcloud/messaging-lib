@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Callback;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use RdKafka\Producer as RdKafkaProducer;
-use RdKafka\Message;
+use RdKafka\Message as RdKafkaMessage;
 
 require_once __DIR__ . '/../Exception/KafkaProducerException.php';
 
@@ -14,11 +14,11 @@ final class KafkaProducerDeliveryReportCallback
 {
     /**
      * @param RdKafkaProducer $producer
-     * @param Message         $message
+     * @param RdKafkaMessage  $message
      * @return void
      * @throws KafkaProducerException
      */
-    public function __invoke(RdKafkaProducer $producer, Message $message)
+    public function __invoke(RdKafkaProducer $producer, RdKafkaMessage $message)
     {
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR === $message->err) {
