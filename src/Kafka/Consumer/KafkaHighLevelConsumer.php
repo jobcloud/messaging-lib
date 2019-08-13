@@ -167,6 +167,26 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     private function commitMessages($messages, bool $asAsync = false): void
     {
         $messages = is_array($messages) ? $messages : [$messages];
+
+        $offsetsToCommit = $this->getOffsetsToCommitForMessages($messages);
+
+        try {
+            if (true === $asAsync) {
+                $this->consumer->commitAsync($offsetsToCommit);
+            } else {
+                $this->consumer->commit($offsetsToCommit);
+            }
+        } catch (RdKafkaException $e) {
+            throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param array $messages
+     * @return array
+     */
+    private function getOffsetsToCommitForMessages(array $messages): array
+    {
         $offsetsToCommit = [];
 
         foreach ($messages as $message) {
@@ -186,15 +206,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             );
         }
 
-        try {
-            if (true === $asAsync) {
-                $this->consumer->commitAsync($offsetsToCommit);
-            } else {
-                $this->consumer->commit($offsetsToCommit);
-            }
-        } catch (RdKafkaException $e) {
-            throw new KafkaConsumerCommitException($e->getMessage(), $e->getCode());
-        }
+        return $offsetsToCommit;
     }
 
     /**
