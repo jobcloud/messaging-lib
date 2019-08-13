@@ -36,7 +36,7 @@ $producer = KafkaProducerBuilder::create()
 
 $message = KafkaMessage::create('test-topic', 0)
             ->withKey('asdf-asdf-asfd-asdf')
-            ->withBody('some test content')
+            ->withBody('some test message payload')
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
