@@ -148,15 +148,12 @@ final class KafkaHighLevelConsumerTest extends TestCase
      */
     public function testCommitSuccesss(): void
     {
-        $key = '1234-1234-1234';
-        $body = 'foo bar baz';
-        $topic = 'test';
-        $offset = 42;
-        $partition = 1;
-        $timestamp = 1562324233704;
-        $headers = [ 'key' => 'value' ];
-
-        $message = new KafkaMessage($key, $body, $topic, $partition, $offset, $timestamp, $headers);
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);

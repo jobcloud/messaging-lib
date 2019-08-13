@@ -22,7 +22,12 @@ final class KafkaMessageTest extends TestCase
         $timestamp = 1562324233704;
         $headers = [ 'key' => 'value' ];
 
-        $message = new KafkaMessage($key, $body, $topic, $partition, $offset, $timestamp, $headers);
+        $message = KafkaMessage::create($topic, $partition)
+            ->withKey($key)
+            ->withBody($body)
+            ->withHeaders($headers)
+            ->withOffset($offset)
+            ->withTimestamp($timestamp);
 
         self::assertEquals($key, $message->getKey());
         self::assertEquals($body, $message->getBody());

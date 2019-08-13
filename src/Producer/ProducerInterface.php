@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Producer;
 
+use Jobcloud\Messaging\Consumer\MessageInterface;
+
 interface ProducerInterface
 {
 
     /**
-     * @param string      $message
-     * @param string      $topic
-     * @param integer     $partition
-     * @param string|null $key
-     * @param array|null  $headers
+     * @param MessageInterface $message
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition, string $key = null, ?array $headers = null);
+    public function produce(MessageInterface $message): void;
 }

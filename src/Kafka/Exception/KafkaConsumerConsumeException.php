@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Exception;
 
 use Jobcloud\Messaging\Consumer\ConsumerException;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 
 class KafkaConsumerConsumeException extends ConsumerException
 {
@@ -13,20 +14,20 @@ class KafkaConsumerConsumeException extends ConsumerException
     const NOT_SUBSCRIBED_EXCEPTION_MESSAGE = 'This consumer is currently not subscribed';
 
     /**
-     * @var KafkaMessage|null
+     * @var KafkaMessageInterface|null
      */
     private $kafkaMessage;
 
     /**
-     * @param string            $message
-     * @param integer           $code
-     * @param KafkaMessage|null $kafkaMessage
-     * @param \Throwable|null   $previous
+     * @param string                     $message
+     * @param integer                    $code
+     * @param KafkaMessageInterface|null $kafkaMessage
+     * @param \Throwable|null            $previous
      */
     public function __construct(
         string $message = '',
         int $code = 0,
-        KafkaMessage $kafkaMessage = null,
+        KafkaMessageInterface $kafkaMessage = null,
         \Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
@@ -35,9 +36,9 @@ class KafkaConsumerConsumeException extends ConsumerException
     }
 
     /**
-     * @return null|KafkaMessage
+     * @return null|KafkaMessageInterface
      */
-    public function getKafkaMessage(): ?KafkaMessage
+    public function getKafkaMessage(): ?KafkaMessageInterface
     {
         return $this->kafkaMessage;
     }

@@ -2,8 +2,10 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
+use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,10 +35,18 @@ class KafkaProducerTest extends TestCase
     }
 
     /**
+     * @throws KafkaProducerException
      * @return void
      */
     public function testProduceError(): void
     {
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
+
         self::expectException(KafkaProducerException::class);
 
         /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
@@ -44,7 +54,13 @@ class KafkaProducerTest extends TestCase
         $rdKafkaProducerTopicMock
             ->expects(self::once())
             ->method('producev')
-            ->with(RD_KAFKA_PARTITION_UA, 0, 'test')
+            ->with(
+                $message->getPartition(),
+                0,
+                $message->getBody(),
+                $message->getKey(),
+                $message->getHeaders()
+            )
             ->willThrowException(new KafkaProducerException());
 
         $this->rdKafkaProducerMock
@@ -52,57 +68,43 @@ class KafkaProducerTest extends TestCase
             ->method('newTopic')
             ->willReturn($rdKafkaProducerTopicMock);
 
-        $this->kafkaProducer->produce('test', 'test');
+        $this->kafkaProducer->produce($message);
+    }
+
+    /**
+     * @throws KafkaProducerException
+     * @return void
+     */
+    public function testProduceErrorOnMessageInterface(): void
+    {
+        self::expectException(KafkaProducerException::class);
+        self::expectExceptionMessage(KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE);
+
+        $message = $this->createMock(MessageInterface::class);
+
+        $this->kafkaProducer->produce($message);
     }
 
     public function testProduceSuccess()
     {
-        $expectedMessage1 = 'message1';
-        $expectedMessage2 = 'message2';
-        $expectedKey2 = 'foopass';
-        $expectedPartition1 = 1;
-        $expectedPartition2 = 2;
-        $expectedFlags = 0;
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
 
         /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
         $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
         $rdKafkaProducerTopicMock
-            ->expects(self::exactly(2))
+            ->expects(self::once())
             ->method('producev')
-            ->willReturnCallback(
-                function (
-                    $partition,
-                    $flags,
-                    $message,
-                    $key
-                ) use (
-                    $expectedMessage1,
-                    $expectedMessage2,
-                    $expectedKey2,
-                    $expectedPartition1,
-                    $expectedPartition2,
-                    $expectedFlags
-                ) {
-                    self::assertEquals($expectedFlags, $flags);
-
-                    static $messageCount = 0;
-                    switch ($messageCount++) {
-                        case 0:
-                            self::assertEquals($expectedMessage1, $message);
-                            self::assertEquals($expectedPartition1, $partition);
-                            self::assertNull($key);
-
-                            return;
-                        case 1:
-                            self::assertEquals($expectedMessage2, $message);
-                            self::assertEquals($expectedPartition2, $partition);
-                            self::assertEquals($expectedKey2, $key);
-
-                            return;
-                        default:
-                            self::assertFileEquals('nonExistingMessage', $message);
-                    }
-                }
+            ->with(
+                $message->getPartition(),
+                0,
+                $message->getBody(),
+                $message->getKey(),
+                $message->getHeaders()
             );
 
         $this->kafkaConfigurationMock
@@ -110,7 +112,7 @@ class KafkaProducerTest extends TestCase
             ->method('getTimeout')
             ->willReturn(1000);
         $this->rdKafkaProducerMock
-            ->expects(self::exactly(4))
+            ->expects(self::exactly(3))
             ->method('getOutQLen')
             ->willReturnCallback(
                 function () {
@@ -134,7 +136,6 @@ class KafkaProducerTest extends TestCase
             ->method('poll')
             ->with(1000);
 
-        $this->kafkaProducer->produce($expectedMessage1, 'test-topic', $expectedPartition1);
-        $this->kafkaProducer->produce($expectedMessage2, 'test-topic', $expectedPartition2, $expectedKey2);
+        $this->kafkaProducer->produce($message);
     }
 }

@@ -62,15 +62,12 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = new KafkaMessage(
-            $rdKafkaMessage->key,
-            $rdKafkaMessage->payload,
-            $rdKafkaMessage->topic_name,
-            $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset,
-            $rdKafkaMessage->timestamp,
-            $rdKafkaMessage->headers
-        );
+        $message = KafkaMessage::create($rdKafkaMessage->topic_name, $rdKafkaMessage->partition)
+            ->withKey($rdKafkaMessage->key)
+            ->withBody($rdKafkaMessage->payload)
+            ->withHeaders($rdKafkaMessage->headers)
+            ->withOffset($rdKafkaMessage->offset)
+            ->withTimestamp($rdKafkaMessage->timestamp);
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);

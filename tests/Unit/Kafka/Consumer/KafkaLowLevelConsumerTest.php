@@ -376,15 +376,12 @@ final class KafkaLowLevelConsumerTest extends TestCase
      */
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
-        $message = new KafkaMessage(
-            'some key',
-            'some message',
-            'test-topic',
-            1,
-            103,
-            1562324233704,
-            null
-        );
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);

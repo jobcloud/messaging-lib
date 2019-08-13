@@ -43,30 +43,78 @@ final class KafkaMessage implements KafkaMessageInterface
     private $headers;
 
     /**
-     * @param null|string $key
-     * @param null|string $body
-     * @param string      $topicName
-     * @param integer     $partition
-     * @param integer     $offset
-     * @param integer     $timestamp
-     * @param null|array  $headers
+     * @param string  $topicName
+     * @param integer $partition
      */
-    public function __construct(
-        ?string $key,
-        ?string $body,
-        string $topicName,
-        int $partition,
-        int $offset,
-        int $timestamp,
-        ?array $headers
-    ) {
-        $this->key          = $key;
-        $this->body         = $body;
+    private function __construct(string $topicName, int $partition)
+    {
         $this->topicName    = $topicName;
         $this->partition    = $partition;
-        $this->offset       = $offset;
-        $this->timestamp    = $timestamp;
-        $this->headers      = $headers;
+    }
+
+    /**
+     * @param string  $topicName
+     * @param integer $partition
+     * @return KafkaMessageInterface
+     */
+    public static function create(string $topicName, int $partition): KafkaMessageInterface
+    {
+        return new self($topicName, $partition);
+    }
+
+    /**
+     * @param string|null $key
+     * @return KafkaMessageInterface
+     */
+    public function withKey(?string $key): KafkaMessageInterface
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $body
+     * @return KafkaMessageInterface
+     */
+    public function withBody(?string $body): KafkaMessageInterface
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * @param integer $offset
+     * @return KafkaMessageInterface
+     */
+    public function withOffset(int $offset): KafkaMessageInterface
+    {
+        $this->offset = $offset;
+
+        return $this;
+    }
+
+    /**
+     * @param integer $timestamp
+     * @return KafkaMessageInterface
+     */
+    public function withTimestamp(int $timestamp): KafkaMessageInterface
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    /**
+     * @param array|null $headers
+     * @return KafkaMessageInterface
+     */
+    public function withHeaders(?array $headers): KafkaMessageInterface
+    {
+        $this->headers = $headers;
+
+        return $this;
     }
 
     /**
@@ -94,9 +142,9 @@ final class KafkaMessage implements KafkaMessageInterface
     }
 
     /**
-     * @return integer
+     * @return integer|null
      */
-    public function getOffset(): int
+    public function getOffset(): ?int
     {
         return $this->offset;
     }
@@ -110,7 +158,7 @@ final class KafkaMessage implements KafkaMessageInterface
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function getTimestamp(): int
     {

@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Producer;
 
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerPool;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -43,11 +44,18 @@ class ProducerPoolTest extends TestCase
      */
     public function testProduce(): void
     {
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
+
         $this->kafkaProducerMock
             ->expects(self::once())
             ->method('produce')
-            ->with('a test message', 'test-topic', 0, 'asdf-asdf-asdf-asdf', []);
+            ->with($message);
         $this->producerPool->addProducer($this->kafkaProducerMock);
-        $this->producerPool->produce('a test message', 'test-topic', 0, 'asdf-asdf-asdf-asdf', []);
+        $this->producerPool->produce($message);
     }
 }

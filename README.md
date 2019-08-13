@@ -7,6 +7,11 @@ Generic php messaging library
 Supports:
 - Kafka
 
+This is a convenience wrapper for https://github.com/arnaud-lb/php-rdkafka  
+To read more about the functions used in this lib, check out the documentation  
+of the extension: https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html
+
+
 ## Requirements
 - php: ^7.1
 - ext-rdkafka: ^3.1.2
@@ -26,7 +31,7 @@ Supports:
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('10.0.2.2')
+    ->addBroker('localhost:9095')
     ->build();
 
 $producer->produce('hello world', 'testTopic');
@@ -34,7 +39,7 @@ $producer->produce('hello world', 'testTopic');
 
 ### Consumer
 
-#### Kafka
+#### Kafka High Level
 
 ```php
 <?php
@@ -43,10 +48,39 @@ use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 
 $consumer = KafkaConsumerBuilder::create()
-    ->addBroker('10.0.2.2')
+    ->addBroker('localhost:9095')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
     ->addSubscription('test-topic')
+    ->build();
+
+$consumer->subscribe();
+
+while (true) {
+    try {
+        $message = $consumer->consume();
+        // your business logic
+        $consumer->commit($message);
+    } catch (ConsumerException $e) {
+        // Failed
+    } 
+}
+```
+
+#### Kafka Low Level
+
+```php
+<?php
+
+use \Jobcloud\Messaging\Consumer\ConsumerException;
+use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+
+$consumer = KafkaConsumerBuilder::create()
+    ->addBroker('localhost:9095')
+    ->setConsumerGroup('testGroup')
+    ->setTimeout(120 * 10000)
+    ->addSubscription('test-topic')
+    ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
     ->build();
 
 $consumer->subscribe();
