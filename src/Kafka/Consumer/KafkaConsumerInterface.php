@@ -42,9 +42,9 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function commit($messages): void;
 
     /**
-     * @return KafkaConfiguration
+     * @return array
      */
-    public function getConfiguration(): KafkaConfiguration;
+    public function getConfiguration(): array;
 
     /**
      * @param RdKafkaConsumerTopic $topic

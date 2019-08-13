@@ -52,6 +52,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('newQueue')
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $this->kafkaConfigurationMock->expects(self::any())->method('dump')->willReturn([]);
         $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
     }
 
@@ -452,7 +453,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
      */
     public function testGetConfiguration(): void
     {
-        self::assertEquals($this->kafkaConfigurationMock, $this->kafkaConsumer->getConfiguration());
+        self::assertIsArray($this->kafkaConsumer->getConfiguration());
     }
 
     /**

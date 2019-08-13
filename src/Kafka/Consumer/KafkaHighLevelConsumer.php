@@ -188,7 +188,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     {
         $subscriptions = [];
 
-        foreach ($this->getConfiguration()->getTopicSubscriptions() as $topicSubscription) {
+        foreach ($this->kafkaConfiguration->getTopicSubscriptions() as $topicSubscription) {
             if ([] !== $topicSubscription->getPartitions()) {
                 continue;
             }
@@ -205,7 +205,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     {
         $assignments = [];
 
-        foreach ($this->getConfiguration()->getTopicSubscriptions() as $topicSubscription) {
+        foreach ($this->kafkaConfiguration->getTopicSubscriptions() as $topicSubscription) {
             if ([] === $topicSubscription->getPartitions()) {
                 continue;
             }

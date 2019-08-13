@@ -34,11 +34,11 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @return KafkaConfiguration
+     * @return array
      */
-    public function getConfiguration(): KafkaConfiguration
+    public function getConfiguration(): array
     {
-        return $this->kafkaConfiguration;
+        return $this->kafkaConfiguration->dump();
     }
 
     /**

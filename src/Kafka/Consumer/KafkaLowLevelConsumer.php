@@ -50,7 +50,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
         }
 
         try {
-            $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
+            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
             foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
                 $offset = $topicSubscription->getOffset();
@@ -112,7 +112,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
             return;
         }
 
-        $topicSubscriptions = $this->getConfiguration()->getTopicSubscriptions();
+        $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
 
         /** @var TopicSubscription $topicSubscription */
         foreach ($topicSubscriptions as $topicSubscription) {

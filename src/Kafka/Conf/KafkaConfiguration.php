@@ -62,26 +62,4 @@ class KafkaConfiguration extends RdKafkaConf
     {
         return $this->dump();
     }
-
-    /**
-     * @param string $name
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public function getSetting(string $name): string
-    {
-        $configuration = $this->dump();
-        if (isset($configuration[$name])) {
-            return $configuration[$name];
-        }
-
-        throw new \InvalidArgumentException(
-            sprintf(
-                'Configuration name `%s` does not exists on class `%s`. Available options are: %s.',
-                $name,
-                KafkaConfiguration::class,
-                implode(', ', array_keys($configuration))
-            )
-        );
-    }
 }
