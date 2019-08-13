@@ -122,11 +122,8 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $actualConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumerType');
         $actualConsumerType->setAccessible(true);
-        $actualRdKafkaConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'rdKafkaConsumerType');
-        $actualRdKafkaConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($this->kafkaConsumerBuilder));
-        self::assertSame(Consumer::class, $actualRdKafkaConsumerType->getValue($this->kafkaConsumerBuilder));
     }
 
     /**
@@ -139,11 +136,8 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $actualConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'consumerType');
         $actualConsumerType->setAccessible(true);
-        $actualRdKafkaConsumerType = new \ReflectionProperty($this->kafkaConsumerBuilder, 'rdKafkaConsumerType');
-        $actualRdKafkaConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($this->kafkaConsumerBuilder));
-        self::assertSame(KafkaConsumer::class, $actualRdKafkaConsumerType->getValue($this->kafkaConsumerBuilder));
     }
 
     /**

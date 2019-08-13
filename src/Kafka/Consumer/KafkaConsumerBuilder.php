@@ -16,10 +16,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     use KafkaConfigTrait;
 
-    const CONSUMER_TYPE_LOW_LEVEL = KafkaLowLevelConsumer::class;
-    const CONSUMER_TYPE_HIGH_LEVEL = KafkaHighLevelConsumer::class;
-    private const RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL = RdKafkaLowLevelConsumer::class;
-    private const RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL = RdKafkaHighLevelConsumer::class;
+    const CONSUMER_TYPE_LOW_LEVEL = 'low';
+    const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
      * @var array
@@ -45,11 +43,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var string
      */
     private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
-
-    /**
-     * @var string
-     */
-    private $rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL;
 
     /**
      * @var int
@@ -161,12 +154,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     {
         $this->consumerType = $consumerType;
 
-        if (self::CONSUMER_TYPE_HIGH_LEVEL === $consumerType) {
-            $this->rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_HIGH_LEVEL;
-        } elseif (self::CONSUMER_TYPE_LOW_LEVEL === $consumerType) {
-            $this->rdKafkaConsumerType = self::RD_KAFKA_CONSUMER_TYPE_LOW_LEVEL;
-        }
-
         return $this;
     }
 
@@ -244,9 +231,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
-        $rdKafkaConsumer = new $this->rdKafkaConsumerType($kafkaConfig);
 
-        return new $this->consumerType($rdKafkaConsumer, $kafkaConfig);
+        if (self::CONSUMER_TYPE_LOW_LEVEL == $this->consumerType) {
+            $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
+
+            return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+        }
+
+        $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
+
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig);
     }
 
     /**
