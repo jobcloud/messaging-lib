@@ -96,6 +96,14 @@ interface KafkaConsumerBuilderInterface
     public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
 
     /**
+     * Callback for log related events
+     *
+     * @param callable $consumeCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface;
+
+    /**
      * Returns your consumer instance
      *
      * @return KafkaConsumerInterface

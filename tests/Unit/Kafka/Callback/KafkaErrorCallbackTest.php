@@ -16,7 +16,7 @@ class KafkaErrorCallbackTest extends TestCase
     {
         return $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['unsubscribe', 'getSubscription'])
+            ->onlyMethods(['unsubscribe', 'getSubscription'])
             ->getMock();
     }
 

@@ -76,7 +76,7 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         //create mock to assign topics
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['assign', 'unsubscribe', 'getSubscription'])
+            ->onlyMethods(['assign', 'unsubscribe', 'getSubscription'])
             ->getMock();
 
         $consumerMock

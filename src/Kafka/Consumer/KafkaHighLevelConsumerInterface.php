@@ -40,4 +40,12 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
      * @return array|RdKafkaTopicPartition[]
      */
     public function getCommittedOffsets(array $topicPartitions, int $timeout): array;
+
+    /**
+     * Get current offset positions of the consumer
+     *
+     * @param array|TopicPartition[] $topicPartitions
+     * @return array
+     */
+    public function getOffsetPositions(array $topicPartitions): array;
 }

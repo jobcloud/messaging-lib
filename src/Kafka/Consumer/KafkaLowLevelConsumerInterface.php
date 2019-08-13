@@ -26,4 +26,13 @@ interface KafkaLowLevelConsumerInterface extends KafkaConsumerInterface
      * @return integer
      */
     public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
+
+    /**
+     * Get the earliest offset for a certain timestamp for topic partitions
+     *
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
+     * @return array
+     */
+    public function offsetsForTimes(array $topicPartitions, int $timeout): array;
 }

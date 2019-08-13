@@ -68,6 +68,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @var callable
      */
+    private $logCallback;
+
+    /**
+     * @var callable
+     */
     private $offsetCommitCallback;
 
     /**
@@ -214,6 +219,19 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Callback for log related events
+     *
+     * @param callable $consumeCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
+    {
+        $this->consumeCallback = $consumeCallback;
+
+        return $this;
+    }
+
+    /**
      * Set callback that is being called on offset commits
      *
      * @param callable $offsetCommitCallback
@@ -253,6 +271,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             $this->topics,
             $this->timeout
         );
+
+        if (null !== $this->logCallback) {
+            $this->config['log.queue'] = true;
+        }
 
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);
@@ -294,6 +316,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         if (null !== $this->consumeCallback) {
             $conf->setConsumeCb($this->consumeCallback);
+        }
+
+        if (null !== $this->logCallback) {
+            $conf->setLogCb($this->logCallback);
         }
 
         if (null !== $this->offsetCommitCallback) {
