@@ -48,7 +48,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock = $this->createMock(RdKafkaQueue::class);
         $this->rdKafkaConsumerMock = $this->createMock(RdKafkaLowLevelConsumer::class);
         $this->rdKafkaConsumerMock
-            ->expects(self::once())
+            ->expects(self::atLeastOnce())
             ->method('newQueue')
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -459,17 +459,45 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /**
      * @return void
      */
-    public function testGetBrokerHighLowOffsets(): void
+    public function testGetFirstOffsetForTopicPartition(): void
     {
-        $lowOffset = 0;
-        $highOffset = 0;
-
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('queryWatermarkOffsets')
-            ->with('test-topic', 1, $lowOffset, $highOffset, 1000);
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                    $lowOffset++;
+                }
+            );
 
-        $this->kafkaConsumer->getBrokerHighLowOffsets('test-topic', 1, $lowOffset, $highOffset, 1000);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+
+        $lowOffset = $this->kafkaConsumer->getFirstOffsetForTopicPartition('test-topic', 1, 1000);
+
+        $this->assertEquals(1, $lowOffset);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetLastOffsetForTopicPartition(): void
+    {
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                    $highOffset += 5;
+                }
+            );
+
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+
+        $lowOffset = $this->kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
+
+        $this->assertEquals(5, $lowOffset);
     }
 
     /**

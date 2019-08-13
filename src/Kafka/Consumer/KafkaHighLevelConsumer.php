@@ -182,7 +182,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @return array
+     * @return array|string[]
      */
     private function getTopicSubscriptions(): array
     {
@@ -199,7 +199,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      */
     private function getTopicAssignments(): array
     {

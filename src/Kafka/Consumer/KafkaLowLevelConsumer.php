@@ -127,19 +127,39 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * @param string  $topic
      * @param integer $partition
-     * @param integer $lowOffset
-     * @param integer $highOffset
      * @param integer $timeout
-     * @return void
+     * @return integer
      */
-    public function getBrokerHighLowOffsets(
+    public function getFirstOffsetForTopicPartition(
         string $topic,
         int $partition,
-        int &$lowOffset,
-        int &$highOffset,
         int $timeout
-    ): void {
+    ): int {
+        $lowOffset = 0;
+        $highOffset = 0;
+
         $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+
+        return $lowOffset;
+    }
+
+    /**
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getLastOffsetForTopicPartition(
+        string $topic,
+        int $partition,
+        int $timeout
+    ): int {
+        $lowOffset = 0;
+        $highOffset = 0;
+
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+
+        return $highOffset;
     }
 
     /**

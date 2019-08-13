@@ -10,16 +10,16 @@ interface KafkaLowLevelConsumerInterface extends KafkaConsumerInterface
     /**
      * @param string  $topic
      * @param integer $partition
-     * @param integer $lowOffset
-     * @param integer $highOffset
      * @param integer $timeout
-     * @return void
+     * @return integer
      */
-    public function getBrokerHighLowOffsets(
-        string $topic,
-        int $partition,
-        int &$lowOffset,
-        int &$highOffset,
-        int $timeout
-    ): void;
+    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
+
+    /**
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
 }
