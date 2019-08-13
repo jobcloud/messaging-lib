@@ -29,7 +29,7 @@ interface KafkaConsumerInterface extends ConsumerInterface
     public function unsubscribe(): void;
 
     /**
-     * Returns true if the consumer has subscribed to it's topics, otherwise false
+     * Returns true if the consumer has subscribed to its topics, otherwise false
      * It is mandatory to call `subscribe` before `consume`
      *
      * @return boolean

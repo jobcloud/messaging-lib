@@ -60,7 +60,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * Add brokers to which you want to produce
+     * Adds a broker to which you want to produce
      *
      * @param string $broker
      * @return KafkaProducerBuilderInterface
@@ -101,7 +101,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * Set a callback to be called on errors.
-     * The default callback will throw a KafkaBrokerException for every error
+     * The default callback will throw an exception for every error
      *
      * @param callable $errorCallback
      * @return KafkaProducerBuilderInterface

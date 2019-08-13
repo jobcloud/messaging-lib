@@ -68,9 +68,11 @@ final class KafkaMessage implements KafkaMessageInterface
      */
     public function withKey(?string $key): KafkaMessageInterface
     {
-        $this->key = $key;
+        $new = clone $this;
 
-        return $this;
+        $new->key = $key;
+
+        return $new;
     }
 
     /**
@@ -79,9 +81,11 @@ final class KafkaMessage implements KafkaMessageInterface
      */
     public function withBody(?string $body): KafkaMessageInterface
     {
-        $this->body = $body;
+        $new = clone $this;
 
-        return $this;
+        $new->body = $body;
+
+        return $new;
     }
 
     /**
@@ -90,9 +94,11 @@ final class KafkaMessage implements KafkaMessageInterface
      */
     public function withOffset(int $offset): KafkaMessageInterface
     {
-        $this->offset = $offset;
+        $new = clone $this;
 
-        return $this;
+        $new->offset = $offset;
+
+        return $new;
     }
 
     /**
@@ -101,9 +107,11 @@ final class KafkaMessage implements KafkaMessageInterface
      */
     public function withTimestamp(int $timestamp): KafkaMessageInterface
     {
-        $this->timestamp = $timestamp;
+        $new = clone $this;
 
-        return $this;
+        $new->timestamp = $timestamp;
+
+        return $new;
     }
 
     /**
@@ -112,9 +120,25 @@ final class KafkaMessage implements KafkaMessageInterface
      */
     public function withHeaders(?array $headers): KafkaMessageInterface
     {
-        $this->headers = $headers;
+        $new = clone $this;
 
-        return $this;
+        $new->headers = $headers;
+
+        return $new;
+    }
+
+    /**
+     * @param string         $key
+     * @param string|integer $value
+     * @return KafkaMessageInterface
+     */
+    public function withHeader(string $key, $value): KafkaMessageInterface
+    {
+        $new = clone $this;
+
+        $new->headers[$key] = $value;
+
+        return $new;
     }
 
     /**

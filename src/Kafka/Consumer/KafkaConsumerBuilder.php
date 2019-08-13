@@ -89,7 +89,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * Add brokers from which you want to consume
+     * Adds a broker from which you want to consume
      *
      * @param string $broker
      * @return KafkaConsumerBuilderInterface
@@ -174,7 +174,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Set a callback to be called on errors.
-     * The default callback will throw a KafkaBrokerException for every error
+     * The default callback will throw an exception for every error
      *
      * @param callable $errorCallback
      * @return KafkaConsumerBuilderInterface

@@ -46,6 +46,13 @@ interface KafkaMessageInterface extends MessageInterface
     public function withHeaders(array $headers): KafkaMessageInterface;
 
     /**
+     * @param string         $key
+     * @param string|integer $value
+     * @return KafkaMessageInterface
+     */
+    public function withHeader(string $key, $value): KafkaMessageInterface;
+
+    /**
      * @return string|null
      */
     public function getKey(): ?string;

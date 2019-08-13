@@ -26,7 +26,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     protected $consumer;
 
     /**
-     * Returns true if the consumer has subscribed to it's topics, otherwise false
+     * Returns true if the consumer has subscribed to its topics, otherwise false
      * It is mandatory to call `subscribe` before `consume`
      *
      * @return boolean
@@ -48,7 +48,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
     /**
      * Consumes a message and returns it
-     * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
+     * In cases of errors / timeouts an exception is thrown
      *
      * @return MessageInterface
      * @throws KafkaConsumerConsumeException

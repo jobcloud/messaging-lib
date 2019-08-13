@@ -21,11 +21,16 @@ final class KafkaMessageTest extends TestCase
         $partition = 1;
         $timestamp = 1562324233704;
         $headers = [ 'key' => 'value' ];
+        $expectedHeader = [
+            'key' => 'value',
+            'anotherKey' => 1
+        ];
 
         $message = KafkaMessage::create($topic, $partition)
             ->withKey($key)
             ->withBody($body)
             ->withHeaders($headers)
+            ->withHeader('anotherKey', 1)
             ->withOffset($offset)
             ->withTimestamp($timestamp);
 
@@ -35,6 +40,6 @@ final class KafkaMessageTest extends TestCase
         self::assertEquals($offset, $message->getOffset());
         self::assertEquals($partition, $message->getPartition());
         self::assertEquals($timestamp, $message->getTimestamp());
-        self::assertEquals($headers, $message->getHeaders());
+        self::assertEquals($expectedHeader, $message->getHeaders());
     }
 }
