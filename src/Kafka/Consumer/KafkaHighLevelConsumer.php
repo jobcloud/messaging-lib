@@ -30,6 +30,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Subscribes to all defined topics, if no partitions were set, subscribes to all partitions.
+     * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
+     *
      * @throws KafkaConsumerSubscriptionException
      * @return void
      */
@@ -57,6 +60,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Unsubscribes from the current subscription / assignment
+     *
      * @throws KafkaConsumerSubscriptionException
      * @return void
      */
@@ -71,6 +76,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Commits the offset to the broker for the given message(s)
+     * This is a blocking function, checkout out commitAsync if you want to commit in a non blocking manner
+     *
      * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @throws KafkaConsumerCommitException
      * @return void
@@ -81,6 +89,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Assigns a consumer to the given TopicPartition(s)
+     *
      * @param array $topicPartitions
      * @throws KafkaConsumerAssignmentException
      * @return void
@@ -95,6 +105,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Asynchronous version of commit (non blocking)
+     *
      * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @throws KafkaConsumerCommitException
      * @return void
@@ -105,6 +117,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Gets the current assignment for the consumer
+     *
      * @return array
      * @throws KafkaConsumerAssignmentException
      */
@@ -118,6 +132,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Gets the commited offset for a TopicPartition for the configured consumer group
+     *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
      * @param integer                       $timeout
      * @return array|RdKafkaTopicPartition[]

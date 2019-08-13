@@ -8,6 +8,8 @@ interface KafkaLowLevelConsumerInterface extends KafkaConsumerInterface
 {
 
     /**
+     * Queries the broker for the first offset of a given topic and partition
+     *
      * @param string  $topic
      * @param integer $partition
      * @param integer $timeout
@@ -16,6 +18,8 @@ interface KafkaLowLevelConsumerInterface extends KafkaConsumerInterface
     public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
 
     /**
+     * Queries the broker for the last offset of a given topic and partition
+     *
      * @param string  $topic
      * @param integer $partition
      * @param integer $timeout

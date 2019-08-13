@@ -26,6 +26,9 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     protected $consumer;
 
     /**
+     * Returns true if the consumer has subscribed to it's topics, otherwise false
+     * It is mandatory to call `subscribe` before `consume`
+     *
      * @return boolean
      */
     public function isSubscribed(): bool
@@ -34,6 +37,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * Returns the configuration settings for this consumer instance as array
+     *
      * @return array
      */
     public function getConfiguration(): array
@@ -42,6 +47,9 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * Consumes a message and returns it
+     * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
+     *
      * @return MessageInterface
      * @throws KafkaConsumerConsumeException
      */
@@ -74,6 +82,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * Queries the broker for metadata on a certain topic
+     *
      * @param RdKafkaConsumerTopic $topic
      * @return RdKafkaMetadataTopic
      * @throws RdKafkaException

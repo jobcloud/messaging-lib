@@ -36,6 +36,8 @@ final class KafkaProducer implements ProducerInterface
     }
 
     /**
+     * Produces a message to the topic and partition defined in the message
+     *
      * @param MessageInterface $message
      * @throws KafkaProducerException
      * @return void

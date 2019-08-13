@@ -39,7 +39,9 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
-     * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
+     * Subcribes to all defined topics, if no partitions were set, subscribes to all partitions.
+     * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
+     *
      * @return void
      * @throws KafkaConsumerSubscriptionException
      */
@@ -80,6 +82,8 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
+     * Commits the offset to the broker for the given message(s). This is a blocking function
+     *
      * @param MessageInterface[]|MessageInterface $messages
      * @return void
      * @throws KafkaConsumerCommitException
@@ -103,7 +107,8 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
-     * Unsubscribes this consumer from all currently subscribed topics
+     * Unsubscribes from the current subscription
+     *
      * @return void
      */
     public function unsubscribe(): void
@@ -125,6 +130,8 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
+     * Queries the broker for the first offset of a given topic and partition
+     *
      * @param string  $topic
      * @param integer $partition
      * @param integer $timeout
@@ -144,6 +151,8 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
+     * Queries the broker for the last offset of a given topic and partition
+     *
      * @param string  $topic
      * @param integer $partition
      * @param integer $timeout

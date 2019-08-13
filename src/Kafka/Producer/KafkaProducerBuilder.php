@@ -50,6 +50,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Returns the producer builder
+     *
      * @return KafkaProducerBuilderInterface
      */
     public static function create(): KafkaProducerBuilderInterface
@@ -58,6 +60,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Add brokers to which you want to produce
+     *
      * @param string $broker
      * @return KafkaProducerBuilderInterface
      */
@@ -69,6 +73,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Add configuration settings, otherwise the kafka defaults apply
+     *
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
@@ -80,6 +86,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Sets callback for the delivery report. The broker will send a delivery
+     * report for every message which describes if the delivery was successful or not
+     *
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilderInterface
      */
@@ -91,6 +100,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Set a callback to be called on errors.
+     * The default callback will throw a KafkaBrokerException for every error
+     *
      * @param callable $errorCallback
      * @return KafkaProducerBuilderInterface
      */
@@ -102,6 +114,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Sets the poll timeout. Poll queries and dispatches events to callbacks.
+     *
      * @param integer $pollTimeout
      * @return KafkaProducerBuilderInterface
      */
@@ -113,6 +127,8 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Returns your producer instance
+     *
      * @return ProducerInterface
      * @throws KafkaProducerException
      */

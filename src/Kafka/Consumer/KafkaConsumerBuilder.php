@@ -7,6 +7,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
@@ -78,6 +79,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Returns the builder
+     *
      * @return KafkaConsumerBuilder
      */
     public static function create(): self
@@ -86,6 +89,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Add brokers from which you want to consume
+     *
      * @param string $broker
      * @return KafkaConsumerBuilderInterface
      */
@@ -97,6 +102,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Add topic name(s) (and additionally partitions and offsets) to subscribe to
+     *
      * @param string  $topicName
      * @param array   $partitions
      * @param integer $offset
@@ -114,6 +121,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Add configuration settings, otherwise the kafka defaults apply
+     *
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
@@ -125,6 +134,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set the timeout for all consumer actions
+     *
      * @param integer $timeout
      * @return KafkaConsumerBuilderInterface
      */
@@ -136,6 +147,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set the consumer group
+     *
      * @param string $consumerGroup
      * @return KafkaConsumerBuilderInterface
      */
@@ -147,6 +160,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
+     *
      * @param string $consumerType
      * @return KafkaConsumerBuilderInterface
      */
@@ -158,6 +173,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set a callback to be called on errors.
+     * The default callback will throw a KafkaBrokerException for every error
+     *
      * @param callable $errorCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -169,6 +187,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set a callback to be called on consumer rebalance
+     *
      * @param callable $rebalanceCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -180,6 +200,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Only applicable for the high level consumer
+     * Callback that is going to be called when you call consume
+     *
      * @param callable $consumeCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -191,6 +214,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set callback that is being called on offset commits
+     *
      * @param callable $offsetCommitCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -202,6 +227,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Returns your consumer instance
+     *
      * @return KafkaConsumerInterface
      * @throws KafkaConsumerBuilderException
      */
