@@ -76,7 +76,12 @@ class KafkaProducerTest extends TestCase
     public function testProduceErrorOnMessageInterface(): void
     {
         self::expectException(KafkaProducerException::class);
-        self::expectExceptionMessage(KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE);
+        self::expectExceptionMessage(
+            sprintf(
+                KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
+                KafkaMessage::class
+            )
+        );
 
         $message = $this->createMock(MessageInterface::class);
 
