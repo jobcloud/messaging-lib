@@ -260,6 +260,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //create RdConsumer
 
         if (self::CONSUMER_TYPE_LOW_LEVEL == $this->consumerType) {
+            if (null !== $this->consumeCallback) {
+                throw new KafkaConsumerBuilderException(
+                    sprintf(
+                        KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
+                        'consumerCallback',
+                        KafkaLowLevelConsumer::class
+                    )
+                );
+            }
+
             $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
 
             return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
@@ -283,7 +293,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         if (null !== $this->consumeCallback) {
-            $conf->setConsumeCb($this->rebalanceCallback);
+            $conf->setConsumeCb($this->consumeCallback);
         }
 
         if (null !== $this->offsetCommitCallback) {

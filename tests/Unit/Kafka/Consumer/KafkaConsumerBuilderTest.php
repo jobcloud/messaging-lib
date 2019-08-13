@@ -282,6 +282,32 @@ final class KafkaConsumerBuilderTest extends TestCase
     /**
      * @return void
      */
+    public function testBuildLowLevelFailureOnUnsupportedCallback(): void
+    {
+        $callback = function ($kafka, $errId, $msg) {
+            // Anonymous test method, no logic required
+        };
+
+        self::expectException(KafkaConsumerBuilderException::class);
+        self::expectExceptionMessage(
+            sprintf(
+                KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
+                'consumerCallback',
+                KafkaLowLevelConsumer::class
+            )
+        );
+
+        $this->kafkaConsumerBuilder
+            ->addBroker('localhost')
+            ->addSubscription('test-topic')
+            ->setConsumeCallback($callback)
+            ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
+            ->build();
+    }
+
+    /**
+     * @return void
+     */
     public function testBuildHighLevelSuccess(): void
     {
         $callback = function ($kafka, $errId, $msg) {

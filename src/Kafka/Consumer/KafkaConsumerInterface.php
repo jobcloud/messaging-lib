@@ -7,7 +7,6 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
-use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 
