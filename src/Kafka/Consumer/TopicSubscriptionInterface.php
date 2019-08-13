@@ -4,17 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use RdKafka\TopicConf;
-
 interface TopicSubscriptionInterface
 {
-
-    /**
-     * @param int $partitionId
-     * @param int|null $offset
-     * @return TopicSubscriptionInterface
-     */
-    public function addPartition(int $partitionId, int $offset = null): self;
 
     /**
      * @return string
@@ -27,12 +18,13 @@ interface TopicSubscriptionInterface
     public function getPartitions(): array;
 
     /**
-     * @return integer
+     * @param array $partitions
+     * @return void
      */
-    public function getDefaultOffset(): int;
+    public function setPartitions(array $partitions): void;
 
     /**
-     * @return TopicConf
+     * @return integer
      */
-    public function getTopicConf(): TopicConf;
+    public function getOffset(): int;
 }

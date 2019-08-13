@@ -29,6 +29,7 @@
     </testsuites>
     <logging>
         <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
+        <log type="coverage-html" target="./build"/>
         <log type="coverage-clover" target="clover.xml"/>
     </logging>
     <filter>
@@ -36,4 +37,7 @@
             <directory>src</directory>
         </whitelist>
     </filter>
+    <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+    </listeners>
 </phpunit>

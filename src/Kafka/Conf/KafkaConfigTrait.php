@@ -1,8 +1,6 @@
 <?php
 
-namespace Jobcloud\Messaging\Kafka\Helper;
-
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+namespace Jobcloud\Messaging\Kafka\Conf;
 
 trait KafkaConfigTrait
 {
@@ -24,6 +22,8 @@ trait KafkaConfigTrait
         foreach ($config as $name => $value) {
             $conf->set($name, is_bool($value) ? (false === $value ? 'false' : 'true') : $value);
         }
+
+        $conf->set('metadata.broker.list', implode(',', $conf->getBrokers()));
 
         return $conf;
     }

@@ -5,13 +5,20 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
-use Jobcloud\Messaging\Kafka\Helper\KafkaConfigTrait;
-use RdKafka\Consumer as RdKafkaConsumer;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
+use RdKafka\Consumer as RdKafkaLowLevelConsumer;
+use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
 
     use KafkaConfigTrait;
+
+    const CONSUMER_TYPE_LOW_LEVEL = 'low';
+    const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
      * @var array
@@ -34,6 +41,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $consumerGroup = 'default';
 
     /**
+     * @var string
+     */
+    private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
+
+    /**
      * @var int
      */
     private $timeout = 1000;
@@ -49,6 +61,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $rebalanceCallback;
 
     /**
+     * @var callable
+     */
+    private $consumeCallback;
+
+    /**
+     * @var callable
+     */
+    private $offsetCommitCallback;
+
+    /**
      * KafkaConsumerBuilder constructor.
      */
     private function __construct()
@@ -57,6 +79,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Returns the builder
+     *
      * @return KafkaConsumerBuilder
      */
     public static function create(): self
@@ -65,6 +89,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Adds a broker from which you want to consume
+     *
      * @param string $broker
      * @return KafkaConsumerBuilderInterface
      */
@@ -76,28 +102,40 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param TopicSubscriptionInterface $topicSubscription
+     * Add topic name(s) (and additionally partitions and offsets) to subscribe to
+     *
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(TopicSubscriptionInterface $topicSubscription): KafkaConsumerBuilderInterface
-    {
-        $this->topics[] = $topicSubscription;
+    public function addSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): KafkaConsumerBuilderInterface {
+
+        $this->topics[] = new TopicSubscription($topicName, $partitions, $offset);
 
         return $this;
     }
 
     /**
+     * Add configuration settings, otherwise the kafka defaults apply
+     *
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConfig(array $config): KafkaConsumerBuilderInterface
+    public function addConfig(array $config): KafkaConsumerBuilderInterface
     {
-        $this->config += $config;
+        $this->config = $config + $this->config;
 
         return $this;
     }
 
     /**
+     * Set the timeout for all consumer actions
+     *
      * @param integer $timeout
      * @return KafkaConsumerBuilderInterface
      */
@@ -109,6 +147,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set the consumer group
+     *
      * @param string $consumerGroup
      * @return KafkaConsumerBuilderInterface
      */
@@ -120,6 +160,22 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
+     *
+     * @param string $consumerType
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumerType(string $consumerType): KafkaConsumerBuilderInterface
+    {
+        $this->consumerType = $consumerType;
+
+        return $this;
+    }
+
+    /**
+     * Set a callback to be called on errors.
+     * The default callback will throw an exception for every error
+     *
      * @param callable $errorCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -131,6 +187,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Set a callback to be called on consumer rebalance
+     *
      * @param callable $rebalanceCallback
      * @return KafkaConsumerBuilderInterface
      */
@@ -142,17 +200,46 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Only applicable for the high level consumer
+     * Callback that is going to be called when you call consume
+     *
+     * @param callable $consumeCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumeCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
+    {
+        $this->consumeCallback = $consumeCallback;
+
+        return $this;
+    }
+
+    /**
+     * Set callback that is being called on offset commits
+     *
+     * @param callable $offsetCommitCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setOffsetCommitCallback(callable $offsetCommitCallback): KafkaConsumerBuilderInterface
+    {
+        $this->offsetCommitCallback = $offsetCommitCallback;
+
+        return $this;
+    }
+
+    /**
+     * Returns your consumer instance
+     *
      * @return KafkaConsumerInterface
      * @throws KafkaConsumerBuilderException
      */
     public function build(): KafkaConsumerInterface
     {
         if ([] === $this->brokers) {
-            throw new KafkaConsumerBuilderException('No brokers to connect');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
         if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException('No topics set to consume');
+            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
         }
 
         //set additional config
@@ -160,17 +247,57 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->config['enable.auto.offset.store'] = false;
 
         //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, $this->topics, $this->timeout);
+        $kafkaConfig = $this->createKafkaConfig(
+            $this->config,
+            $this->brokers,
+            $this->topics,
+            $this->timeout
+        );
 
         //set consumer callbacks
-        $kafkaConfig->setErrorCb($this->errorCallback);
-        if (null !== $this->rebalanceCallback) {
-            $kafkaConfig->setRebalanceCb($this->rebalanceCallback);
-        }
+        $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
-        $rdKafkaConsumer = new RdKafkaConsumer($kafkaConfig);
 
-        return new KafkaConsumer($rdKafkaConsumer, $kafkaConfig);
+        if (self::CONSUMER_TYPE_LOW_LEVEL == $this->consumerType) {
+            if (null !== $this->consumeCallback) {
+                throw new KafkaConsumerBuilderException(
+                    sprintf(
+                        KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
+                        'consumerCallback',
+                        KafkaLowLevelConsumer::class
+                    )
+                );
+            }
+
+            $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
+
+            return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+        }
+
+        $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
+
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+    }
+
+    /**
+     * @param KafkaConfiguration $conf
+     * @return void
+     */
+    private function registerCallbacks(KafkaConfiguration $conf): void
+    {
+        $conf->setErrorCb($this->errorCallback);
+
+        if (null !== $this->rebalanceCallback) {
+            $conf->setRebalanceCb($this->rebalanceCallback);
+        }
+
+        if (null !== $this->consumeCallback) {
+            $conf->setConsumeCb($this->consumeCallback);
+        }
+
+        if (null !== $this->offsetCommitCallback) {
+            $conf->setOffsetCommitCb($this->rebalanceCallback);
+        }
     }
 }

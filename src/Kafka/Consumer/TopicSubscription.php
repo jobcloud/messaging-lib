@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use RdKafka\TopicConf;
-
-/**
- * This topic subscription needs an concrete subscription to (a subset of available) partitions by using
- * the @see self::addPartition method. Only the partitions explicitly added will be subscribed.
- */
 final class TopicSubscription implements TopicSubscriptionInterface
 {
 
@@ -24,35 +18,23 @@ final class TopicSubscription implements TopicSubscriptionInterface
     private $partitions = [];
 
     /**
-     * @var int
+     * @var int|null
      */
-    private $defaultOffset;
-
-    /**
-     * @var TopicConf
-     */
-    private $topicConf;
-
-    private $topicSettings = ['auto.offset.reset' => 'smallest'];
+    private $offset;
 
     /**
      * @param string  $topicName
-     * @param integer $defaultOffset
-     * @param array   $topicSettings
+     * @param array   $partitions
+     * @param integer $offset
      */
     public function __construct(
         string $topicName,
-        int $defaultOffset = RD_KAFKA_OFFSET_STORED,
-        array $topicSettings = []
+        array $partitions = [],
+        int $offset = RD_KAFKA_OFFSET_STORED
     ) {
-        $this->topicSettings = $topicSettings + $this->topicSettings;
         $this->topicName = $topicName;
-        $this->defaultOffset = $defaultOffset;
-        $this->topicConf = new TopicConf();
-
-        foreach ($this->topicSettings as $settingName => $value) {
-            $this->topicConf->set($settingName, $value);
-        }
+        $this->partitions = $partitions;
+        $this->offset = $offset;
     }
 
     /**
@@ -64,15 +46,12 @@ final class TopicSubscription implements TopicSubscriptionInterface
     }
 
     /**
-     * @param integer $partitionId
-     * @param integer $offset
-     * @return self
+     * @param array $partitions
+     * @return void
      */
-    public function addPartition(int $partitionId, int $offset = null): TopicSubscriptionInterface
+    public function setPartitions(array $partitions): void
     {
-        $this->partitions[$partitionId] = $offset !== null ? $offset : $this->defaultOffset;
-
-        return $this;
+        $this->partitions = $partitions;
     }
 
     /**
@@ -86,16 +65,8 @@ final class TopicSubscription implements TopicSubscriptionInterface
     /**
      * @return integer
      */
-    public function getDefaultOffset(): int
+    public function getOffset(): int
     {
-        return $this->defaultOffset;
-    }
-
-    /**
-     * @return TopicConf
-     */
-    public function getTopicConf(): TopicConf
-    {
-        return $this->topicConf;
+        return $this->offset ?? RD_KAFKA_OFFSET_STORED;
     }
 }

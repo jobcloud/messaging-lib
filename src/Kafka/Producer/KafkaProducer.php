@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Consumer\MessageInterface;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
@@ -21,9 +24,6 @@ final class KafkaProducer implements ProducerInterface
     /** @var array */
     protected $producerTopics = [];
 
-    /** @var boolean */
-    protected $isConnected = false;
-
     /**
      * KafkaProducer constructor.
      * @param RdKafkaProducer    $producer
@@ -36,19 +36,33 @@ final class KafkaProducer implements ProducerInterface
     }
 
     /**
-     * @param string      $message
-     * @param string      $topic
-     * @param integer     $partition
-     * @param string|null $key
+     * Produces a message to the topic and partition defined in the message
+     *
+     * @param MessageInterface $message
+     * @throws KafkaProducerException
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA, string $key = null)
+    public function produce(MessageInterface $message): void
     {
-        $this->connectProducerToBrokers();
+        if (false === $message instanceof KafkaMessage) {
+            throw new KafkaProducerException(
+                sprintf(
+                    KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
+                    KafkaMessage::class
+                )
+            );
+        }
 
-        $topicProducer = $this->getProducerTopicForTopic($topic);
+        /** @var KafkaMessage $message */
+        $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
 
-        $topicProducer->produce($partition, 0, $message, $key);
+        $topicProducer->producev(
+            $message->getPartition(),
+            0,
+            $message->getBody(),
+            $message->getKey(),
+            $message->getHeaders()
+        );
 
         while ($this->producer->getOutQLen() > 0) {
             $this->producer->poll($this->kafkaConfiguration->getTimeout());
@@ -66,18 +80,5 @@ final class KafkaProducer implements ProducerInterface
         }
 
         return $this->producerTopics[$topic];
-    }
-
-    /**
-     * @return void
-     */
-    private function connectProducerToBrokers(): void
-    {
-        if (true === $this->isConnected) {
-            return;
-        }
-
-        $this->producer->addBrokers(implode(',', $this->kafkaConfiguration->getBrokers()));
-        $this->isConnected = true;
     }
 }

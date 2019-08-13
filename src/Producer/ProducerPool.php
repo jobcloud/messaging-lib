@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Producer;
 
+use Jobcloud\Messaging\Consumer\MessageInterface;
+
 final class ProducerPool implements ProducerInterface
 {
 
@@ -21,16 +23,13 @@ final class ProducerPool implements ProducerInterface
     }
 
     /**
-     * @param string      $message
-     * @param string      $topic
-     * @param integer     $partition
-     * @param string|null $key
+     * @param MessageInterface $message
      * @return void
      */
-    public function produce(string $message, string $topic, int $partition = RD_KAFKA_PARTITION_UA, string $key = null)
+    public function produce(MessageInterface $message): void
     {
         foreach ($this->producers as $producer) {
-            $producer->produce($message, $topic, $partition, $key);
+            $producer->produce($message);
         }
     }
 

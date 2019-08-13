@@ -2,16 +2,16 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer;
-use Jobcloud\Messaging\Kafka\Consumer\Message;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use RdKafka\Consumer as RdKafkaConsumer;
+use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
@@ -22,36 +22,22 @@ use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Queue as RdKafkaQueue;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\AbstractKafkaConsumer
+ * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer
  */
-final class KafkaConsumerTest extends TestCase
+final class KafkaLowLevelConsumerTest extends TestCase
 {
-
-    /** @var string */
-    private const TEST_BROKER = 'TEST_BROKER';
-    /** @var string */
-    private const TEST_TOPIC = 'TEST_TOPIC';
-    /** @var int */
-    private const TEST_OFFSET = 99;
-    /** @var int */
-    private const TEST_TIMEOUT = 9999;
-    /** @var string */
-    private const TEST_CONSUMER_GROUP = 'TEST_CONSUMER_GROUP';
-    /** @var int */
-    private const TEST_PARTITION_ID_1 = 1;
-    /** @var int */
-    private const TEST_PARTITION_ID_2 = 2;
 
     /** @var RdKafkaQueue|MockObject */
     private $rdKafkaQueueMock;
 
-    /** @var RdKafkaConsumer|MockObject */
+    /** @var RdKafkaLowLevelConsumer|MockObject */
     private $rdKafkaConsumerMock;
 
     /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
 
-    /** @var KafkaConsumer */
+    /** @var KafkaLowLevelConsumer */
     private $kafkaConsumer;
 
     /**
@@ -60,23 +46,26 @@ final class KafkaConsumerTest extends TestCase
     public function setUp(): void
     {
         $this->rdKafkaQueueMock = $this->createMock(RdKafkaQueue::class);
-        $this->rdKafkaConsumerMock = $this->createMock(RdKafkaConsumer::class);
+        $this->rdKafkaConsumerMock = $this->createMock(RdKafkaLowLevelConsumer::class);
         $this->rdKafkaConsumerMock
-            ->expects(self::once())
+            ->expects(self::atLeastOnce())
             ->method('newQueue')
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $this->kafkaConsumer = new KafkaConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConfigurationMock->expects(self::any())->method('dump')->willReturn([]);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
     }
 
     /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testConsumeWithTopicSubscriptionWithNoPartitionsIsSuccessful(): void
     {
         $partitions = [
-            $this->getMetadataPartitionMock(self::TEST_PARTITION_ID_1),
-            $this->getMetadataPartitionMock(self::TEST_PARTITION_ID_2)
+            $this->getMetadataPartitionMock(1),
+            $this->getMetadataPartitionMock(2)
         ];
 
         /** @var RdKafkaMessage|MockObject $rdKafkaMessageMock */
@@ -122,39 +111,31 @@ final class KafkaConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(self::TEST_TIMEOUT)
+            ->with(1000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
-            ->method('getBrokers')
-            ->willReturn([self::TEST_BROKER]);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
             ->method('getTopicSubscriptions')
-            ->willReturn([new TopicSubscription(self::TEST_TOPIC)]);
+            ->willReturn([new TopicSubscription('test-topic')]);
         $this->kafkaConfigurationMock
             ->expects(self::exactly(2))
             ->method('getTimeout')
-            ->willReturn(self::TEST_TIMEOUT);
+            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('getMetadata')
-            ->with(false, $rdKafkaConsumerTopicMock, self::TEST_TIMEOUT)
+            ->with(false, $rdKafkaConsumerTopicMock, 1000)
             ->willReturn($rdKafkaMetadataMock);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willReturn($rdKafkaConsumerTopicMock);
-        $this->rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('addBrokers')
-            ->with(implode(',', [self::TEST_BROKER]));
 
         $this->kafkaConsumer->subscribe();
         $message = $this->kafkaConsumer->consume();
 
-        self::assertInstanceOf(Message::class, $message);
+        self::assertInstanceOf(KafkaMessage::class, $message);
 
         self::assertEquals($rdKafkaMessageMock->payload, $message->getBody());
         self::assertEquals($rdKafkaMessageMock->offset, $message->getOffset());
@@ -162,29 +143,32 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testConsumeThrowsTimeoutExceptionIfQueueConsumeReturnsNull(): void
     {
         self::expectException(KafkaConsumerConsumeException::class);
-        self::expectExceptionCode(RD_KAFKA_RESP_ERR__TIMED_OUT);
-        self::expectExceptionMessage('Local: Timed out');
+        self::expectExceptionMessage(KafkaConsumerConsumeException::NO_MORE_MESSAGES_EXCEPTION_MESSAGE);
 
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(self::TEST_TIMEOUT)
+            ->with(1000)
             ->willReturn(null);
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTimeout')
-            ->willReturn(self::TEST_TIMEOUT);
+            ->willReturn(1000);
 
         $this->kafkaConsumer->subscribe();
         $this->kafkaConsumer->consume();
     }
 
     /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testConsumeThrowsExceptionIfConsumedMessageHasNoTopicAndErrorCodeIsNotOkay(): void
@@ -195,8 +179,8 @@ final class KafkaConsumerTest extends TestCase
         /** @var RdKafkaMessage|MockObject $rdKafkaMessageMock */
         $rdKafkaMessageMock = $this->createMock(RdKafkaMessage::class);
         $rdKafkaMessageMock->err = -185;
-        $rdKafkaMessageMock->partition = self::TEST_PARTITION_ID_1;
-        $rdKafkaMessageMock->offset = self::TEST_OFFSET;
+        $rdKafkaMessageMock->partition = 1;
+        $rdKafkaMessageMock->offset = 103;
         $rdKafkaMessageMock->topic_name = null;
         $rdKafkaMessageMock
             ->expects(self::once())
@@ -208,16 +192,15 @@ final class KafkaConsumerTest extends TestCase
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeQueueStart')
-            ->with(self::TEST_PARTITION_ID_1, self::TEST_OFFSET, $this->rdKafkaQueueMock)
+            ->with(1, 103, $this->rdKafkaQueueMock)
             ->willReturn(null);
 
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC, self::TEST_OFFSET);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1);
+        $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(self::TEST_TIMEOUT)
+            ->with(1000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
@@ -226,11 +209,11 @@ final class KafkaConsumerTest extends TestCase
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTimeout')
-            ->willReturn(self::TEST_TIMEOUT);
+            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willReturn($rdKafkaConsumerTopicMock);
 
         $this->kafkaConsumer->subscribe();
@@ -238,6 +221,8 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testConsumeFailThrowsException(): void
@@ -248,9 +233,9 @@ final class KafkaConsumerTest extends TestCase
         /** @var RdKafkaMessage|MockObject $rdKafkaMessageMock */
         $rdKafkaMessageMock = $this->createMock(RdKafkaMessage::class);
         $rdKafkaMessageMock->err = -1;
-        $rdKafkaMessageMock->partition = self::TEST_PARTITION_ID_1;
-        $rdKafkaMessageMock->offset = self::TEST_OFFSET;
-        $rdKafkaMessageMock->topic_name = self::TEST_TOPIC;
+        $rdKafkaMessageMock->partition = 1;
+        $rdKafkaMessageMock->offset = 103;
+        $rdKafkaMessageMock->topic_name = 'test-topic';
         $rdKafkaMessageMock->timestamp = 1;
         $rdKafkaMessageMock->headers = ['key' => 'value'];
         $rdKafkaMessageMock
@@ -263,16 +248,15 @@ final class KafkaConsumerTest extends TestCase
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeQueueStart')
-            ->with(self::TEST_PARTITION_ID_1, self::TEST_OFFSET, $this->rdKafkaQueueMock)
+            ->with(1, 103, $this->rdKafkaQueueMock)
             ->willReturn(null);
 
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC, self::TEST_OFFSET);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1);
+        $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(self::TEST_TIMEOUT)
+            ->with(1000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
@@ -281,11 +265,11 @@ final class KafkaConsumerTest extends TestCase
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTimeout')
-            ->willReturn(self::TEST_TIMEOUT);
+            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willReturn($rdKafkaConsumerTopicMock);
 
         $this->kafkaConsumer->subscribe();
@@ -293,6 +277,7 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
+     * @throws KafkaConsumerConsumeException
      * @return void
      */
     public function testConsumeThrowsExceptionIfConsumerIsCurrentlyNotSubscribed(): void
@@ -304,12 +289,13 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
-     * @return void
+     * @throws KafkaConsumerSubscriptionException
      * @throws \ReflectionException
+     * @return void
      */
     public function testSubscribeEarlyReturnsIfAlreadySubscribed(): void
     {
-        $subscribedProperty = new \ReflectionProperty(KafkaConsumer::class, 'subscribed');
+        $subscribedProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'subscribed');
         $subscribedProperty->setAccessible(true);
         $subscribedProperty->setValue($this->kafkaConsumer, true);
 
@@ -317,6 +303,7 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testSubscribeConvertsExtensionExceptionToLibraryException(): void
@@ -324,8 +311,7 @@ final class KafkaConsumerTest extends TestCase
         self::expectException(KafkaConsumerSubscriptionException::class);
         self::expectExceptionMessage('TEST_EXCEPTION_MESSAGE');
 
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC, self::TEST_OFFSET);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1);
+        $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
         $this->kafkaConfigurationMock
             ->expects(self::once())
@@ -334,31 +320,31 @@ final class KafkaConsumerTest extends TestCase
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willThrowException(new RdKafkaException('TEST_EXCEPTION_MESSAGE'));
 
         $this->kafkaConsumer->subscribe();
     }
 
     /**
+     * @throws KafkaConsumerSubscriptionException
      * @return void
      */
     public function testSubscribeUseExistingTopicsForResubscribe(): void
     {
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1, self::TEST_OFFSET);
+        $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
         $rdKafkaConsumerTopicMock
             ->expects(self::exactly(2))
             ->method('consumeQueueStart')
-            ->with(self::TEST_PARTITION_ID_1, self::TEST_OFFSET, $this->rdKafkaQueueMock)
+            ->with(1, 103, $this->rdKafkaQueueMock)
             ->willReturn(null);
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeStop')
-            ->with(self::TEST_PARTITION_ID_1)
+            ->with(1)
             ->willReturn(null);
 
         $this->kafkaConfigurationMock
@@ -368,7 +354,7 @@ final class KafkaConsumerTest extends TestCase
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
-            ->with(self::TEST_TOPIC)
+            ->with('test-topic')
             ->willReturn($rdKafkaConsumerTopicMock);
 
         $this->kafkaConsumer->subscribe();
@@ -383,20 +369,18 @@ final class KafkaConsumerTest extends TestCase
     }
 
     /**
-     * @return void
+     * @throws KafkaConsumerCommitException
      * @throws \ReflectionException
+     * @return void
      */
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
-        $message = new Message(
-            'some key',
-            'some message',
-            self::TEST_TOPIC,
-            self::TEST_PARTITION_ID_1,
-            self::TEST_OFFSET,
-            1562324233704,
-            null
-        );
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
@@ -405,25 +389,26 @@ final class KafkaConsumerTest extends TestCase
             ->method('offsetStore')
             ->with($message->getPartition(), $message->getOffset());
 
-        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaConsumer::class, 'topics');
+        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'topics');
         $rdKafkaConsumerMockProperty->setAccessible(true);
         $rdKafkaConsumerMockProperty->setValue(
             $this->kafkaConsumer,
-            [self::TEST_TOPIC => $rdKafkaConsumerTopicMock]
+            ['test-topic' => $rdKafkaConsumerTopicMock]
         );
 
         $this->kafkaConsumer->commit($message);
     }
 
     /**
-     * @return void
+     * @throws KafkaConsumerCommitException
      * @throws \ReflectionException
+     * @return void
      */
     public function testCommitWithInvalidObjectThrowsExceptionAndDoesNotTriggerCommit(): void
     {
         self::expectException(KafkaConsumerCommitException::class);
         self::expectExceptionMessage(
-            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Consumer\Message"'
+            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Message\KafkaMessage"'
         );
 
         $message = new \stdClass();
@@ -434,9 +419,9 @@ final class KafkaConsumerTest extends TestCase
             ->expects(self::never())
             ->method('offsetStore');
 
-        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaConsumer::class, 'topics');
+        $rdKafkaConsumerMockProperty = new \ReflectionProperty(KafkaLowLevelConsumer::class, 'topics');
         $rdKafkaConsumerMockProperty->setAccessible(true);
-        $rdKafkaConsumerMockProperty->setValue($this->kafkaConsumer, [self::TEST_TOPIC => $rdKafkaConsumerTopicMock]);
+        $rdKafkaConsumerMockProperty->setValue($this->kafkaConsumer, ['test-topic' => $rdKafkaConsumerTopicMock]);
 
         $this->kafkaConsumer->commit($message);
     }
@@ -462,25 +447,53 @@ final class KafkaConsumerTest extends TestCase
     /**
      * @return void
      */
-    public function testGetTopicSubscriptions(): void
+    public function testGetConfiguration(): void
     {
-        $topicSubscription = new TopicSubscription(self::TEST_TOPIC, self::TEST_OFFSET);
-        $topicSubscription->addPartition(self::TEST_PARTITION_ID_1);
-
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTopicSubscriptions')
-            ->willReturn([$topicSubscription]);
-
-        self::assertEquals([$topicSubscription], $this->kafkaConsumer->getTopicSubscriptions());
+        self::assertIsArray($this->kafkaConsumer->getConfiguration());
     }
 
     /**
      * @return void
      */
-    public function testGetConfiguration(): void
+    public function testGetFirstOffsetForTopicPartition(): void
     {
-        self::assertEquals($this->kafkaConfigurationMock, $this->kafkaConsumer->getConfiguration());
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                    $lowOffset++;
+                }
+            );
+
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+
+        $lowOffset = $this->kafkaConsumer->getFirstOffsetForTopicPartition('test-topic', 1, 1000);
+
+        $this->assertEquals(1, $lowOffset);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetLastOffsetForTopicPartition(): void
+    {
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                    $highOffset += 5;
+                }
+            );
+
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+
+        $lowOffset = $this->kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
+
+        $this->assertEquals(5, $lowOffset);
     }
 
     /**

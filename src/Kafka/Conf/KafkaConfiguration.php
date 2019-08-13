@@ -1,10 +1,11 @@
 <?php
 
-namespace Jobcloud\Messaging\Kafka;
+namespace Jobcloud\Messaging\Kafka\Conf;
 
-use RdKafka\Conf;
+use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
+use RdKafka\Conf as RdKafkaConf;
 
-class KafkaConfiguration extends Conf
+class KafkaConfiguration extends RdKafkaConf
 {
 
     /** @var array */
@@ -39,7 +40,7 @@ class KafkaConfiguration extends Conf
     }
 
     /**
-     * @return array
+     * @return array|TopicSubscription[]
      */
     public function getTopicSubscriptions(): array
     {
@@ -60,27 +61,5 @@ class KafkaConfiguration extends Conf
     public function getConfiguration(): array
     {
         return $this->dump();
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public function getSetting(string $name): string
-    {
-        $configuration = $this->dump();
-        if (isset($configuration[$name])) {
-            return $configuration[$name];
-        }
-
-        throw new \InvalidArgumentException(
-            sprintf(
-                'Configuration name `%s` does not exists on class `%s`. Available options are: %s.',
-                $name,
-                KafkaConfiguration::class,
-                implode(', ', array_keys($configuration))
-            )
-        );
     }
 }

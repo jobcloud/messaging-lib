@@ -2,7 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Producer;
 
-use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerPool;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -10,15 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class ProducerPoolTest extends TestCase
 {
-
-    /** @var string */
-    private const TEST_MESSAGE = 'TEST_MESSAGE';
-    /** @var string */
-    private const TEST_TOPIC = 'TEST_TOPIC';
-    /** @var int */
-    private const TEST_PARTITION = 999999;
-    /** @var string */
-    private const TEST_KEY = 'TEST_KEY';
 
     /** @var ProducerInterface|MockObject */
     private $kafkaProducerMock;
@@ -53,11 +44,18 @@ class ProducerPoolTest extends TestCase
      */
     public function testProduce(): void
     {
+        $message = KafkaMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ])
+            ->withOffset(42)
+            ->withTimestamp(1562324233704);
+
         $this->kafkaProducerMock
             ->expects(self::once())
             ->method('produce')
-            ->with(self::TEST_MESSAGE, self::TEST_TOPIC, self::TEST_PARTITION, self::TEST_KEY);
+            ->with($message);
         $this->producerPool->addProducer($this->kafkaProducerMock);
-        $this->producerPool->produce(self::TEST_MESSAGE, self::TEST_TOPIC, self::TEST_PARTITION, self::TEST_KEY);
+        $this->producerPool->produce($message);
     }
 }

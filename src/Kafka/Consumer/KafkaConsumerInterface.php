@@ -6,45 +6,63 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Consumer\MessageInterface;
-use Jobcloud\Messaging\Kafka\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {
     /**
-     * Tries to subscribe to the given topics and returns a list of successfully subscribed topics
+     * Subscribes to all defined topics, if no partitions were set, subscribes to all partitions.
+     * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
+     *
      * @return void
      */
     public function subscribe(): void;
 
     /**
-     * Unsubscribes this consumer from all currently subscribed topics
+     * Unsubscribes from the current subscription / assignment
+     *
      * @return void
      */
     public function unsubscribe(): void;
 
     /**
+     * Returns true if the consumer has subscribed to its topics, otherwise false
+     * It is mandatory to call `subscribe` before `consume`
+     *
      * @return boolean
      */
     public function isSubscribed(): bool;
 
     /**
-     * @return MessageInterface
+     * Consumes a message and returns it
+     * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
+     *
+     * @return KafkaMessageInterface
      */
     public function consume(): MessageInterface;
 
     /**
-     * @return array|TopicSubscriptionInterface[]
-     */
-    public function getTopicSubscriptions(): array;
-
-    /**
-     * @param MessageInterface|MessageInterface[] $messages
+     * Commits the offset to the broker for the given message(s)
+     *
+     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
      * @return void
      */
     public function commit($messages): void;
 
     /**
-     * @return KafkaConfiguration
+     * Returns the configuration settings for this consumer instance as array
+     *
+     * @return array
      */
-    public function getConfiguration(): KafkaConfiguration;
+    public function getConfiguration(): array;
+
+    /**
+     * Queries the broker for metadata on a certain topic
+     *
+     * @param RdKafkaConsumerTopic $topic
+     * @return RdKafkaMetadataTopic
+     */
+    public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
 }

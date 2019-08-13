@@ -5,26 +5,30 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Exception;
 
 use Jobcloud\Messaging\Consumer\ConsumerException;
-use Jobcloud\Messaging\Kafka\Consumer\Message;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 
 class KafkaConsumerConsumeException extends ConsumerException
 {
 
+    const NOT_SUBSCRIBED_EXCEPTION_MESSAGE = 'This consumer is currently not subscribed';
+    const NO_MORE_MESSAGES_EXCEPTION_MESSAGE = 'No more messages were read due to timeout or partition eof.';
+
     /**
-     * @var Message|null
+     * @var KafkaMessageInterface|null
      */
     private $kafkaMessage;
 
     /**
-     * @param string          $message
-     * @param integer         $code
-     * @param Message|null    $kafkaMessage
-     * @param \Throwable|null $previous
+     * @param string                     $message
+     * @param integer                    $code
+     * @param KafkaMessageInterface|null $kafkaMessage
+     * @param \Throwable|null            $previous
      */
     public function __construct(
         string $message = '',
         int $code = 0,
-        Message $kafkaMessage = null,
+        KafkaMessageInterface $kafkaMessage = null,
         \Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
@@ -33,9 +37,9 @@ class KafkaConsumerConsumeException extends ConsumerException
     }
 
     /**
-     * @return Message
+     * @return null|KafkaMessageInterface
      */
-    public function getKafkaMessage(): ?Message
+    public function getKafkaMessage(): ?KafkaMessageInterface
     {
         return $this->kafkaMessage;
     }

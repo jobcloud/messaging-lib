@@ -3,3 +3,4 @@
 /.idea
 /composer.symlink
 .phpunit.result.cache
+clover.xml

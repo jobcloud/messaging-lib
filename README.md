@@ -7,12 +7,17 @@ Generic php messaging library
 Supports:
 - Kafka
 
+This is a convenience wrapper for https://github.com/arnaud-lb/php-rdkafka  
+To read more about the functions used in this lib, check out the documentation  
+of the extension: https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html
+
+
 ## Requirements
 - php: ^7.1
-- ext-rdkafka: ^3.0.5
+- ext-rdkafka: ^3.1.2
 
 ## Installation
-```composer require jobcloud/messaging-lib "~1.0"```
+```composer require jobcloud/messaging-lib "~4.0"```
 
 ## Usage
 
@@ -26,35 +31,84 @@ Supports:
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('10.0.2.2')
+    ->addBroker('localhost:9095')
     ->build();
 
-$producer->produce('hello world', 'testTopic');
+$message = KafkaMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test message payload')
+            ->withHeaders([ 'key' => 'value' ]);
+
+$producer->produce($message);
 ```
 
 ### Consumer
 
-#### Kafka
+#### Kafka High Level
 
 ```php
 <?php
 
 use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use \Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
-
-$topic = new TopicSubscription('testTopic');
 
 $consumer = KafkaConsumerBuilder::create()
-    ->addBroker('10.0.2.2')
+     ->addConfig(
+        [
+            'compression.codec' => 'lz4',
+            'auto.offset.reset' => 'earliest',
+            'auto.commit.interval.ms' => 500
+        ]
+    )
+    ->addBroker('localhost:9095')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
-    ->addSubscription($topic)
+    ->addSubscription('test-topic')
     ->build();
+
+$consumer->subscribe();
 
 while (true) {
     try {
         $message = $consumer->consume();
+        // your business logic
+        $consumer->commit($message);
+    } catch (ConsumerException $e) {
+        // Failed
+    } 
+}
+```
+
+#### Kafka Low Level
+
+```php
+<?php
+
+use \Jobcloud\Messaging\Consumer\ConsumerException;
+use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+
+$consumer = KafkaConsumerBuilder::create()
+     ->addConfig(
+        [
+            'compression.codec' => 'lz4',
+            'auto.offset.reset' => 'earliest',
+            'auto.commit.interval.ms' => 500
+        ]
+    )
+    ->addBroker('localhost:9095')
+    ->setConsumerGroup('testGroup')
+    ->setTimeout(120 * 10000)
+    ->addSubscription('test-topic')
+    ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
+    ->build();
+
+$consumer->subscribe();
+
+while (true) {
+    try {
+        $message = $consumer->consume();
+        // your business logic
+        $consumer->commit($message);
     } catch (ConsumerException $e) {
         // Failed
     } 
@@ -78,5 +132,10 @@ $pool
     ->addProducer($someRabbitMQProducer)
 ;
 
-$pool->produce('hello world', 'topicTest');
+$message = KafkaMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ]);
+
+$pool->produce($message);
 ```
