@@ -34,7 +34,12 @@ $producer = KafkaProducerBuilder::create()
     ->addBroker('localhost:9095')
     ->build();
 
-$producer->produce('hello world', 'testTopic');
+$message = KafkaMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ]);
+
+$producer->produce($message);
 ```
 
 ### Consumer
@@ -48,6 +53,13 @@ use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 
 $consumer = KafkaConsumerBuilder::create()
+     ->addConfig(
+        [
+            'compression.codec' => 'lz4',
+            'auto.offset.reset' => 'earliest',
+            'auto.commit.interval.ms' => 500
+        ]
+    )
     ->addBroker('localhost:9095')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
@@ -76,6 +88,13 @@ use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 
 $consumer = KafkaConsumerBuilder::create()
+     ->addConfig(
+        [
+            'compression.codec' => 'lz4',
+            'auto.offset.reset' => 'earliest',
+            'auto.commit.interval.ms' => 500
+        ]
+    )
     ->addBroker('localhost:9095')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
@@ -113,5 +132,10 @@ $pool
     ->addProducer($someRabbitMQProducer)
 ;
 
-$pool->produce('hello world', 'topicTest');
+$message = KafkaMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ]);
+
+$pool->produce($message);
 ```

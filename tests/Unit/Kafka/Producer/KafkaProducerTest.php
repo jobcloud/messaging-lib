@@ -43,9 +43,7 @@ class KafkaProducerTest extends TestCase
         $message = KafkaMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test content')
-            ->withHeaders([ 'key' => 'value' ])
-            ->withOffset(42)
-            ->withTimestamp(1562324233704);
+            ->withHeaders([ 'key' => 'value' ]);
 
         self::expectException(KafkaProducerException::class);
 
@@ -90,9 +88,7 @@ class KafkaProducerTest extends TestCase
         $message = KafkaMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test content')
-            ->withHeaders([ 'key' => 'value' ])
-            ->withOffset(42)
-            ->withTimestamp(1562324233704);
+            ->withHeaders([ 'key' => 'value' ]);
 
         /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
         $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
