@@ -9,7 +9,6 @@
   "license": "MIT",
   "require": {
     "php": "^7.1",
-    "ext-pcntl": "^7.1",
     "ext-rdkafka": "^3.1.2"
   },
   "require-dev": {
