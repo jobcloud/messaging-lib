@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
-use Jobcloud\Messaging\Consumer\MessageInterface;
+use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;

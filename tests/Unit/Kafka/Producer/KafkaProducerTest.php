@@ -2,7 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
-use Jobcloud\Messaging\Consumer\MessageInterface;
+use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessage;

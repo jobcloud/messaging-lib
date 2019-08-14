@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Producer;
 
-use Jobcloud\Messaging\Consumer\MessageInterface;
+use Jobcloud\Messaging\Message\MessageInterface;
 
 interface ProducerInterface
 {
