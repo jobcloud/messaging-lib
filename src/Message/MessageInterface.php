@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Consumer;
+namespace Jobcloud\Messaging\Message;
 
 interface MessageInterface
 {
