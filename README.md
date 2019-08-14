@@ -42,7 +42,7 @@ $message = KafkaMessage::create('test-topic', 0)
 $producer->produce($message);
 ```
 **NOTE:** To improve producer latency you can install the `pcntl` extension.  
-The messaging-lib already as code in place, similarly described here:  
+The messaging-lib already has code in place, similarly described here:  
 https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
 
 ### Consumer
