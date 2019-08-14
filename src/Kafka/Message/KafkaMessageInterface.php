@@ -8,49 +8,6 @@ use Jobcloud\Messaging\Message\MessageInterface;
 
 interface KafkaMessageInterface extends MessageInterface
 {
-    /**
-     * @param string  $topicName
-     * @param integer $partition
-     * @return KafkaMessageInterface
-     */
-    public static function create(string $topicName, int $partition): KafkaMessageInterface;
-
-    /**
-     * @param string|null $key
-     * @return KafkaMessageInterface
-     */
-    public function withKey(?string $key): KafkaMessageInterface;
-
-    /**
-     * @param string|null $body
-     * @return KafkaMessageInterface
-     */
-    public function withBody(?string $body): KafkaMessageInterface;
-
-    /**
-     * @param integer $offset
-     * @return KafkaMessageInterface
-     */
-    public function withOffset(int $offset): KafkaMessageInterface;
-
-    /**
-     * @param integer $timestamp
-     * @return KafkaMessageInterface
-     */
-    public function withTimestamp(int $timestamp): KafkaMessageInterface;
-
-    /**
-     * @param array $headers
-     * @return KafkaMessageInterface
-     */
-    public function withHeaders(array $headers): KafkaMessageInterface;
-
-    /**
-     * @param string         $key
-     * @param string|integer $value
-     * @return KafkaMessageInterface
-     */
-    public function withHeader(string $key, $value): KafkaMessageInterface;
 
     /**
      * @return string|null
@@ -63,19 +20,9 @@ interface KafkaMessageInterface extends MessageInterface
     public function getTopicName(): string;
 
     /**
-     * @return integer|null
-     */
-    public function getOffset(): ?int;
-
-    /**
      * @return integer
      */
     public function getPartition(): int;
-
-    /**
-     * @return integer
-     */
-    public function getTimestamp(): int;
 
     /**
      * @return array|null

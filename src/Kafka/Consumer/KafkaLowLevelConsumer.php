@@ -8,7 +8,7 @@ use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -93,9 +93,9 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
         $messages = is_array($messages) ? $messages : [$messages];
 
         foreach ($messages as $i => $message) {
-            if (false === $message instanceof KafkaMessage) {
+            if (false === $message instanceof KafkaConsumerMessage) {
                 throw new KafkaConsumerCommitException(
-                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, KafkaMessage::class)
+                    sprintf('Provided message (index: %d) is not an instance of "%s"', $i, KafkaConsumerMessage::class)
                 );
             }
 

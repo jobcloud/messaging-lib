@@ -10,8 +10,8 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Exception as RdKafkaException;
@@ -148,12 +148,15 @@ final class KafkaHighLevelConsumerTest extends TestCase
      */
     public function testCommitSuccesss(): void
     {
-        $message = KafkaMessage::create('test-topic', 1)
-            ->withKey('asdf-asdf-asfd-asdf')
-            ->withBody('some test content')
-            ->withHeaders([ 'key' => 'value' ])
-            ->withOffset(42)
-            ->withTimestamp(1562324233704);
+        $message = new KafkaConsumerMessage(
+            'test-topic',
+            1,
+            42,
+            1562324233704,
+            'asdf-asdf-asfd-asdf',
+            'some test content',
+            [ 'key' => 'value' ]
+        );
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -171,7 +174,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
-        $message = $this->createMock(KafkaMessageInterface::class);
+        $message = $this->createMock(KafkaConsumerMessageInterface::class);
 
         $rdKafkaConsumerMock->expects(self::once())->method('commitAsync');
 
@@ -186,7 +189,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
-        $message = $this->createMock(KafkaMessageInterface::class);
+        $message = $this->createMock(KafkaConsumerMessageInterface::class);
 
         $rdKafkaConsumerMock
             ->expects(self::once())
