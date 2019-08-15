@@ -9,6 +9,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
@@ -375,15 +376,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
      */
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
-        $message = new KafkaConsumerMessage(
-            'test-topic',
-            1,
-            42,
-            1562324233704,
-            'asdf-asdf-asfd-asdf',
-            'some test content',
-            [ 'key' => 'value' ]
-        );
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);

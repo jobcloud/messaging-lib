@@ -15,6 +15,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Exception as RdKafkaException;
+use RdKafka\KafkaConsumer;
 use RdKafka\Message;
 
 /**
@@ -148,22 +149,22 @@ final class KafkaHighLevelConsumerTest extends TestCase
      */
     public function testCommitSuccesss(): void
     {
-        $message = new KafkaConsumerMessage(
-            'test-topic',
-            1,
-            42,
-            1562324233704,
-            'asdf-asdf-asfd-asdf',
-            'some test content',
-            [ 'key' => 'value' ]
-        );
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message->expects(self::exactly(1))->method('getOffset')->willReturn(0);
+        $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $message->expects(self::exactly(2))->method('getPartition')->willReturn(1);
+        $message2 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message2->expects(self::exactly(1))->method('getOffset')->willReturn(1);
+        $message2->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
+        $message2->expects(self::exactly(1))->method('getPartition')->willReturn(1);
+
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
         $rdKafkaConsumerMock->expects(self::once())->method('commit');
 
-        $kafkaConsumer->commit([$message, $message]);
+        $kafkaConsumer->commit([$message, $message2]);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Exception;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,15 +16,7 @@ class KafkaConsumerConsumeExceptionTest extends TestCase
 {
     public function testGetAndConstructOfKafkaConsumerConsumeException()
     {
-        $message = new KafkaConsumerMessage(
-            'test-topic',
-            1,
-            42,
-            1562324233704,
-            'asdf-asdf-asfd-asdf',
-            'some test content',
-            [ 'key' => 'value' ]
-        );
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
 
         $exception = new KafkaConsumerConsumeException('', 0, $message);
 
