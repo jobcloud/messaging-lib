@@ -162,7 +162,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @param boolean                                       $asAsync
      * @return void
-     *@throws KafkaConsumerCommitException
+     * @throws KafkaConsumerCommitException
      */
     private function commitMessages($messages, bool $asAsync = false): void
     {
