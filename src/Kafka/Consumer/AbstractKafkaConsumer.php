@@ -5,7 +5,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -67,12 +67,15 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = KafkaMessage::create($rdKafkaMessage->topic_name, $rdKafkaMessage->partition)
-            ->withKey($rdKafkaMessage->key)
-            ->withBody($rdKafkaMessage->payload)
-            ->withHeaders($rdKafkaMessage->headers)
-            ->withOffset($rdKafkaMessage->offset)
-            ->withTimestamp($rdKafkaMessage->timestamp);
+        $message = new KafkaConsumerMessage(
+            $rdKafkaMessage->topic_name,
+            $rdKafkaMessage->partition,
+            $rdKafkaMessage->offset,
+            $rdKafkaMessage->timestamp,
+            $rdKafkaMessage->key,
+            $rdKafkaMessage->payload,
+            $rdKafkaMessage->headers
+        );
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);

@@ -7,7 +7,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
@@ -79,9 +79,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * Commits the offset to the broker for the given message(s)
      * This is a blocking function, checkout out commitAsync if you want to commit in a non blocking manner
      *
-     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
-     * @throws KafkaConsumerCommitException
+     * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
+     * @throws KafkaConsumerCommitException
      */
     public function commit($messages): void
     {
@@ -107,9 +107,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Asynchronous version of commit (non blocking)
      *
-     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
-     * @throws KafkaConsumerCommitException
+     * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
+     * @throws KafkaConsumerCommitException
      */
     public function commitAsync($messages): void
     {
@@ -159,10 +159,10 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
+     * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @param boolean                                       $asAsync
-     * @throws KafkaConsumerCommitException
      * @return void
+     * @throws KafkaConsumerCommitException
      */
     private function commitMessages($messages, bool $asAsync = false): void
     {
