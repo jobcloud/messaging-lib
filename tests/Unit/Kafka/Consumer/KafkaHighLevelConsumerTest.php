@@ -154,7 +154,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $message->expects(self::exactly(2))->method('getPartition')->willReturn(1);
         $message2 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message2->expects(self::exactly(1))->method('getOffset')->willReturn(1);
+        $message2->expects(self::exactly(2))->method('getOffset')->willReturn(1);
         $message2->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
         $message2->expects(self::exactly(1))->method('getPartition')->willReturn(1);
 

@@ -377,6 +377,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message->expects(self::once())->method('getTopicName')->willReturn('test-topic');
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
