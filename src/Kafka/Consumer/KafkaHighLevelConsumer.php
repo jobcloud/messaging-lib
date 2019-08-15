@@ -81,7 +81,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      *
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
-     *@throws KafkaConsumerCommitException
+     * @throws KafkaConsumerCommitException
      */
     public function commit($messages): void
     {
@@ -109,7 +109,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      *
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
-     *@throws KafkaConsumerCommitException
+     * @throws KafkaConsumerCommitException
      */
     public function commitAsync($messages): void
     {
@@ -162,7 +162,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @param boolean                                       $asAsync
      * @return void
-     *@throws KafkaConsumerCommitException
+     * @throws KafkaConsumerCommitException
      */
     private function commitMessages($messages, bool $asAsync = false): void
     {
