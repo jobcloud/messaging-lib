@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
@@ -20,7 +20,7 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     /**
      * Asynchronous version of commit (non blocking)
      *
-     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
+     * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
      */
     public function commitAsync($messages): void;

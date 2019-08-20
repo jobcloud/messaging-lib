@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 
@@ -39,14 +39,14 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * Consumes a message and returns it
      * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
      *
-     * @return KafkaMessageInterface
+     * @return KafkaConsumerMessageInterface
      */
     public function consume(): MessageInterface;
 
     /**
      * Commits the offset to the broker for the given message(s)
      *
-     * @param KafkaMessageInterface|KafkaMessageInterface[] $messages
+     * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
      * @return void
      */
     public function commit($messages): void;

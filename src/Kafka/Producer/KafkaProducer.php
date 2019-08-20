@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
@@ -45,16 +46,16 @@ final class KafkaProducer implements KafkaProducerInterface
      */
     public function produce(MessageInterface $message): void
     {
-        if (false === $message instanceof KafkaMessageInterface) {
+        if (false === $message instanceof KafkaProducerMessageInterface) {
             throw new KafkaProducerException(
                 sprintf(
                     KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
-                    KafkaMessageInterface::class
+                    KafkaProducerMessageInterface::class
                 )
             );
         }
 
-        /** @var KafkaMessage $message */
+        /** @var KafkaProducerMessageInterface $message */
         $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
 
         $topicProducer->producev(

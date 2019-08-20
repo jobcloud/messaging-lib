@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Message\KafkaMessage
+ * @covers \Jobcloud\Messaging\Kafka\Message\AbstractKafkaMessage
+ * @covers \Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage
  */
-final class KafkaMessageTest extends TestCase
+final class KafkaConsumerMessageTest extends TestCase
 {
     public function testMessageGettersAndConstructor()
     {
@@ -21,18 +22,16 @@ final class KafkaMessageTest extends TestCase
         $partition = 1;
         $timestamp = 1562324233704;
         $headers = [ 'key' => 'value' ];
-        $expectedHeader = [
-            'key' => 'value',
-            'anotherKey' => 1
-        ];
 
-        $message = KafkaMessage::create($topic, $partition)
-            ->withKey($key)
-            ->withBody($body)
-            ->withHeaders($headers)
-            ->withHeader('anotherKey', 1)
-            ->withOffset($offset)
-            ->withTimestamp($timestamp);
+        $message = new KafkaConsumerMessage(
+            $topic,
+            $partition,
+            $offset,
+            $timestamp,
+            $key,
+            $body,
+            $headers
+        );
 
         self::assertEquals($key, $message->getKey());
         self::assertEquals($body, $message->getBody());
@@ -40,6 +39,6 @@ final class KafkaMessageTest extends TestCase
         self::assertEquals($offset, $message->getOffset());
         self::assertEquals($partition, $message->getPartition());
         self::assertEquals($timestamp, $message->getTimestamp());
-        self::assertEquals($expectedHeader, $message->getHeaders());
+        self::assertEquals($headers, $message->getHeaders());
     }
 }

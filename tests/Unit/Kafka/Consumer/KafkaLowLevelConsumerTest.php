@@ -3,12 +3,15 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
@@ -58,7 +61,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
      * @return void
      */
     public function testConsumeWithTopicSubscriptionWithNoPartitionsIsSuccessful(): void
@@ -135,7 +140,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->kafkaConsumer->subscribe();
         $message = $this->kafkaConsumer->consume();
 
-        self::assertInstanceOf(KafkaMessage::class, $message);
+        self::assertInstanceOf(KafkaConsumerMessage::class, $message);
 
         self::assertEquals($rdKafkaMessageMock->payload, $message->getBody());
         self::assertEquals($rdKafkaMessageMock->offset, $message->getOffset());
@@ -144,13 +149,16 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
      * @return void
      */
-    public function testConsumeThrowsTimeoutExceptionIfQueueConsumeReturnsNull(): void
+    public function testConsumeThrowsEofExceptionIfQueueConsumeReturnsNull(): void
     {
-        self::expectException(KafkaConsumerConsumeException::class);
-        self::expectExceptionMessage(KafkaConsumerConsumeException::NO_MORE_MESSAGES_EXCEPTION_MESSAGE);
+        self::expectException(KafkaConsumerEndOfPartitionException::class);
+        self::expectExceptionCode(RD_KAFKA_RESP_ERR__PARTITION_EOF);
+        self::expectExceptionMessage(rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF));
 
         $this->rdKafkaQueueMock
             ->expects(self::once())
@@ -168,7 +176,69 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
+     * @return void
+     */
+    public function testConsumeDedicatedEofException(): void
+    {
+        self::expectException(KafkaConsumerEndOfPartitionException::class);
+        self::expectExceptionCode(RD_KAFKA_RESP_ERR__PARTITION_EOF);
+        self::expectExceptionMessage(rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF));
+
+        $message = new RdKafkaMessage();
+        $message->err = RD_KAFKA_RESP_ERR__PARTITION_EOF;
+
+        $this->rdKafkaQueueMock
+            ->expects(self::once())
+            ->method('consume')
+            ->with(1000)
+            ->willReturn($message);
+        $this->kafkaConfigurationMock
+            ->expects(self::once())
+            ->method('getTimeout')
+            ->willReturn(1000);
+
+        $this->kafkaConsumer->subscribe();
+        $this->kafkaConsumer->consume();
+    }
+
+    /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
+     * @return void
+     */
+    public function testConsumeDedicatedTimeoutException(): void
+    {
+        self::expectException(KafkaConsumerTimeoutException::class);
+        self::expectExceptionCode(RD_KAFKA_RESP_ERR__TIMED_OUT);
+        self::expectExceptionMessage(rd_kafka_err2str(RD_KAFKA_RESP_ERR__TIMED_OUT));
+
+        $message = new RdKafkaMessage();
+        $message->err = RD_KAFKA_RESP_ERR__TIMED_OUT;
+
+        $this->rdKafkaQueueMock
+            ->expects(self::once())
+            ->method('consume')
+            ->with(1000)
+            ->willReturn($message);
+        $this->kafkaConfigurationMock
+            ->expects(self::once())
+            ->method('getTimeout')
+            ->willReturn(1000);
+
+        $this->kafkaConsumer->subscribe();
+        $this->kafkaConsumer->consume();
+    }
+
+    /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
      * @return void
      */
     public function testConsumeThrowsExceptionIfConsumedMessageHasNoTopicAndErrorCodeIsNotOkay(): void
@@ -178,7 +248,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
         /** @var RdKafkaMessage|MockObject $rdKafkaMessageMock */
         $rdKafkaMessageMock = $this->createMock(RdKafkaMessage::class);
-        $rdKafkaMessageMock->err = -185;
+        $rdKafkaMessageMock->err = RD_KAFKA_RESP_ERR__ALL_BROKERS_DOWN;
         $rdKafkaMessageMock->partition = 1;
         $rdKafkaMessageMock->offset = 103;
         $rdKafkaMessageMock->topic_name = null;
@@ -222,7 +292,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerTimeoutException
      * @return void
      */
     public function testConsumeFailThrowsException(): void
@@ -278,6 +350,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerTimeoutException
      * @return void
      */
     public function testConsumeThrowsExceptionIfConsumerIsCurrentlyNotSubscribed(): void
@@ -375,12 +449,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
      */
     public function testCommitWithMessageStoresOffsetOfIt(): void
     {
-        $message = KafkaMessage::create('test-topic', 1)
-            ->withKey('asdf-asdf-asfd-asdf')
-            ->withBody('some test content')
-            ->withHeaders([ 'key' => 'value' ])
-            ->withOffset(42)
-            ->withTimestamp(1562324233704);
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message->expects(self::once())->method('getTopicName')->willReturn('test-topic');
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
@@ -408,7 +478,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     {
         self::expectException(KafkaConsumerCommitException::class);
         self::expectExceptionMessage(
-            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Message\KafkaMessage"'
+            'Provided message (index: 0) is not an instance of "Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage"'
         );
 
         $message = new \stdClass();

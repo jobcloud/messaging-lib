@@ -2,10 +2,11 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -40,7 +41,7 @@ class KafkaProducerTest extends TestCase
      */
     public function testProduceError(): void
     {
-        $message = KafkaMessage::create('test-topic', 1)
+        $message = KafkaProducerMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test content')
             ->withHeaders([ 'key' => 'value' ]);
@@ -79,7 +80,7 @@ class KafkaProducerTest extends TestCase
         self::expectExceptionMessage(
             sprintf(
                 KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
-                KafkaMessage::class
+                KafkaProducerMessageInterface::class
             )
         );
 
@@ -90,7 +91,7 @@ class KafkaProducerTest extends TestCase
 
     public function testProduceSuccess()
     {
-        $message = KafkaMessage::create('test-topic', 1)
+        $message = KafkaProducerMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test content')
             ->withHeaders([ 'key' => 'value' ]);

@@ -2,10 +2,12 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
-use Jobcloud\Messaging\Kafka\Message\KafkaMessage;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -52,6 +54,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      *
      * @return MessageInterface
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerTimeoutException
      */
     public function consume(): MessageInterface
     {
@@ -60,19 +64,29 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         }
 
         if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {
-            throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NO_MORE_MESSAGES_EXCEPTION_MESSAGE);
+            throw new KafkaConsumerEndOfPartitionException(
+                rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF),
+                RD_KAFKA_RESP_ERR__PARTITION_EOF
+            );
         }
 
-        if (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+        if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
+            throw new KafkaConsumerEndOfPartitionException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
+        } elseif (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err) {
+            throw new KafkaConsumerTimeoutException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
+        } elseif (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = KafkaMessage::create($rdKafkaMessage->topic_name, $rdKafkaMessage->partition)
-            ->withKey($rdKafkaMessage->key)
-            ->withBody($rdKafkaMessage->payload)
-            ->withHeaders($rdKafkaMessage->headers)
-            ->withOffset($rdKafkaMessage->offset)
-            ->withTimestamp($rdKafkaMessage->timestamp);
+        $message = new KafkaConsumerMessage(
+            $rdKafkaMessage->topic_name,
+            $rdKafkaMessage->partition,
+            $rdKafkaMessage->offset,
+            $rdKafkaMessage->timestamp,
+            $rdKafkaMessage->key,
+            $rdKafkaMessage->payload,
+            $rdKafkaMessage->headers
+        );
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
