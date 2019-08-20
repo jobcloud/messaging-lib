@@ -151,7 +151,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
     public function testConsumeThrowsTimeoutExceptionIfQueueConsumeReturnsNull(): void
     {
         self::expectException(KafkaConsumerConsumeException::class);
-        self::expectExceptionMessage(KafkaConsumerConsumeException::NO_MORE_MESSAGES_EXCEPTION_MESSAGE);
+        self::expectExceptionCode(RD_KAFKA_RESP_ERR__PARTITION_EOF);
+        self::expectExceptionMessage(rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF));
 
         $this->rdKafkaQueueMock
             ->expects(self::once())
