@@ -2,6 +2,8 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -52,6 +54,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      *
      * @return MessageInterface
      * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerTimeoutException
      */
     public function consume(): MessageInterface
     {
@@ -60,13 +64,17 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         }
 
         if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {
-            throw new KafkaConsumerConsumeException(
+            throw new KafkaConsumerEndOfPartitionException(
                 rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF),
                 RD_KAFKA_RESP_ERR__PARTITION_EOF
             );
         }
 
-        if (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
+        if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
+            throw new KafkaConsumerEndOfPartitionException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
+        } elseif (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err) {
+            throw new KafkaConsumerTimeoutException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
+        } elseif (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
