@@ -12,7 +12,6 @@ class KafkaConsumerConsumeException extends ConsumerException
 {
 
     const NOT_SUBSCRIBED_EXCEPTION_MESSAGE = 'This consumer is currently not subscribed';
-    const NO_MORE_MESSAGES_EXCEPTION_MESSAGE = 'No more messages were read due to timeout or partition eof.';
 
     /**
      * @var KafkaConsumerMessageInterface|null

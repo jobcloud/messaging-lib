@@ -60,7 +60,10 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         }
 
         if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {
-            throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NO_MORE_MESSAGES_EXCEPTION_MESSAGE);
+            throw new KafkaConsumerConsumeException(
+                rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF),
+                RD_KAFKA_RESP_ERR__PARTITION_EOF
+            );
         }
 
         if (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
