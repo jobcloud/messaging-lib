@@ -8,7 +8,7 @@ use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
 use RdKafka\Exception as RdKafkaException;
 
-require_once __DIR__ . '/../Exception/KafkaRebalanceException.php';
+require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCoverageIgnore
 
 final class KafkaConsumerRebalanceCallback
 {

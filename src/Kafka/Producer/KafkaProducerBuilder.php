@@ -78,7 +78,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
-    public function setConfig(array $config): KafkaProducerBuilderInterface
+    public function addConfig(array $config): KafkaProducerBuilderInterface
     {
         $this->config += $config;
 
