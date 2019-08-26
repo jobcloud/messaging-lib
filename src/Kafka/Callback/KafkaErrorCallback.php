@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Callback;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 
-require_once __DIR__ . '/../Exception/KafkaBrokerException.php';
+require_once __DIR__ . '/../Exception/KafkaBrokerException.php';  // @codeCoverageIgnore
 
 final class KafkaErrorCallback
 {

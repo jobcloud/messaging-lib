@@ -28,10 +28,10 @@ class KafkaProducerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetConfig(): void
+    public function testAddConfig(): void
     {
         $config = ['timeout' => 1000];
-        $this->kafkaProducerBuilder->setConfig($config);
+        $this->kafkaProducerBuilder->addConfig($config);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
         $reflectionProperty->setAccessible(true);
