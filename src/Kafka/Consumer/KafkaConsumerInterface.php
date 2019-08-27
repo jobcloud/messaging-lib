@@ -65,4 +65,33 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return RdKafkaMetadataTopic
      */
     public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
+
+    /**
+     * Get the earliest offset for a certain timestamp for topic partitions
+     *
+     * @param array|TopicPartition[] $topicPartitions
+     * @param integer                $timeout
+     * @return array
+     */
+    public function offsetsForTimes(array $topicPartitions, int $timeout): array;
+
+    /**
+     * Queries the broker for the first offset of a given topic and partition
+     *
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
+
+    /**
+     * Queries the broker for the last offset of a given topic and partition
+     *
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
 }
