@@ -28,7 +28,7 @@ interface KafkaProducerBuilderInterface
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
-    public function setConfig(array $config): self;
+    public function addConfig(array $config): self;
 
     /**
      * @param callable $deliveryReportCallback
