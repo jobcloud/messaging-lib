@@ -6,6 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
+use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -150,11 +151,21 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, [], $this->pollTimeout);
 
-        $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
-        $kafkaConfig->setErrorCb($this->errorCallback);
+        //set producer callbacks
+        $this->registerCallbacks($kafkaConfig);
 
         $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
         return new KafkaProducer($rdKafkaProducer, $kafkaConfig);
+    }
+
+    /**
+     * @param KafkaConfiguration $conf
+     * @return void
+     */
+    private function registerCallbacks(KafkaConfiguration $conf): void
+    {
+        $conf->setDrMsgCb($this->deliverReportCallback);
+        $conf->setErrorCb($this->errorCallback);
     }
 }
