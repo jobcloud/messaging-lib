@@ -2,8 +2,12 @@
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
+use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
+use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -27,6 +31,15 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
     protected $consumer;
 
+    /** @var Registry */
+    protected $schemaRegistry;
+
+    /** @var RecordSerializer */
+    protected $recordSerializer;
+
+    /** @var array */
+    protected $fixedAvroSchemaVersions;
+
     /**
      * Returns true if the consumer has subscribed to its topics, otherwise false
      * It is mandatory to call `subscribe` before `consume`
@@ -46,6 +59,14 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     public function getConfiguration(): array
     {
         return $this->kafkaConfiguration->dump();
+    }
+
+    /**
+     * @return Registry|null
+     */
+    public function getSchemaRegistry(): ?Registry
+    {
+        return $this->schemaRegistry;
     }
 
     /**
@@ -78,15 +99,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = new KafkaConsumerMessage(
-            $rdKafkaMessage->topic_name,
-            $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset,
-            $rdKafkaMessage->timestamp,
-            $rdKafkaMessage->key,
-            $rdKafkaMessage->payload,
-            $rdKafkaMessage->headers
-        );
+        $message = $this->getConsumerMessage($rdKafkaMessage);
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
@@ -112,6 +125,62 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             )
             ->getTopics()
             ->current();
+    }
+
+    /**
+     * @param RdKafkaMessage $message
+     * @param string|null    $schemaName
+     * @param integer|null   $version
+     * @return KafkaConsumerMessageInterface
+     * @throws SchemaRegistryException
+     */
+    protected function getConsumerMessage(
+        RdKafkaMessage $message,
+        ?string $schemaName = null,
+        ?int $version = null
+    ): KafkaConsumerMessageInterface {
+        if (null === $schemaRegistry = $this->getSchemaRegistry() || null === $schemaName) {
+            return new KafkaConsumerMessage(
+                $message->topic_name,
+                $message->partition,
+                $message->offset,
+                $message->timestamp,
+                $message->key,
+                $message->payload,
+                $message->headers
+            );
+        }
+
+        if (null === $version) {
+            $schema = $schemaRegistry->latestVersion($schemaName);
+        } else {
+            $schema = $schemaRegistry->schemaForSubjectAndVersion($schemaName, $version);
+        }
+
+        $recordSerializer = $this->getRecordSerializer($schemaRegistry);
+
+        return new KafkaConsumerMessage(
+            $message->topic_name,
+            $message->partition,
+            $message->offset,
+            $message->timestamp,
+            $message->key,
+            $recordSerializer->decodeMessage($message->payload, $schema),
+            $message->headers
+        );
+    }
+
+    /**
+     * @param Registry $schemaRegistry
+     * @return RecordSerializer
+     */
+    protected function getRecordSerializer(Registry $schemaRegistry): RecordSerializer
+    {
+        if (null === $this->recordSerializer) {
+            $this->recordSerializer = new RecordSerializer($schemaRegistry);
+        }
+
+        return $this->recordSerializer;
     }
 
     /**

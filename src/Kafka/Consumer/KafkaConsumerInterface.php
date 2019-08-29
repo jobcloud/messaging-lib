@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Consumer\ConsumerInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
@@ -65,4 +66,12 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return RdKafkaMetadataTopic
      */
     public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
+
+    /**
+     * Returns the schema registry if any was set
+     *
+     * @return Registry|null
+     */
+    public function getSchemaRegistry(): ?Registry;
+
 }

@@ -160,7 +160,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
-     * @param boolean                                       $asAsync
+     * @param boolean                                                       $asAsync
      * @return void
      * @throws KafkaConsumerCommitException
      */
