@@ -15,5 +15,4 @@ interface KafkaProducerInterface extends ProducerInterface
      * @return Registry|null
      */
     public function getSchemaRegistry(): ?Registry;
-
 }

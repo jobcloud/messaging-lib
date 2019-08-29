@@ -7,6 +7,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -31,14 +32,32 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
     protected $consumer;
 
-    /** @var Registry */
-    protected $schemaRegistry;
+    /** @var array */
+    protected $readerSchemas = [];
 
     /** @var RecordSerializer */
     protected $recordSerializer;
 
-    /** @var array */
-    protected $fixedAvroSchemaVersions;
+    /** @var Registry|null */
+    protected $schemaRegistry;
+
+    /**
+     * @param mixed              $consumer
+     * @param KafkaConfiguration $kafkaConfiguration
+     * @param Registry           $schemaRegistry
+     * @param array              $readerSchemas
+     */
+    public function __construct(
+        $consumer,
+        KafkaConfiguration $kafkaConfiguration,
+        ?Registry $schemaRegistry,
+        array $readerSchemas
+    ) {
+        $this->consumer = $consumer;
+        $this->kafkaConfiguration = $kafkaConfiguration;
+        $this->readerSchemas = $readerSchemas;
+        $this->schemaRegistry = $schemaRegistry;
+    }
 
     /**
      * Returns true if the consumer has subscribed to its topics, otherwise false
@@ -77,6 +96,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * @throws KafkaConsumerConsumeException
      * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerTimeoutException
+     * @throws SchemaRegistryException
      */
     public function consume(): MessageInterface
     {
@@ -99,7 +119,11 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = $this->getConsumerMessage($rdKafkaMessage);
+        try {
+            $message = $this->getConsumerMessage($rdKafkaMessage);
+        } catch (SchemaRegistryException $e) {
+            throw $e;
+        }
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
@@ -129,17 +153,13 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
     /**
      * @param RdKafkaMessage $message
-     * @param string|null    $schemaName
-     * @param integer|null   $version
      * @return KafkaConsumerMessageInterface
      * @throws SchemaRegistryException
+     * @throws KafkaMessageException
      */
-    protected function getConsumerMessage(
-        RdKafkaMessage $message,
-        ?string $schemaName = null,
-        ?int $version = null
-    ): KafkaConsumerMessageInterface {
-        if (null === $schemaRegistry = $this->getSchemaRegistry() || null === $schemaName) {
+    protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
+    {
+        if (null === $this->getSchemaRegistry() || false === isset($this->readerSchemas[$message->topic_name])) {
             return new KafkaConsumerMessage(
                 $message->topic_name,
                 $message->partition,
@@ -151,13 +171,31 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             );
         }
 
-        if (null === $version) {
-            $schema = $schemaRegistry->latestVersion($schemaName);
+        $schemaRegistry = $this->getSchemaRegistry();
+
+        /** @var KafkaReaderSchema $readerSchema */
+        $readerSchema = $this->readerSchemas[$message->topic_name];
+
+        if (null === $readerSchema->getVersion()) {
+            $schema = $schemaRegistry->latestVersion($readerSchema->getSchemaName());
         } else {
-            $schema = $schemaRegistry->schemaForSubjectAndVersion($schemaName, $version);
+            $schema = $schemaRegistry->schemaForSubjectAndVersion(
+                $readerSchema->getSchemaName(),
+                $readerSchema->getVersion()
+            );
         }
 
         $recordSerializer = $this->getRecordSerializer($schemaRegistry);
+
+        try {
+            $body = json_encode($recordSerializer->decodeMessage($message->payload, $schema));
+        } catch (SchemaRegistryException $e) {
+            throw $e;
+        }
+
+        if (false === $body) {
+            throw new KafkaMessageException(KafkaMessageException::UNABLE_TO_DECODE_PAYLOAD);
+        }
 
         return new KafkaConsumerMessage(
             $message->topic_name,
@@ -165,7 +203,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             $message->offset,
             $message->timestamp,
             $message->key,
-            $recordSerializer->decodeMessage($message->payload, $schema),
+            $body,
             $message->headers
         );
     }

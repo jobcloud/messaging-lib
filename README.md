@@ -25,13 +25,14 @@ of the extension: https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.ht
 
 #### Kafka
 
+##### Simple example
 ```php
 <?php
 
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('localhost:9095')
+    ->addBroker('localhost:9092')
     ->build();
 
 $message = KafkaMessage::create('test-topic', 0)
@@ -41,6 +42,27 @@ $message = KafkaMessage::create('test-topic', 0)
 
 $producer->produce($message);
 ```
+##### Avro example
+```php
+<?php
+
+use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+
+$producer = KafkaProducerBuilder::create()
+    ->addBroker('kafka:9092')
+    ->addSchemaRegistryUrl('schema-registry:8081')
+    ->build();
+
+$schemaName = 'testSchema';
+$version = 1;
+$message = KafkaMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('{"name": "some name"}') //this must be a json encoded string
+            ->withHeaders([ 'key' => 'value' ]);
+
+$producer->produce($message, $schemaName, $version);
+```
+
 **NOTE:** To improve producer latency you can install the `pcntl` extension.  
 The messaging-lib already has code in place, similarly described here:  
 https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
@@ -116,6 +138,24 @@ while (true) {
         // Failed
     } 
 }
+```
+
+#### Avro Consumer
+To create an avro consumer add the schema url and your schema name(s) and optional versions.
+
+```php
+<?php
+
+use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchema;
+
+$schemaName = 'someSchema';
+$version = 9;
+
+$consumer = KafkaConsumerBuilder::create()
+    ->addSchemaRegistryUrl('schema-registry:8081')
+    ->addReaderSchema('topicName', new KafkaReaderSchema($schemaName, $version))
+    //some more code here
 ```
 
 ### ProducerPool

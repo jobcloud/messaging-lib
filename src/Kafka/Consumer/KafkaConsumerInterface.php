@@ -73,5 +73,4 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return Registry|null
      */
     public function getSchemaRegistry(): ?Registry;
-
 }

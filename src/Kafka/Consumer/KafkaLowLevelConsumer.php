@@ -10,6 +10,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
+use FlixTech\SchemaRegistryApi\Registry;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
@@ -31,11 +32,16 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * @param RdKafkaLowLevelConsumer $consumer
      * @param KafkaConfiguration      $kafkaConfiguration
+     * @param Registry                $schemaRegistry
+     * @param array                   $readerSchemas
      */
-    public function __construct(RdKafkaLowLevelConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
-    {
-        $this->consumer = $consumer;
-        $this->kafkaConfiguration = $kafkaConfiguration;
+    public function __construct(
+        RdKafkaLowLevelConsumer $consumer,
+        KafkaConfiguration $kafkaConfiguration,
+        ?Registry $schemaRegistry = null,
+        array $readerSchemas = []
+    ) {
+        parent::__construct($consumer, $kafkaConfiguration, $schemaRegistry, $readerSchemas);
         $this->queue = $consumer->newQueue();
     }
 

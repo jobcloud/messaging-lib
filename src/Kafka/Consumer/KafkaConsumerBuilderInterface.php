@@ -38,6 +38,12 @@ interface KafkaConsumerBuilderInterface
     public function addConfig(array $config): self;
 
     /**
+     * @param string $registryUrl
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addSchemaRegistryUrl(string $registryUrl): self;
+
+    /**
      * Set the timeout for all consumer actions
      *
      * @param integer $timeout
@@ -94,6 +100,16 @@ interface KafkaConsumerBuilderInterface
      * @return KafkaConsumerBuilderInterface
      */
     public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
+
+    /**
+     * Add the schema for a topic. The version can either be fixed
+     * or null, if the version is null, the latest version will be used.
+     *
+     * @param string                     $topicName
+     * @param KafkaReaderSchemaInterface $readerSchema
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addReaderSchema(string $topicName, KafkaReaderSchemaInterface $readerSchema): self;
 
     /**
      * Returns your consumer instance

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
+use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
+use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
+use FlixTech\SchemaRegistryApi\Registry;
+use GuzzleHttp\Client;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
-use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
@@ -44,6 +49,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var string
      */
     private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
+
+    /**
+     * @var array
+     */
+    private $readerSchemas = [];
+
+    /**
+     * @var Registry|null
+     */
+    private $schemaRegistry;
 
     /**
      * @var int
@@ -129,6 +144,24 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function addConfig(array $config): KafkaConsumerBuilderInterface
     {
         $this->config = $config + $this->config;
+
+        return $this;
+    }
+
+    /**
+     * @param string $registryUrl
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addSchemaRegistryUrl(string $registryUrl): KafkaConsumerBuilderInterface
+    {
+        $this->schemaRegistry = new CachedRegistry(
+            new BlockingRegistry(
+                new PromisingRegistry(
+                    new Client(['base_uri' => $registryUrl])
+                )
+            ),
+            new AvroObjectCacheAdapter()
+        );
 
         return $this;
     }
@@ -227,6 +260,23 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Add the schema for a topic. The version can either be fixed
+     * or null, if the version is null, the latest version will be used.
+     *
+     * @param string                     $topicName
+     * @param KafkaReaderSchemaInterface $readerSchema
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function addReaderSchema(
+        string $topicName,
+        KafkaReaderSchemaInterface $readerSchema
+    ): KafkaConsumerBuilderInterface {
+        $this->readerSchemas[$topicName] = $readerSchema;
+
+        return $this;
+    }
+
+    /**
      * Returns your consumer instance
      *
      * @return KafkaConsumerInterface
@@ -272,12 +322,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
             $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
 
-            return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+            return new KafkaLowLevelConsumer(
+                $rdKafkaConsumer,
+                $kafkaConfig,
+                $this->schemaRegistry,
+                $this->readerSchemas
+            );
         }
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
-        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->schemaRegistry, $this->readerSchemas);
     }
 
     /**

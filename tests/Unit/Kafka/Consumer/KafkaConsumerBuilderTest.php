@@ -2,10 +2,12 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
+use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
@@ -96,6 +98,39 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3, 'group.id' => 'test-group'], $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testAddSchemaRegistryUrl(): void
+    {
+        $this->kafkaConsumerBuilder->addSchemaRegistryUrl('test');
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'schemaRegistry');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertInstanceOf(Registry::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testAddReaderSchema(): void
+    {
+        $readerSchema = $this->getMockForAbstractClass(KafkaReaderSchemaInterface::class);
+        $this->kafkaConsumerBuilder->addReaderSchema('test', $readerSchema);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'readerSchemas');
+        $reflectionProperty->setAccessible(true);
+
+        $readerSchemas = $reflectionProperty->getValue($this->kafkaConsumerBuilder);
+
+        self::assertIsArray($readerSchemas);
+        self::assertArrayHasKey('test', $readerSchemas);
+        self::assertEquals($readerSchema, $readerSchemas['test']);
     }
 
     /**

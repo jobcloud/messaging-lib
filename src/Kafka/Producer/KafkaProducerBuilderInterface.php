@@ -31,6 +31,12 @@ interface KafkaProducerBuilderInterface
     public function addConfig(array $config): self;
 
     /**
+     * @param string $registryUrl
+     * @return KafkaProducerBuilderInterface
+     */
+    public function addSchemaRegistryUrl(string $registryUrl): self;
+
+    /**
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilderInterface
      */

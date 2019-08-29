@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use FlixTech\SchemaRegistryApi\Registry;
+use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
+use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
+use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
+use GuzzleHttp\Client;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -40,6 +46,11 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @var int
      */
     private $pollTimeout = 1;
+
+    /**
+     * @var Registry|null
+     */
+    private $schemaRegistry;
 
     /**
      * KafkaProducerBuilder constructor.
@@ -82,6 +93,24 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     public function addConfig(array $config): KafkaProducerBuilderInterface
     {
         $this->config += $config;
+
+        return $this;
+    }
+
+    /**
+     * @param string $registryUrl
+     * @return KafkaProducerBuilderInterface
+     */
+    public function addSchemaRegistryUrl(string $registryUrl): KafkaProducerBuilderInterface
+    {
+        $this->schemaRegistry = new CachedRegistry(
+            new BlockingRegistry(
+                new PromisingRegistry(
+                    new Client(['base_uri' => $registryUrl])
+                )
+            ),
+            new AvroObjectCacheAdapter()
+        );
 
         return $this;
     }
@@ -156,7 +185,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
-        return new KafkaProducer($rdKafkaProducer, $kafkaConfig);
+        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->schemaRegistry);
     }
 
     /**

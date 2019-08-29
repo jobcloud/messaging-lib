@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
+use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -51,6 +52,20 @@ class KafkaProducerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaProducerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testAddSchemaRegistryUrl(): void
+    {
+        $this->kafkaProducerBuilder->addSchemaRegistryUrl('test');
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'schemaRegistry');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertInstanceOf(Registry::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**

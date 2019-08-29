@@ -7,6 +7,7 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
+use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -26,7 +27,7 @@ final class KafkaProducer implements KafkaProducerInterface
     /** @var array */
     protected $producerTopics = [];
 
-    /** @var Registry */
+    /** @var Registry|null */
     protected $schemaRegistry;
 
     /** @var RecordSerializer */
@@ -41,7 +42,7 @@ final class KafkaProducer implements KafkaProducerInterface
     public function __construct(
         RdKafkaProducer $producer,
         KafkaConfiguration $kafkaConfiguration,
-        ?Registry $schemaRegistry
+        ?Registry $schemaRegistry = null
     ) {
         $this->producer = $producer;
         $this->kafkaConfiguration = $kafkaConfiguration;
@@ -70,14 +71,14 @@ final class KafkaProducer implements KafkaProducerInterface
             );
         }
 
-        /** @var KafkaProducerMessageInterface $message */
-        $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
-
         try {
             $message = $this->getProducerMessage($message, $schemaName, $version);
         } catch (SchemaRegistryException $e) {
             throw $e;
         }
+
+        /** @var KafkaProducerMessageInterface $message */
+        $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
 
         $topicProducer->producev(
             $message->getPartition(),
@@ -98,18 +99,29 @@ final class KafkaProducer implements KafkaProducerInterface
      * @param integer|null                  $version
      * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
+     * @throws KafkaMessageException
      */
     private function getProducerMessage(
         KafkaProducerMessageInterface $message,
         ?string $schemaName = null,
         ?int $version = null
     ): KafkaProducerMessageInterface {
+        if (null === $message->getBody()) {
+            return $message;
+        }
+
         if (null === $schemaRegistry = $this->getSchemaRegistry()) {
             return $message;
         }
 
         if (null === $schemaName) {
             return $message;
+        }
+
+        $body = json_decode($message->getBody(), true);
+
+        if (null === $body) {
+            throw new KafkaMessageException(KafkaMessageException::AVRO_BODY_MUST_BE_JSON_MESSAGE);
         }
 
         if (null === $version) {
@@ -120,13 +132,13 @@ final class KafkaProducer implements KafkaProducerInterface
 
         $recordSerializer = $this->getRecordSerializer($schemaRegistry);
 
-        return $message->withBody(
-            $recordSerializer->encodeRecord(
-                $schemaName,
-                $schema,
-                $message->getBody()
-            )
-        );
+        try {
+            $body = $recordSerializer->encodeRecord($schemaName, $schema, $body);
+        } catch (SchemaRegistryException $e) {
+            throw $e;
+        }
+
+        return $message->withBody($body);
     }
 
     /**
