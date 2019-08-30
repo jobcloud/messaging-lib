@@ -85,7 +85,7 @@ $consumer = KafkaConsumerBuilder::create()
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('localhost:9095')
+    ->addBroker('kafka:9092')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
     ->addSubscription('test-topic')
@@ -120,7 +120,7 @@ $consumer = KafkaConsumerBuilder::create()
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('localhost:9095')
+    ->addBroker('kafka:9092')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
     ->addSubscription('test-topic')
