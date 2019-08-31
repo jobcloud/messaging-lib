@@ -5,6 +5,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+use Jobcloud\Messaging\Kafka\Producer\KafkaProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -143,7 +144,7 @@ class KafkaProducerBuilderTest extends TestCase
             ->setErrorCallback($callback)
             ->build();
 
-        self::assertInstanceOf(ProducerInterface::class, $producer);
+        self::assertInstanceOf(KafkaProducerInterface::class, $producer);
     }
 
     /**
