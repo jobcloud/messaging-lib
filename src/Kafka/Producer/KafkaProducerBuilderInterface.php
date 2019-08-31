@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use Jobcloud\Messaging\Producer\ProducerInterface;
-
 interface KafkaProducerBuilderInterface
 {
     /**
-     * @return ProducerInterface
+     * @return KafkaProducerInterface
      */
-    public function build(): ProducerInterface;
+    public function build(): KafkaProducerInterface;
 
     /**
      * @return KafkaProducerBuilderInterface

@@ -159,10 +159,10 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Returns your producer instance
      *
-     * @return ProducerInterface
+     * @return KafkaProducerInterface
      * @throws KafkaProducerException
      */
-    public function build(): ProducerInterface
+    public function build(): KafkaProducerInterface
     {
         if ([] === $this->brokers) {
             throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
