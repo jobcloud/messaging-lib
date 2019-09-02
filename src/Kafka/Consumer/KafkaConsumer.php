@@ -202,9 +202,9 @@ final class KafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @return KafkaConfiguration
+     * @return KafkaConfiguration|null
      */
-    public function getConfiguration(): KafkaConfiguration
+    public function getConfiguration(): ?KafkaConfiguration
     {
         return $this->kafkaConfiguration;
     }
