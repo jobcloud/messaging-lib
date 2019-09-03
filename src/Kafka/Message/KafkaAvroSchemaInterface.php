@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Consumer;
+namespace Jobcloud\Messaging\Kafka\Message;
 
-interface KafkaReaderSchemaInterface
+interface KafkaAvroSchemaInterface
 {
     /**
      * @return string

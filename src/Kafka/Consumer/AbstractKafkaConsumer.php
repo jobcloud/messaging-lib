@@ -173,7 +173,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
         $schemaRegistry = $this->getSchemaRegistry();
 
-        /** @var KafkaReaderSchema $readerSchema */
+        /** @var KafkaAvroSchema $readerSchema */
         $readerSchema = $this->readerSchemas[$message->topic_name];
 
         if (null === $readerSchema->getVersion()) {

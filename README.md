@@ -47,6 +47,7 @@ $producer->produce($message);
 <?php
 
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+use \Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 
 $producer = KafkaProducerBuilder::create()
     ->addBroker('kafka:9092')
@@ -60,7 +61,7 @@ $message = KafkaMessage::create('test-topic', 0)
             ->withBody('{"name": "some name"}') //this must be a json encoded string
             ->withHeaders([ 'key' => 'value' ]);
 
-$producer->produce($message, $schemaName, $version);
+$producer->produce($message, new KafkaAvroSchema($schemaName, $version));
 ```
 
 **NOTE:** To improve producer latency you can install the `pcntl` extension.  
@@ -147,14 +148,14 @@ To create an avro consumer add the schema url and your schema name(s) and option
 <?php
 
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchema;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 
 $schemaName = 'someSchema';
 $version = 9;
 
 $consumer = KafkaConsumerBuilder::create()
     ->addSchemaRegistryUrl('schema-registry:8081')
-    ->addReaderSchema('topicName', new KafkaReaderSchema($schemaName, $version))
+    ->addReaderSchema('topicName', new KafkaAvroSchema($schemaName, $version))
     //some more code here
 ```
 

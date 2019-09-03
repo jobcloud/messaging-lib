@@ -14,6 +14,7 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -263,13 +264,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * Add the schema for a topic. The version can either be fixed
      * or null, if the version is null, the latest version will be used.
      *
-     * @param string                     $topicName
-     * @param KafkaReaderSchemaInterface $readerSchema
+     * @param string                   $topicName
+     * @param KafkaAvroSchemaInterface $readerSchema
      * @return KafkaConsumerBuilderInterface
      */
     public function addReaderSchema(
         string $topicName,
-        KafkaReaderSchemaInterface $readerSchema
+        KafkaAvroSchemaInterface $readerSchema
     ): KafkaConsumerBuilderInterface {
         $this->readerSchemas[$topicName] = $readerSchema;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Consumer;
+namespace Jobcloud\Messaging\Kafka\Message;
 
-class KafkaReaderSchema implements KafkaReaderSchemaInterface
+class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
 
     /** @var string */
@@ -14,7 +14,7 @@ class KafkaReaderSchema implements KafkaReaderSchemaInterface
     private $version;
 
     /**
-     * KafkaReaderSchema constructor.
+     * KafkaAvroSchema constructor.
      * @param string       $schemaName
      * @param integer|null $version
      */

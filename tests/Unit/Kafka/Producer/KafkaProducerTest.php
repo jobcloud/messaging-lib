@@ -7,6 +7,7 @@ use FlixTech\SchemaRegistryApi\Exception\IncompatibleAvroSchemaException;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
@@ -266,6 +267,9 @@ class KafkaProducerTest extends TestCase
             ]
         }');
 
+        $kafkaSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $kafkaSchema->expects(self::atLeastOnce())->method('getSchemaName')->willReturn('testSchema');
+        $kafkaSchema->expects(self::atLeastOnce())->method('getVersion')->willReturn(null);
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $schemaRegistry->expects(self::once())->method('latestVersion')->willReturn($avroSchema);
         $schemaRegistry->expects(self::exactly(2))->method('schemaId')->willReturn(1);
@@ -324,7 +328,7 @@ class KafkaProducerTest extends TestCase
             ->method('poll')
             ->with(1000);
 
-        $kafkaProducer->produce($message, 'testSchema');
+        $kafkaProducer->produce($message, $kafkaSchema);
     }
 
     public function testProduceThrowsExceptionOnMessageBodyEncode()
@@ -340,6 +344,9 @@ class KafkaProducerTest extends TestCase
             ]
         }');
 
+        $kafkaSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $kafkaSchema->expects(self::atLeastOnce())->method('getSchemaName')->willReturn('testSchema');
+        $kafkaSchema->expects(self::atLeastOnce())->method('getVersion')->willReturn(null);
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $schemaRegistry->expects(self::once())->method('latestVersion')->willReturn($avroSchema);
         $schemaRegistry->expects(self::at(0))->method('schemaId')->willReturn(1);
@@ -359,7 +366,7 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock->expects(self::never())->method('newTopic');
         $this->rdKafkaProducerMock->expects(self::never())->method('poll');
 
-        $kafkaProducer->produce($message, 'testSchema');
+        $kafkaProducer->produce($message, $kafkaSchema);
     }
 
     public function testProduceSuccessWithRegistryWithSchema()
@@ -373,6 +380,9 @@ class KafkaProducerTest extends TestCase
             ]
         }');
 
+        $kafkaSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $kafkaSchema->expects(self::atLeastOnce())->method('getSchemaName')->willReturn('testSchema');
+        $kafkaSchema->expects(self::atLeastOnce())->method('getVersion')->willReturn(1);
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $schemaRegistry->expects(self::once())->method('schemaForSubjectAndVersion')->willReturn($avroSchema);
         $recordSerializer = $this->createMock(RecordSerializer::class);
@@ -428,7 +438,7 @@ class KafkaProducerTest extends TestCase
             ->method('poll')
             ->with(1000);
 
-        $kafkaProducer->produce($message, 'testSchema', 1);
+        $kafkaProducer->produce($message, $kafkaSchema);
     }
 
     public function testProduceThrowsSchemaRegistryException()
@@ -444,6 +454,9 @@ class KafkaProducerTest extends TestCase
             ]
         }');
 
+        $kafkaSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $kafkaSchema->expects(self::atLeastOnce())->method('getSchemaName')->willReturn('testSchema');
+        $kafkaSchema->expects(self::atLeastOnce())->method('getVersion')->willReturn(null);
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $schemaRegistry->expects(self::once())->method('latestVersion')->willThrowException(new IncompatibleAvroSchemaException());
         $kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock, $schemaRegistry);
@@ -460,13 +473,16 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock->expects(self::never())->method('newTopic');
         $this->rdKafkaProducerMock->expects(self::never())->method('poll');
 
-        $kafkaProducer->produce($message, 'testSchema');
+        $kafkaProducer->produce($message, $kafkaSchema);
     }
 
     public function testProduceThrowsKafkaMessageException()
     {
         self::expectException(KafkaMessageException::class);
 
+        $kafkaSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $kafkaSchema->expects(self::never())->method('getSchemaName');
+        $kafkaSchema->expects(self::never())->method('getVersion');
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock, $schemaRegistry);
         $message = KafkaProducerMessage::create('test-topic', 1)
@@ -482,6 +498,6 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock->expects(self::never())->method('newTopic');
         $this->rdKafkaProducerMock->expects(self::never())->method('poll');
 
-        $kafkaProducer->produce($message, 'testSchema');
+        $kafkaProducer->produce($message, $kafkaSchema);
     }
 }

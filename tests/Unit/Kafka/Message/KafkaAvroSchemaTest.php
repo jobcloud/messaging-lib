@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchema;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchema
+ * @covers \Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema
  */
-class KafkaReaderSchemaTest extends TestCase
+class KafkaAvroSchemaTest extends TestCase
 {
     public function testGettersAndSetters()
     {
         $schemaName = 'testSchema';
         $version = 9;
 
-        $readerSchema = new KafkaReaderSchema($schemaName, $version);
+        $readerSchema = new KafkaAvroSchema($schemaName, $version);
 
         self::assertEquals($schemaName, $readerSchema->getSchemaName());
         self::assertEquals($version, $readerSchema->getVersion());
@@ -27,7 +27,7 @@ class KafkaReaderSchemaTest extends TestCase
     {
         $schemaName = 'testSchema';
 
-        $readerSchema = new KafkaReaderSchema($schemaName);
+        $readerSchema = new KafkaAvroSchema($schemaName);
 
         self::assertEquals($schemaName, $readerSchema->getSchemaName());
         self::assertNull($readerSchema->getVersion());

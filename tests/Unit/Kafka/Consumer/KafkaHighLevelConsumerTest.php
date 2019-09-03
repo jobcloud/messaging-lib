@@ -8,7 +8,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 
-use Jobcloud\Messaging\Kafka\Consumer\KafkaReaderSchemaInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
@@ -354,7 +354,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->timestamp = 500;
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
-        $readerSchema = $this->getMockForAbstractClass(KafkaReaderSchemaInterface::class);
+        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $readerSchema->expects(self::exactly(2))->method('getVersion')->willReturn(1);
         $readerSchema->expects(self::once())->method('getSchemaName')->willReturn('test');
         $topics = [new TopicSubscription('testTopic')];
@@ -433,7 +433,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
         $schemaRegistry->expects(self::once())->method('latestVersion')->willThrowException(new IncompatibleAvroSchemaException());
-        $readerSchema = $this->getMockForAbstractClass(KafkaReaderSchemaInterface::class);
+        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
         $topics = [new TopicSubscription('testTopic')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
@@ -491,7 +491,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->timestamp = 500;
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
-        $readerSchema = $this->getMockForAbstractClass(KafkaReaderSchemaInterface::class);
+        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
         $topics = [new TopicSubscription('testTopic')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
@@ -540,7 +540,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->timestamp = 500;
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
-        $readerSchema = $this->getMockForAbstractClass(KafkaReaderSchemaInterface::class);
+        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
         $topics = [new TopicSubscription('testTopic')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);

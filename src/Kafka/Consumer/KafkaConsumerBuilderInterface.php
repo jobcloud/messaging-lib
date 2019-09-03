@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
+
 interface KafkaConsumerBuilderInterface
 {
 
@@ -105,11 +107,11 @@ interface KafkaConsumerBuilderInterface
      * Add the schema for a topic. The version can either be fixed
      * or null, if the version is null, the latest version will be used.
      *
-     * @param string                     $topicName
-     * @param KafkaReaderSchemaInterface $readerSchema
+     * @param string                   $topicName
+     * @param KafkaAvroSchemaInterface $readerSchema
      * @return KafkaConsumerBuilderInterface
      */
-    public function addReaderSchema(string $topicName, KafkaReaderSchemaInterface $readerSchema): self;
+    public function addReaderSchema(string $topicName, KafkaAvroSchemaInterface $readerSchema): self;
 
     /**
      * Returns your consumer instance
