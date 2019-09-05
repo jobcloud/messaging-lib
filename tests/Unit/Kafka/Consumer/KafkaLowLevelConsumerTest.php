@@ -5,6 +5,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
@@ -40,6 +41,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
 
+    /** @var DenormalizerInterface $denormalizerMock */
+    private $denormalizerMock;
+
     /** @var KafkaLowLevelConsumer */
     private $kafkaConsumer;
 
@@ -56,7 +60,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $this->kafkaConfigurationMock->expects(self::any())->method('dump')->willReturn([]);
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->denormalizerMock);
     }
 
     /**
@@ -537,7 +542,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
                 }
             );
 
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->denormalizerMock);
 
         $lowOffset = $this->kafkaConsumer->getFirstOffsetForTopicPartition('test-topic', 1, 1000);
 
@@ -559,7 +564,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
                 }
             );
 
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->denormalizerMock);
 
         $lowOffset = $this->kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
 

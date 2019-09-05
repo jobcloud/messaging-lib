@@ -8,6 +8,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
@@ -39,7 +40,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
         $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic']);
 
@@ -56,7 +58,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
         $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock->expects(self::once())->method('assign');
 
@@ -76,7 +79,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock->expects(self::never())->method('subscribe');
         $rdKafkaConsumerMock->expects(self::never())->method('assign');
@@ -97,7 +101,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock
             ->expects(self::once())
@@ -119,7 +124,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock->expects(self::once())->method('unsubscribe');
 
@@ -133,7 +139,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock
             ->expects(self::once())
@@ -165,7 +172,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
         $rdKafkaConsumerMock->expects(self::once())->method('commit');
 
         $kafkaConsumer->commit([$message, $message2]);
@@ -178,7 +186,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
         $message = $this->createMock(KafkaConsumerMessageInterface::class);
 
         $rdKafkaConsumerMock->expects(self::once())->method('commitAsync');
@@ -193,7 +202,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
         $message = $this->createMock(KafkaConsumerMessageInterface::class);
 
         $rdKafkaConsumerMock
@@ -215,7 +225,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $topicPartitions = ['test'];
 
@@ -234,7 +245,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $topicPartitions = ['test'];
 
@@ -258,7 +270,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $topicPartitions = ['test'];
 
@@ -277,7 +290,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock
             ->expects(self::once())
@@ -316,68 +330,12 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
         $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
         $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $kafkaConsumer->subscribe();
         $kafkaConsumer->consume();
     }
-
-    public function testKafkaConsumeWithSchemaAndVersion(): void
-    {
-        $avroSchema = \AvroSchema::parse('{
-            "type": "record",
-            "namespace": "example",
-            "name": "Test",
-            "fields": [
-                { "name": "name", "type": "string" }
-            ]
-        }');
-
-        $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
-        $schemaRegistry->expects(self::once())->method('schemaForId')->with(1)->willReturn($avroSchema);
-        $schemaRegistry->expects(self::once())->method('schemaForSubjectAndVersion')->willReturn($avroSchema);
-        $schemaRegistry->expects(self::once())->method('schemaId')->willReturn(1);
-        $serializer = new RecordSerializer($schemaRegistry);
-
-        $binaryString = $serializer->encodeRecord(
-            'test',
-            $avroSchema,
-            ['name' => 'some name']
-        );
-
-        $message = new Message();
-        $message->key = 'test';
-        $message->payload = $binaryString;
-        $message->topic_name = 'test';
-        $message->partition = 9;
-        $message->offset = 500;
-        $message->timestamp = 500;
-        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
-
-        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $readerSchema->expects(self::exactly(2))->method('getVersion')->willReturn(1);
-        $readerSchema->expects(self::once())->method('getSchemaName')->willReturn('test');
-        $topics = [new TopicSubscription('testTopic')];
-        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('subscribe')
-            ->with(['testTopic']);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('consume')
-            ->with(0)
-            ->willReturn($message);
-        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $schemaRegistry, ['test' => $readerSchema]);
-
-        $kafkaConsumer->subscribe();
-        $kafkaConsumer->consume();
-    }
-
     /**
      * @throws KafkaConsumerRequestException
      */
@@ -385,8 +343,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
-
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
         $committedOffsets = ['test'];
 
         $rdKafkaConsumerMock
@@ -405,7 +363,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $denormalizerMock = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $denormalizerMock);
 
         $rdKafkaConsumerMock
             ->expects(self::once())
@@ -416,155 +375,5 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->expectExceptionCode(99);
         $this->expectExceptionMessage('Fail');
         $kafkaConsumer->getCommittedOffsets([], 1);
-    }
-
-    public function testKafkaConsumeWillThrowSchemaRegistryException(): void
-    {
-        self::expectException(SchemaRegistryException::class);
-
-        $message = new Message();
-        $message->key = 'test';
-        $message->payload = 'test';
-        $message->topic_name = 'test';
-        $message->partition = 9;
-        $message->offset = 500;
-        $message->timestamp = 500;
-        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
-
-        $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
-        $schemaRegistry->expects(self::once())->method('latestVersion')->willThrowException(new IncompatibleAvroSchemaException());
-        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
-        $topics = [new TopicSubscription('testTopic')];
-        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('subscribe')
-            ->with(['testTopic']);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('consume')
-            ->with(0)
-            ->willReturn($message);
-        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $schemaRegistry, ['test' => $readerSchema]);
-
-        $kafkaConsumer->subscribe();
-        $kafkaConsumer->consume();
-    }
-
-    public function testKafkaConsumeWillThrowSchemaRegistryExceptionOnDecode(): void
-    {
-        self::expectException(SchemaRegistryException::class);
-
-        $avroSchema = \AvroSchema::parse('{
-            "type": "record",
-            "namespace": "example",
-            "name": "Test",
-            "fields": [
-                { "name": "name", "type": "string" }
-            ]
-        }');
-
-        $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
-        $schemaRegistry->expects(self::once())->method('latestVersion')->willReturn($avroSchema);
-        $schemaRegistry->expects(self::once())->method('schemaId')->willReturn(1);
-        $schemaRegistry->expects(self::once())->method('schemaForId')->willThrowException(new IncompatibleAvroSchemaException());
-
-        $serializer = new RecordSerializer($schemaRegistry);
-
-        $binaryString = $serializer->encodeRecord(
-            'test',
-            $avroSchema,
-            ['name' => 'some name']
-        );
-
-        $message = new Message();
-        $message->key = 'test';
-        $message->payload = $binaryString;
-        $message->topic_name = 'test';
-        $message->partition = 9;
-        $message->offset = 500;
-        $message->timestamp = 500;
-        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
-
-        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
-        $topics = [new TopicSubscription('testTopic')];
-        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('subscribe')
-            ->with(['testTopic']);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('consume')
-            ->with(0)
-            ->willReturn($message);
-        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $schemaRegistry, ['test' => $readerSchema]);
-
-        $kafkaConsumer->subscribe();
-        $kafkaConsumer->consume();
-    }
-
-    public function testKafkaConsumeWillKafkaMessageExceptionOnJsonDecodeFailure(): void
-    {
-        self::expectException(KafkaMessageException::class);
-
-        $avroSchema = \AvroSchema::parse('{
-            "type": "record",
-            "namespace": "example",
-            "name": "Test",
-            "fields": [
-                { "name": "name", "type": "string" }
-            ]
-        }');
-
-        $schemaRegistry = $this->getMockForAbstractClass(Registry::class);
-        $schemaRegistry->expects(self::once())->method('latestVersion')->willReturn($avroSchema);
-        $schemaRegistry->expects(self::never())->method('schemaId');
-
-        $message = new Message();
-        $message->key = 'test';
-        $message->payload = 'test';
-        $message->topic_name = 'test';
-        $message->partition = 9;
-        $message->offset = 500;
-        $message->timestamp = 500;
-        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
-
-        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $readerSchema->expects(self::once())->method('getVersion')->willReturn(null);
-        $topics = [new TopicSubscription('testTopic')];
-        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('subscribe')
-            ->with(['testTopic']);
-        $rdKafkaConsumerMock
-            ->expects(self::once())
-            ->method('consume')
-            ->with(0)
-            ->willReturn($message);
-        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
-        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $schemaRegistry, ['test' => $readerSchema]);
-        $recordSerializer = $this->createMock(RecordSerializer::class);
-        $recordSerializer->expects(self::once())->method('decodeMessage')->willReturn(chr(255));
-        $reflectionProperty = new \ReflectionProperty($kafkaConsumer, 'recordSerializer');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($kafkaConsumer, $recordSerializer);
-
-        $kafkaConsumer->subscribe();
-        $kafkaConsumer->consume();
     }
 }

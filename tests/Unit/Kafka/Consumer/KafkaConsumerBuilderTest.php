@@ -7,6 +7,7 @@ use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
@@ -104,33 +105,16 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testAddSchemaRegistryUrl(): void
+    public function testSetDenormalizer(): void
     {
-        $this->kafkaConsumerBuilder->addSchemaRegistryUrl('test');
+        $denormalizer = $this->getMockForAbstractClass(DenormalizerInterface::class);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'schemaRegistry');
+        $this->kafkaConsumerBuilder->setDenormalizer($denormalizer);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'denormalizer');
         $reflectionProperty->setAccessible(true);
 
-        self::assertInstanceOf(Registry::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testAddReaderSchema(): void
-    {
-        $readerSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $this->kafkaConsumerBuilder->addReaderSchema('test', $readerSchema);
-
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'readerSchemas');
-        $reflectionProperty->setAccessible(true);
-
-        $readerSchemas = $reflectionProperty->getValue($this->kafkaConsumerBuilder);
-
-        self::assertIsArray($readerSchemas);
-        self::assertArrayHasKey('test', $readerSchemas);
-        self::assertEquals($readerSchema, $readerSchemas['test']);
+        self::assertInstanceOf(DenormalizerInterface::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**

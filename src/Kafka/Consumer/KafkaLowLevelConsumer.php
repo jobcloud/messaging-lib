@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
@@ -32,16 +33,14 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * @param RdKafkaLowLevelConsumer $consumer
      * @param KafkaConfiguration      $kafkaConfiguration
-     * @param Registry                $schemaRegistry
-     * @param array                   $readerSchemas
+     * @param DenormalizerInterface   $denormalizer
      */
     public function __construct(
         RdKafkaLowLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        ?Registry $schemaRegistry = null,
-        array $readerSchemas = []
+        DenormalizerInterface $denormalizer
     ) {
-        parent::__construct($consumer, $kafkaConfiguration, $schemaRegistry, $readerSchemas);
+        parent::__construct($consumer, $kafkaConfiguration, $denormalizer);
         $this->queue = $consumer->newQueue();
     }
 

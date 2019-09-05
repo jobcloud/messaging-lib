@@ -7,6 +7,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use FlixTech\SchemaRegistryApi\Registry;
 use RdKafka\Exception as RdKafkaException;
@@ -23,16 +24,14 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * @param RdKafkaHighLevelConsumer $consumer
      * @param KafkaConfiguration       $kafkaConfiguration
-     * @param Registry                 $schemaRegistry
-     * @param array                    $readerSchemas
+     * @param DenormalizerInterface    $denormalizer
      */
     public function __construct(
         RdKafkaHighLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        ?Registry $schemaRegistry = null,
-        array $readerSchemas = []
+        DenormalizerInterface $denormalizer
     ) {
-        parent::__construct($consumer, $kafkaConfiguration, $schemaRegistry, $readerSchemas);
+        parent::__construct($consumer, $kafkaConfiguration, $denormalizer);
     }
 
     /**

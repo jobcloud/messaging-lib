@@ -4,6 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
+use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -59,14 +60,16 @@ class KafkaProducerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testAddSchemaRegistryUrl(): void
+    public function testSetNormalizer(): void
     {
-        $this->kafkaProducerBuilder->addSchemaRegistryUrl('test');
+        $normalizer = $this->getMockForAbstractClass(NormalizerInterface::class);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'schemaRegistry');
+        $this->kafkaProducerBuilder->setNormalizer($normalizer);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'normalizer');
         $reflectionProperty->setAccessible(true);
 
-        self::assertInstanceOf(Registry::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertInstanceOf(NormalizerInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**

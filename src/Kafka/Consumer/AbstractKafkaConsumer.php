@@ -103,11 +103,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        try {
-            $message = $this->getConsumerMessage($rdKafkaMessage);
-        } catch (SchemaRegistryException $e) {
-            throw $e;
-        }
+        $message = $this->getConsumerMessage($rdKafkaMessage);
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
