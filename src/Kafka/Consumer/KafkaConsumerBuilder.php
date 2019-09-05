@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
-use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
-use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
-use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
-use FlixTech\SchemaRegistryApi\Registry;
-use GuzzleHttp\Client;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\NullDenormalizer;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -52,16 +47,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
 
     /**
-     * @var array
-     */
-    private $readerSchemas = [];
-
-    /**
-     * @var Registry|null
-     */
-    private $schemaRegistry;
-
-    /**
      * @var int
      */
     private $timeout = 1000;
@@ -87,11 +72,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $offsetCommitCallback;
 
     /**
+     * @var DenormalizerInterface
+     */
+    private $denormalizer;
+
+    /**
      * KafkaConsumerBuilder constructor.
      */
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
+        $this->denormalizer = new NullDenormalizer();
     }
 
     /**
@@ -145,24 +136,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public function addConfig(array $config): KafkaConsumerBuilderInterface
     {
         $this->config = $config + $this->config;
-
-        return $this;
-    }
-
-    /**
-     * @param string $registryUrl
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function addSchemaRegistryUrl(string $registryUrl): KafkaConsumerBuilderInterface
-    {
-        $this->schemaRegistry = new CachedRegistry(
-            new BlockingRegistry(
-                new PromisingRegistry(
-                    new Client(['base_uri' => $registryUrl])
-                )
-            ),
-            new AvroObjectCacheAdapter()
-        );
 
         return $this;
     }
@@ -261,18 +234,14 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * Add the schema for a topic. The version can either be fixed
-     * or null, if the version is null, the latest version will be used.
+     * Lets you set a custom denormalizer for the consumed message
      *
-     * @param string                   $topicName
-     * @param KafkaAvroSchemaInterface $readerSchema
+     * @param DenormalizerInterface $denormalizer
      * @return KafkaConsumerBuilderInterface
      */
-    public function addReaderSchema(
-        string $topicName,
-        KafkaAvroSchemaInterface $readerSchema
-    ): KafkaConsumerBuilderInterface {
-        $this->readerSchemas[$topicName] = $readerSchema;
+    public function setDenormalizer(DenormalizerInterface $denormalizer): KafkaConsumerBuilderInterface
+    {
+        $this->denormalizer = $denormalizer;
 
         return $this;
     }
@@ -326,14 +295,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             return new KafkaLowLevelConsumer(
                 $rdKafkaConsumer,
                 $kafkaConfig,
-                $this->schemaRegistry,
-                $this->readerSchemas
+                $this->denormalizer
             );
         }
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
-        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->schemaRegistry, $this->readerSchemas);
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->denormalizer);
     }
 
     /**

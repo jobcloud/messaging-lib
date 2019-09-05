@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use FlixTech\SchemaRegistryApi\Registry;
-use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
-use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
-use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
-use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
-use GuzzleHttp\Client;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
+use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Normalizer\NullNormalizer;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 
@@ -48,9 +44,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $pollTimeout = 1;
 
     /**
-     * @var Registry|null
+     * @var NormalizerInterface
      */
-    private $schemaRegistry;
+    private $normalizer;
 
     /**
      * KafkaProducerBuilder constructor.
@@ -59,6 +55,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
         $this->errorCallback = new KafkaErrorCallback();
+        $this->normalizer = new NullNormalizer();
     }
 
     /**
@@ -93,24 +90,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     public function addConfig(array $config): KafkaProducerBuilderInterface
     {
         $this->config += $config;
-
-        return $this;
-    }
-
-    /**
-     * @param string $registryUrl
-     * @return KafkaProducerBuilderInterface
-     */
-    public function addSchemaRegistryUrl(string $registryUrl): KafkaProducerBuilderInterface
-    {
-        $this->schemaRegistry = new CachedRegistry(
-            new BlockingRegistry(
-                new PromisingRegistry(
-                    new Client(['base_uri' => $registryUrl])
-                )
-            ),
-            new AvroObjectCacheAdapter()
-        );
 
         return $this;
     }
@@ -157,12 +136,25 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Lets you set a custom normalizer for produce message
+     *
+     * @param NormalizerInterface $normalizer
+     * @return KafkaProducerBuilderInterface
+     */
+    public function setNormalizer(NormalizerInterface $normalizer): KafkaProducerBuilderInterface
+    {
+        $this->normalizer = $normalizer;
+
+        return $this;
+    }
+
+    /**
      * Returns your producer instance
      *
-     * @return KafkaProducerInterface
+     * @return ProducerInterface
      * @throws KafkaProducerException
      */
-    public function build(): KafkaProducerInterface
+    public function build(): ProducerInterface
     {
         if ([] === $this->brokers) {
             throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
@@ -185,7 +177,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
-        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->schemaRegistry);
+        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->normalizer);
     }
 
     /**

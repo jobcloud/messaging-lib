@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
+use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Producer\ProducerInterface;
+
 interface KafkaProducerBuilderInterface
 {
     /**
-     * @return KafkaProducerInterface
+     * @return ProducerInterface
      */
-    public function build(): KafkaProducerInterface;
+    public function build(): ProducerInterface;
 
     /**
      * @return KafkaProducerBuilderInterface
@@ -29,12 +32,6 @@ interface KafkaProducerBuilderInterface
     public function addConfig(array $config): self;
 
     /**
-     * @param string $registryUrl
-     * @return KafkaProducerBuilderInterface
-     */
-    public function addSchemaRegistryUrl(string $registryUrl): self;
-
-    /**
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilderInterface
      */
@@ -50,5 +47,13 @@ interface KafkaProducerBuilderInterface
      * @param integer $pollTimeout
      * @return KafkaProducerBuilderInterface
      */
-    public function setPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface;
+    public function setPollTimeout(int $pollTimeout): self;
+
+    /**
+     * Lets you set a custom normalizer for produce message
+     *
+     * @param NormalizerInterface $normalizer
+     * @return KafkaProducerBuilderInterface
+     */
+    public function setNormalizer(NormalizerInterface $normalizer): self;
 }

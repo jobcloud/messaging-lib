@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 
 interface KafkaConsumerBuilderInterface
 {
@@ -38,12 +38,6 @@ interface KafkaConsumerBuilderInterface
      * @return KafkaConsumerBuilderInterface
      */
     public function addConfig(array $config): self;
-
-    /**
-     * @param string $registryUrl
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function addSchemaRegistryUrl(string $registryUrl): self;
 
     /**
      * Set the timeout for all consumer actions
@@ -104,14 +98,12 @@ interface KafkaConsumerBuilderInterface
     public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
 
     /**
-     * Add the schema for a topic. The version can either be fixed
-     * or null, if the version is null, the latest version will be used.
+     * Lets you set a custom denormalizer for the consumed message
      *
-     * @param string                   $topicName
-     * @param KafkaAvroSchemaInterface $readerSchema
+     * @param DenormalizerInterface $denormalizer
      * @return KafkaConsumerBuilderInterface
      */
-    public function addReaderSchema(string $topicName, KafkaAvroSchemaInterface $readerSchema): self;
+    public function setDenormalizer(DenormalizerInterface $denormalizer): self;
 
     /**
      * Returns your consumer instance
