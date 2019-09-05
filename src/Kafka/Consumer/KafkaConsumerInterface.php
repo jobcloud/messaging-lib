@@ -66,11 +66,4 @@ interface KafkaConsumerInterface extends ConsumerInterface
      * @return RdKafkaMetadataTopic
      */
     public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
-
-    /**
-     * Returns the schema registry if any was set
-     *
-     * @return Registry|null
-     */
-    public function getSchemaRegistry(): ?Registry;
 }

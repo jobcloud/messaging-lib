@@ -8,6 +8,7 @@ use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
+use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -32,31 +33,22 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
     protected $consumer;
 
-    /** @var array */
-    protected $readerSchemas = [];
-
-    /** @var RecordSerializer */
-    protected $recordSerializer;
-
-    /** @var Registry|null */
-    protected $schemaRegistry;
+    /** @var DenormalizerInterface */
+    protected $denormalizer;
 
     /**
-     * @param mixed              $consumer
-     * @param KafkaConfiguration $kafkaConfiguration
-     * @param Registry           $schemaRegistry
-     * @param array              $readerSchemas
+     * @param mixed                 $consumer
+     * @param KafkaConfiguration    $kafkaConfiguration
+     * @param DenormalizerInterface $denormalizer
      */
     public function __construct(
         $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        ?Registry $schemaRegistry,
-        array $readerSchemas
+        DenormalizerInterface $denormalizer
     ) {
         $this->consumer = $consumer;
         $this->kafkaConfiguration = $kafkaConfiguration;
-        $this->readerSchemas = $readerSchemas;
-        $this->schemaRegistry = $schemaRegistry;
+        $this->denormalizer = $denormalizer;
     }
 
     /**
@@ -78,14 +70,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     public function getConfiguration(): array
     {
         return $this->kafkaConfiguration->dump();
-    }
-
-    /**
-     * @return Registry|null
-     */
-    public function getSchemaRegistry(): ?Registry
-    {
-        return $this->schemaRegistry;
     }
 
     /**
@@ -154,71 +138,20 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * @param RdKafkaMessage $message
      * @return KafkaConsumerMessageInterface
-     * @throws SchemaRegistryException
-     * @throws KafkaMessageException
      */
     protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
     {
-        if (null === $this->getSchemaRegistry() || false === isset($this->readerSchemas[$message->topic_name])) {
-            return new KafkaConsumerMessage(
-                $message->topic_name,
-                $message->partition,
-                $message->offset,
-                $message->timestamp,
-                $message->key,
-                $message->payload,
-                $message->headers
-            );
-        }
-
-        $schemaRegistry = $this->getSchemaRegistry();
-
-        /** @var KafkaAvroSchema $readerSchema */
-        $readerSchema = $this->readerSchemas[$message->topic_name];
-
-        if (null === $readerSchema->getVersion()) {
-            $schema = $schemaRegistry->latestVersion($readerSchema->getSchemaName());
-        } else {
-            $schema = $schemaRegistry->schemaForSubjectAndVersion(
-                $readerSchema->getSchemaName(),
-                $readerSchema->getVersion()
-            );
-        }
-
-        $recordSerializer = $this->getRecordSerializer($schemaRegistry);
-
-        try {
-            $body = json_encode($recordSerializer->decodeMessage($message->payload, $schema));
-        } catch (SchemaRegistryException $e) {
-            throw $e;
-        }
-
-        if (false === $body) {
-            throw new KafkaMessageException(KafkaMessageException::UNABLE_TO_DECODE_PAYLOAD);
-        }
-
-        return new KafkaConsumerMessage(
+        $message = new KafkaConsumerMessage(
             $message->topic_name,
             $message->partition,
             $message->offset,
             $message->timestamp,
             $message->key,
-            $body,
+            $message->payload,
             $message->headers
         );
-    }
 
-    /**
-     * @param Registry $schemaRegistry
-     * @return RecordSerializer
-     */
-    protected function getRecordSerializer(Registry $schemaRegistry): RecordSerializer
-    {
-        if (null === $this->recordSerializer) {
-            $this->recordSerializer = new RecordSerializer($schemaRegistry);
-        }
-
-        return $this->recordSerializer;
+        return $this->denormalizer->denormalize($message);
     }
 
     /**
