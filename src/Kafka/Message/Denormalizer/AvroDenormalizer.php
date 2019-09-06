@@ -18,7 +18,7 @@ class AvroDenormalizer implements DenormalizerInterface
     /** @var AvroTransformerInterface */
     private $avroTransformer;
 
-    /** @var array|KafkaAvroSchemaInterface[] */
+    /** @var array */
     private $schemaMapping;
 
     /**

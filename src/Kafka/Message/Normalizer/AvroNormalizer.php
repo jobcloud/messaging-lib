@@ -17,7 +17,7 @@ class AvroNormalizer implements NormalizerInterface
     /** @var AvroTransformerInterface */
     private $avroTransformer;
 
-    /** @var array|KafkaAvroSchemaInterface[] */
+    /** @var array */
     private $schemaMapping;
 
     /**
