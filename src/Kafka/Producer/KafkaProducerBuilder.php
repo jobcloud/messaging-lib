@@ -46,7 +46,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * @var EncoderInterface
      */
-    private $normalizer;
+    private $encoder;
 
     /**
      * KafkaProducerBuilder constructor.
@@ -55,7 +55,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
         $this->errorCallback = new KafkaErrorCallback();
-        $this->normalizer = new DefaultEncoder();
+        $this->encoder = new DefaultEncoder();
     }
 
     /**
@@ -136,14 +136,14 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * Lets you set a custom normalizer for produce message
+     * Lets you set a custom encoder for produce message
      *
-     * @param EncoderInterface $normalizer
+     * @param EncoderInterface $encoder
      * @return KafkaProducerBuilderInterface
      */
-    public function setNormalizer(EncoderInterface $normalizer): KafkaProducerBuilderInterface
+    public function setEncoder(EncoderInterface $encoder): KafkaProducerBuilderInterface
     {
-        $this->normalizer = $normalizer;
+        $this->encoder = $encoder;
 
         return $this;
     }
@@ -177,7 +177,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
         $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
-        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->normalizer);
+        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->encoder);
     }
 
     /**

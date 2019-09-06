@@ -44,7 +44,7 @@ $message = KafkaProducerMessage::create('test-topic', 0)
 $producer->produce($message);
 ```
 ##### Avro Producer
-To create an avro prodcuer add the avro normalizer.  
+To create an avro prodcuer add the avro encoder.  
 
 ```php
 <?php
@@ -60,7 +60,7 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$normalizer = new AvroEncoder(
+$encoder = new AvroEncoder(
     new AvroTransformer(
         new CachedRegistry(
             new BlockingRegistry(
@@ -78,7 +78,7 @@ $normalizer = new AvroEncoder(
 
 $producer = KafkaProducerBuilder::create()
     ->addBroker('kafka:9092')
-    ->setNormalizer($normalizer)
+    ->setEncoder($encoder)
     ->build();
 
 $schemaName = 'testSchema';
@@ -169,8 +169,8 @@ while (true) {
 ```
 
 #### Avro Consumer
-To create an avro consumer add the avro denormalizer.  
-If `AvroDenormalizer` is instantiated with an empty array (`$schemaMapping`),  
+To create an avro consumer add the avro decoder.  
+If `AvroDecoder` is instantiated with an empty array (`$schemaMapping`),  
 the latest version of the schema that was used for encoding will be used.
 
 ```php
@@ -186,7 +186,7 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$denormalizer = new AvroDecoder(
+$decoder = new AvroDecoder(
     new AvroTransformer(
         new CachedRegistry(
             new BlockingRegistry(
@@ -213,7 +213,7 @@ $consumer = KafkaConsumerBuilder::create()
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->setDenormalizer($denormalizer)
+    ->setDecoder($decoder)
     ->addBroker('kafka:9092')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)

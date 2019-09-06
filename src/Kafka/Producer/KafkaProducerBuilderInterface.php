@@ -50,10 +50,10 @@ interface KafkaProducerBuilderInterface
     public function setPollTimeout(int $pollTimeout): self;
 
     /**
-     * Lets you set a custom normalizer for produce message
+     * Lets you set a custom encoder for produce message
      *
-     * @param EncoderInterface $normalizer
+     * @param EncoderInterface $encoder
      * @return KafkaProducerBuilderInterface
      */
-    public function setNormalizer(EncoderInterface $normalizer): self;
+    public function setEncoder(EncoderInterface $encoder): self;
 }

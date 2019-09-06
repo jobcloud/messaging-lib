@@ -105,13 +105,13 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetDenormalizer(): void
+    public function testSetDecoder(): void
     {
         $denormalizer = $this->getMockForAbstractClass(DecoderInterface::class);
 
-        $this->kafkaConsumerBuilder->setDenormalizer($denormalizer);
+        $this->kafkaConsumerBuilder->setDecoder($denormalizer);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'denormalizer');
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'decoder');
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(DecoderInterface::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));

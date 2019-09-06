@@ -60,13 +60,13 @@ class KafkaProducerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetNormalizer(): void
+    public function testSetEncoder(): void
     {
         $normalizer = $this->getMockForAbstractClass(EncoderInterface::class);
 
-        $this->kafkaProducerBuilder->setNormalizer($normalizer);
+        $this->kafkaProducerBuilder->setEncoder($normalizer);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'normalizer');
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'encoder');
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));

@@ -74,7 +74,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @var DecoderInterface
      */
-    private $denormalizer;
+    private $decoder;
 
     /**
      * KafkaConsumerBuilder constructor.
@@ -82,7 +82,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
-        $this->denormalizer = new DefaultDecoder();
+        $this->decoder = new DefaultDecoder();
     }
 
     /**
@@ -234,14 +234,14 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * Lets you set a custom denormalizer for the consumed message
+     * Lets you set a custom decoder for the consumed message
      *
-     * @param DecoderInterface $denormalizer
+     * @param DecoderInterface $decoder
      * @return KafkaConsumerBuilderInterface
      */
-    public function setDenormalizer(DecoderInterface $denormalizer): KafkaConsumerBuilderInterface
+    public function setDecoder(DecoderInterface $decoder): KafkaConsumerBuilderInterface
     {
-        $this->denormalizer = $denormalizer;
+        $this->decoder = $decoder;
 
         return $this;
     }
@@ -295,13 +295,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             return new KafkaLowLevelConsumer(
                 $rdKafkaConsumer,
                 $kafkaConfig,
-                $this->denormalizer
+                $this->decoder
             );
         }
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
-        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->denormalizer);
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->decoder);
     }
 
     /**

@@ -98,12 +98,12 @@ interface KafkaConsumerBuilderInterface
     public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
 
     /**
-     * Lets you set a custom denormalizer for the consumed message
+     * Lets you set a custom decoder for the consumed message
      *
-     * @param DecoderInterface $denormalizer
+     * @param DecoderInterface $decoder
      * @return KafkaConsumerBuilderInterface
      */
-    public function setDenormalizer(DecoderInterface $denormalizer): self;
+    public function setDecoder(DecoderInterface $decoder): self;
 
     /**
      * Returns your consumer instance
