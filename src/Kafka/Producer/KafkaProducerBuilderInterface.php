@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 
 interface KafkaProducerBuilderInterface
@@ -52,8 +52,8 @@ interface KafkaProducerBuilderInterface
     /**
      * Lets you set a custom normalizer for produce message
      *
-     * @param NormalizerInterface $normalizer
+     * @param EncoderInterface $normalizer
      * @return KafkaProducerBuilderInterface
      */
-    public function setNormalizer(NormalizerInterface $normalizer): self;
+    public function setNormalizer(EncoderInterface $normalizer): self;
 }

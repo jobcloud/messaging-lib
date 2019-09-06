@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Denormalizer;
+namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Decoder;
 
 use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\AvroDenormalizer;
+use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Message\Denormalizer\AvroDenormalizer
+ * @covers \Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder
  * @covers \Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait
  */
-class AvroDenormalizerTest extends TestCase
+class AvroDecoderTest extends TestCase
 {
     public function testDenormalizeTombstone()
     {
@@ -24,9 +24,9 @@ class AvroDenormalizerTest extends TestCase
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::never())->method('decodeValue');
 
-        $denormalizer = new AvroDenormalizer($transformer, []);
+        $denormalizer = new AvroDecoder($transformer, []);
 
-        $result = $denormalizer->denormalize($message);
+        $result = $denormalizer->decode($message);
 
         self::assertSame($message, $result);
     }
@@ -45,9 +45,9 @@ class AvroDenormalizerTest extends TestCase
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('decodeValue')->with($message->getBody(), null)->willReturn(['test']);
 
-        $denormalizer = new AvroDenormalizer($transformer, []);
+        $denormalizer = new AvroDecoder($transformer, []);
 
-        $result = $denormalizer->denormalize($message);
+        $result = $denormalizer->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame(json_encode(['test']), $result->getBody());
@@ -69,8 +69,8 @@ class AvroDenormalizerTest extends TestCase
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('decodeValue')->with($message->getBody(), null)->willReturn([chr(255)]);
 
-        $denormalizer = new AvroDenormalizer($transformer, []);
+        $denormalizer = new AvroDecoder($transformer, []);
 
-        $denormalizer->denormalize($message);
+        $denormalizer->decode($message);
     }
 }

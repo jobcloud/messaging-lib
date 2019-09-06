@@ -9,8 +9,8 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NullNormalizer;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\DefaultEncoder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 
@@ -44,7 +44,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $pollTimeout = 1;
 
     /**
-     * @var NormalizerInterface
+     * @var EncoderInterface
      */
     private $normalizer;
 
@@ -55,7 +55,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
         $this->errorCallback = new KafkaErrorCallback();
-        $this->normalizer = new NullNormalizer();
+        $this->normalizer = new DefaultEncoder();
     }
 
     /**
@@ -138,10 +138,10 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Lets you set a custom normalizer for produce message
      *
-     * @param NormalizerInterface $normalizer
+     * @param EncoderInterface $normalizer
      * @return KafkaProducerBuilderInterface
      */
-    public function setNormalizer(NormalizerInterface $normalizer): KafkaProducerBuilderInterface
+    public function setNormalizer(EncoderInterface $normalizer): KafkaProducerBuilderInterface
     {
         $this->normalizer = $normalizer;
 

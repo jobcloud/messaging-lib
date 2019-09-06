@@ -4,7 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -62,14 +62,14 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testSetNormalizer(): void
     {
-        $normalizer = $this->getMockForAbstractClass(NormalizerInterface::class);
+        $normalizer = $this->getMockForAbstractClass(EncoderInterface::class);
 
         $this->kafkaProducerBuilder->setNormalizer($normalizer);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'normalizer');
         $reflectionProperty->setAccessible(true);
 
-        self::assertInstanceOf(NormalizerInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**

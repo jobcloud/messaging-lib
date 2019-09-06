@@ -7,7 +7,7 @@ use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
@@ -107,14 +107,14 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testSetDenormalizer(): void
     {
-        $denormalizer = $this->getMockForAbstractClass(DenormalizerInterface::class);
+        $denormalizer = $this->getMockForAbstractClass(DecoderInterface::class);
 
         $this->kafkaConsumerBuilder->setDenormalizer($denormalizer);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'denormalizer');
         $reflectionProperty->setAccessible(true);
 
-        self::assertInstanceOf(DenormalizerInterface::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
+        self::assertInstanceOf(DecoderInterface::class, $reflectionProperty->getValue($this->kafkaConsumerBuilder));
     }
 
     /**

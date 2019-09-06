@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Message\Denormalizer;
+namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
@@ -12,7 +12,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 
-class AvroDenormalizer implements DenormalizerInterface
+class AvroDecoder implements DecoderInterface
 {
 
     use SchemaRegistryHelperTrait;
@@ -39,7 +39,7 @@ class AvroDenormalizer implements DenormalizerInterface
      * @throws AvroDenormalizeException
      * @throws SchemaRegistryException
      */
-    public function denormalize(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
+    public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
         if (null === $consumerMessage->getBody()) {
             return $consumerMessage;

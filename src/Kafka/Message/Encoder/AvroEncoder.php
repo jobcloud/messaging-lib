@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Message\Normalizer;
+namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
@@ -11,7 +11,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 
-class AvroNormalizer implements NormalizerInterface
+class AvroEncoder implements EncoderInterface
 {
 
     use SchemaRegistryHelperTrait;
@@ -38,7 +38,7 @@ class AvroNormalizer implements NormalizerInterface
      * @throws SchemaRegistryException
      * @throws AvroNormalizerException
      */
-    public function normalize(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
+    public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
         if (null === $producerMessage->getBody()) {
             return $producerMessage;

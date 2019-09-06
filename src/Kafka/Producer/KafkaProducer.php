@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Producer;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
@@ -26,19 +26,19 @@ final class KafkaProducer implements ProducerInterface
     /** @var array */
     protected $producerTopics = [];
 
-    /** @var NormalizerInterface */
+    /** @var EncoderInterface */
     protected $normalizer;
 
     /**
      * KafkaProducer constructor.
      * @param RdKafkaProducer     $producer
      * @param KafkaConfiguration  $kafkaConfiguration
-     * @param NormalizerInterface $normalizer
+     * @param EncoderInterface $normalizer
      */
     public function __construct(
         RdKafkaProducer $producer,
         KafkaConfiguration $kafkaConfiguration,
-        NormalizerInterface $normalizer
+        EncoderInterface $normalizer
     ) {
         $this->producer = $producer;
         $this->kafkaConfiguration = $kafkaConfiguration;
@@ -92,7 +92,7 @@ final class KafkaProducer implements ProducerInterface
             return $message;
         }
 
-        return $this->normalizer->normalize($message);
+        return $this->normalizer->encode($message);
     }
 
     /**

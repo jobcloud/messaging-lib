@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 
 interface KafkaConsumerBuilderInterface
 {
@@ -100,10 +100,10 @@ interface KafkaConsumerBuilderInterface
     /**
      * Lets you set a custom denormalizer for the consumed message
      *
-     * @param DenormalizerInterface $denormalizer
+     * @param DecoderInterface $denormalizer
      * @return KafkaConsumerBuilderInterface
      */
-    public function setDenormalizer(DenormalizerInterface $denormalizer): self;
+    public function setDenormalizer(DecoderInterface $denormalizer): self;
 
     /**
      * Returns your consumer instance

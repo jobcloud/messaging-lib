@@ -7,7 +7,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -29,8 +29,8 @@ class KafkaProducerTest extends TestCase
     /** @var RdKafkaProducer|MockObject */
     private $rdKafkaProducerMock;
 
-    /** @var NormalizerInterface|MockObject */
-    private $normalizerMock;
+    /** @var EncoderInterface|MockObject */
+    private $encoderMock;
 
     /** @var KafkaProducer */
     private $kafkaProducer;
@@ -39,8 +39,8 @@ class KafkaProducerTest extends TestCase
     {
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $this->rdKafkaProducerMock = $this->createMock(RdKafkaProducer::class);
-        $this->normalizerMock = $this->getMockForAbstractClass(NormalizerInterface::class);
-        $this->kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock, $this->normalizerMock);
+        $this->encoderMock = $this->getMockForAbstractClass(EncoderInterface::class);
+        $this->kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock, $this->encoderMock);
     }
 
     /**
@@ -54,7 +54,7 @@ class KafkaProducerTest extends TestCase
             ->withBody('some test content')
             ->withHeaders([ 'key' => 'value' ]);
 
-        $this->normalizerMock->expects(self::once())->method('normalize')->willReturn($message);
+        $this->encoderMock->expects(self::once())->method('encode')->willReturn($message);
 
         self::expectException(KafkaProducerException::class);
 
@@ -138,9 +138,9 @@ class KafkaProducerTest extends TestCase
                     }
                 }
             );
-        $this->normalizerMock
+        $this->encoderMock
             ->expects(self::once())
-            ->method('normalize')
+            ->method('encode')
             ->with($message)
             ->willReturn($message);
         $this->rdKafkaProducerMock

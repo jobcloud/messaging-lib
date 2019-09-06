@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Normalizer;
+namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Encoder;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\NullNormalizer;
+use Jobcloud\Messaging\Kafka\Message\Encoder\DefaultEncoder;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Jobcloud\Messaging\Kafka\Message\Normalizer\NullNormalizer
+ * @covers \Jobcloud\Messaging\Kafka\Message\Encoder\DefaultEncoder
  */
-class NullNormalizerTest extends TestCase
+class DefaultEncoderTest extends TestCase
 {
 
     /**
@@ -21,6 +21,6 @@ class NullNormalizerTest extends TestCase
     {
         $message = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
 
-        $this->assertSame($message, (new NullNormalizer())->normalize($message));
+        $this->assertSame($message, (new DefaultEncoder())->encode($message));
     }
 }

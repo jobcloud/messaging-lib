@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Message\Denormalizer;
+namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 
-class NullDenormalizer implements DenormalizerInterface
+class DefaultDecoder implements DecoderInterface
 {
 
     /**
      * @param KafkaConsumerMessageInterface $consumerMessage
      * @return KafkaConsumerMessageInterface
      */
-    public function denormalize(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
+    public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
         return $consumerMessage;
     }

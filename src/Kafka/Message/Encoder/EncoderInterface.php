@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Kafka\Message\Normalizer;
+namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 
-interface NormalizerInterface
+interface EncoderInterface
 {
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
      */
-    public function normalize(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface;
+    public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface;
 }

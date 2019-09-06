@@ -9,7 +9,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
@@ -25,12 +25,12 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * @param RdKafkaHighLevelConsumer $consumer
      * @param KafkaConfiguration       $kafkaConfiguration
-     * @param DenormalizerInterface    $denormalizer
+     * @param DecoderInterface    $denormalizer
      */
     public function __construct(
         RdKafkaHighLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DenormalizerInterface $denormalizer
+        DecoderInterface $denormalizer
     ) {
         parent::__construct($consumer, $kafkaConfiguration, $denormalizer);
     }

@@ -50,7 +50,7 @@ To create an avro prodcuer add the avro normalizer.
 <?php
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
-use Jobcloud\Messaging\Kafka\Message\Normalizer\AvroNormalizer;
+use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use \Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformer;
@@ -60,7 +60,7 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$normalizer = new AvroNormalizer(
+$normalizer = new AvroEncoder(
     new AvroTransformer(
         new CachedRegistry(
             new BlockingRegistry(
@@ -177,7 +177,7 @@ the latest version of the schema that was used for encoding will be used.
 <?php
 
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\AvroDenormalizer;
+use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformer;
 use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
@@ -186,7 +186,7 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$denormalizer = new AvroDenormalizer(
+$denormalizer = new AvroDecoder(
     new AvroTransformer(
         new CachedRegistry(
             new BlockingRegistry(

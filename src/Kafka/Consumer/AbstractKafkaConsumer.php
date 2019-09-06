@@ -10,7 +10,7 @@ use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
-use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -35,18 +35,18 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
     protected $consumer;
 
-    /** @var DenormalizerInterface */
+    /** @var DecoderInterface */
     protected $denormalizer;
 
     /**
      * @param mixed                 $consumer
      * @param KafkaConfiguration    $kafkaConfiguration
-     * @param DenormalizerInterface $denormalizer
+     * @param DecoderInterface $denormalizer
      */
     public function __construct(
         $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DenormalizerInterface $denormalizer
+        DecoderInterface $denormalizer
     ) {
         $this->consumer = $consumer;
         $this->kafkaConfiguration = $kafkaConfiguration;
@@ -148,7 +148,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             $message->headers
         );
 
-        return $this->denormalizer->denormalize($message);
+        return $this->denormalizer->decode($message);
     }
 
     /**
