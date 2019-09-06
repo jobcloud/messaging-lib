@@ -11,10 +11,10 @@ interface AvroTransformerInterface
     /**
      * @param string     $schemaName
      * @param AvroSchema $schema
-     * @param string     $value
+     * @param array      $value
      * @return string
      */
-    public function encodeValue(string $schemaName, AvroSchema $schema, string $value): string;
+    public function encodeValue(string $schemaName, AvroSchema $schema, array $value): string;
 
     /**
      * @param string          $binaryValue

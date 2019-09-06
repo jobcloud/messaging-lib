@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
+namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 use PHPUnit\Framework\TestCase;

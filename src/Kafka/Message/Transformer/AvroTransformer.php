@@ -8,6 +8,9 @@ use \AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class AvroTransformer extends RecordSerializer implements AvroTransformerInterface
 {
 
@@ -27,11 +30,11 @@ class AvroTransformer extends RecordSerializer implements AvroTransformerInterfa
     /**
      * @param string     $schemaName
      * @param AvroSchema $schema
-     * @param string     $value
+     * @param array      $value
      * @return string
      * @throws SchemaRegistryException
      */
-    public function encodeValue(string $schemaName, AvroSchema $schema, string $value): string
+    public function encodeValue(string $schemaName, AvroSchema $schema, array $value): string
     {
         return $this->encodeRecord($schemaName, $schema, $value);
     }

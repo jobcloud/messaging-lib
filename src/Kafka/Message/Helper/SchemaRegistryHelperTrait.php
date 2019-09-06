@@ -5,8 +5,9 @@ namespace Jobcloud\Messaging\Kafka\Message\Helper;
 use \AvroSchema;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
+use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
-use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 
 /**
@@ -16,21 +17,22 @@ trait SchemaRegistryHelperTrait
 {
 
     /**
-     * @param KafkaConsumerMessageInterface $kafkaMessage
+     * @param KafkaMessageInterface $kafkaMessage
      * @return AvroSchema|null
      *@throws SchemaRegistryException
      * @throws AvroDenormalizeException
      */
-    private function getAvroSchemaDefinition(KafkaConsumerMessageInterface $kafkaMessage): ?AvroSchema
+    private function getAvroSchemaDefinition(KafkaMessageInterface $kafkaMessage): ?AvroSchema
     {
         if (null === $avroSchema = $this->schemaMapping[$kafkaMessage->getTopicName()]) {
             return null;
         }
 
         if (false === $avroSchema instanceof KafkaAvroSchemaInterface) {
-            throw new AvroDenormalizeException(
+            throw new AvroNormalizerException(
                 sprintf(
-                    AvroDenormalizeException::UNKNOWN_SCHEMA_DEFINITION_MESSAGE,
+                    AvroNormalizerException::WRONG_SCHEMA_MAPPING_TYPE_MESSAGE,
+                    $kafkaMessage->getTopicName(),
                     KafkaAvroSchemaInterface::class
                 )
             );
