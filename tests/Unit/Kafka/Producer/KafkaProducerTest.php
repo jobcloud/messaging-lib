@@ -54,6 +54,8 @@ class KafkaProducerTest extends TestCase
             ->withBody('some test content')
             ->withHeaders([ 'key' => 'value' ]);
 
+        $this->normalizerMock->expects(self::once())->method('normalize')->willReturn($message);
+
         self::expectException(KafkaProducerException::class);
 
         /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
@@ -139,7 +141,8 @@ class KafkaProducerTest extends TestCase
         $this->normalizerMock
             ->expects(self::once())
             ->method('normalize')
-            ->with($message);
+            ->with($message)
+            ->willReturn($message);
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')

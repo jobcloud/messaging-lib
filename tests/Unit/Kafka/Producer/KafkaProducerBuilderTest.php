@@ -147,7 +147,7 @@ class KafkaProducerBuilderTest extends TestCase
             ->setErrorCallback($callback)
             ->build();
 
-        self::assertInstanceOf(KafkaProducerInterface::class, $producer);
+        self::assertInstanceOf(ProducerInterface::class, $producer);
     }
 
     /**
