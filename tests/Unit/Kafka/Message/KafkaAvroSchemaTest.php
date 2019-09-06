@@ -17,19 +17,19 @@ class KafkaAvroSchemaTest extends TestCase
         $schemaName = 'testSchema';
         $version = 9;
 
-        $readerSchema = new KafkaAvroSchema($schemaName, $version);
+        $avroSchema = new KafkaAvroSchema($schemaName, $version);
 
-        self::assertEquals($schemaName, $readerSchema->getSchemaName());
-        self::assertEquals($version, $readerSchema->getVersion());
+        self::assertEquals($schemaName, $avroSchema->getSchemaName());
+        self::assertEquals($version, $avroSchema->getVersion());
     }
 
-    public function testReaderSchemaWithNoVersion()
+    public function testAvroSchemaWithNoVersion()
     {
         $schemaName = 'testSchema';
 
-        $readerSchema = new KafkaAvroSchema($schemaName);
+        $avroSchema = new KafkaAvroSchema($schemaName);
 
-        self::assertEquals($schemaName, $readerSchema->getSchemaName());
-        self::assertNull($readerSchema->getVersion());
+        self::assertEquals($schemaName, $avroSchema->getSchemaName());
+        self::assertNull($avroSchema->getVersion());
     }
 }
