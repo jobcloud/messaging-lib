@@ -39,6 +39,10 @@ class AvroDenormalizer implements DenormalizerInterface
      */
     public function denormalize(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
+        if (null === $consumerMessage->getBody()) {
+            return $consumerMessage;
+        }
+
         $schemaDefinition = $this->getAvroSchemaDefinition($consumerMessage);
 
         $body = json_encode($this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition));

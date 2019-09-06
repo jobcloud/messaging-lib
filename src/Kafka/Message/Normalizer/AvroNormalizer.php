@@ -38,6 +38,10 @@ class AvroNormalizer implements NormalizerInterface
      */
     public function normalize(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
+        if (null === $producerMessage->getBody()) {
+            return $producerMessage;
+        }
+
         if (null === $avroSchema = $this->schemaMapping[$producerMessage->getTopicName()]) {
             throw new AvroNormalizerException(
                 sprintf(

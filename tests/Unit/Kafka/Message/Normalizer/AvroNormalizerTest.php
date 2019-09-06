@@ -18,10 +18,25 @@ use PHPStan\Testing\TestCase;
  */
 class AvroNormalizerTest extends TestCase
 {
+    public function testNormalizeTombstone()
+    {
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::once())->method('getBody')->willReturn(null);
+
+        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
+        $transformer->expects(self::never())->method('encodeValue');
+        $normalizer = new AvroNormalizer($transformer, []);
+        $result = $normalizer->normalize($producerMessage);
+
+        self::assertSame($producerMessage, $result);
+    }
+
     public function testNormalizeWithoutSchema()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(3))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn('test');
+
 
         self::expectException(AvroNormalizerException::class);
         self::expectExceptionMessage(
@@ -40,7 +55,7 @@ class AvroNormalizerTest extends TestCase
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(4))->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::once())->method('getBody')->willReturn('{}');
+        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
 
         self::expectException(AvroNormalizerException::class);
         self::expectExceptionMessage(
@@ -59,6 +74,7 @@ class AvroNormalizerTest extends TestCase
     public function testNormalizeWithoutJsonBody()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('test');
         $producerMessage->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         self::expectException(AvroNormalizerException::class);
@@ -77,7 +93,7 @@ class AvroNormalizerTest extends TestCase
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::once())->method('getBody')->willReturn('{}');
+        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
@@ -100,7 +116,7 @@ class AvroNormalizerTest extends TestCase
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::once())->method('getBody')->willReturn('{}');
+        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
