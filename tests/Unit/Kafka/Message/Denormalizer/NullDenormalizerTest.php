@@ -8,6 +8,9 @@ use Jobcloud\Messaging\Kafka\Message\Denormalizer\NullDenormalizer;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \Jobcloud\Messaging\Kafka\Message\Denormalizer\NullDenormalizer
+ */
 class NullDenormalizerTest extends TestCase
 {
 
