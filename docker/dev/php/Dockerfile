@@ -43,5 +43,3 @@ USER $HOST_USER
 
 WORKDIR /var/www/html
 
-CMD tail -f /dev/null
-
