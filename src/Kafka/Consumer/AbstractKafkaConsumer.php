@@ -80,7 +80,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * @throws KafkaConsumerConsumeException
      * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerTimeoutException
-     * @throws SchemaRegistryException
      */
     public function consume(): MessageInterface
     {
