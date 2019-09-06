@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -9,7 +11,6 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Message\Denormalizer\DenormalizerInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
-use FlixTech\SchemaRegistryApi\Registry;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;

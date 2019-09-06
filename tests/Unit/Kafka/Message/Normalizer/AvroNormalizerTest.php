@@ -54,7 +54,7 @@ class AvroNormalizerTest extends TestCase
     public function testNormalizeWithoutSchemaInterface()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
-        $producerMessage->expects(self::exactly(4))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::exactly(6))->method('getTopicName')->willReturn('test');
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
 
         self::expectException(AvroNormalizerException::class);
@@ -75,7 +75,7 @@ class AvroNormalizerTest extends TestCase
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('test');
-        $producerMessage->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         self::expectException(AvroNormalizerException::class);
         self::expectExceptionMessage(AvroNormalizerException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
@@ -92,17 +92,17 @@ class AvroNormalizerTest extends TestCase
         $registry->expects(self::once())->method('latestVersion')->willReturn($schemaDefinition);
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
-        $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::exactly(4))->method('getTopicName')->willReturn('test');
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $avroSchema->expects(self::exactly(3))->method('getSchemaName')->willReturn('schemaName');
+        $avroSchema->expects(self::exactly(3))->method('getName')->willReturn('schemaName');
         $avroSchema->expects(self::once())->method('getVersion')->willReturn(null);
 
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
-        $transformer->expects(self::once())->method('encodeValue')->with($avroSchema->getSchemaName(), $schemaDefinition, [])->willReturn('encodedValue');
+        $transformer->expects(self::once())->method('encodeValue')->with($avroSchema->getName(), $schemaDefinition, [])->willReturn('encodedValue');
         $normalizer = new AvroNormalizer($transformer, ['test' => $avroSchema]);
 
         self::assertSame($producerMessage, $normalizer->normalize($producerMessage));
@@ -115,17 +115,17 @@ class AvroNormalizerTest extends TestCase
         $registry->expects(self::once())->method('schemaForSubjectAndVersion')->willReturn($schemaDefinition);
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
-        $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::exactly(4))->method('getTopicName')->willReturn('test');
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $avroSchema->expects(self::exactly(3))->method('getSchemaName')->willReturn('schemaName');
+        $avroSchema->expects(self::exactly(3))->method('getName')->willReturn('schemaName');
         $avroSchema->expects(self::exactly(2))->method('getVersion')->willReturn(1);
 
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
-        $transformer->expects(self::once())->method('encodeValue')->with($avroSchema->getSchemaName(), $schemaDefinition, [])->willReturn('encodedValue');
+        $transformer->expects(self::once())->method('encodeValue')->with($avroSchema->getName(), $schemaDefinition, [])->willReturn('encodedValue');
         $normalizer = new AvroNormalizer($transformer, ['test' => $avroSchema]);
 
         self::assertSame($producerMessage, $normalizer->normalize($producerMessage));

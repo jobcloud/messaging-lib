@@ -7,10 +7,14 @@ namespace Jobcloud\Messaging\Kafka\Message;
 class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
 
-    /** @var string */
-    private $schemaName;
+    /**
+     * @var string
+     */
+    private $name;
 
-    /** @var integer|null */
+    /**
+     * @var integer|null
+     */
     private $version;
 
     /**
@@ -20,16 +24,16 @@ class KafkaAvroSchema implements KafkaAvroSchemaInterface
      */
     public function __construct(string $schemaName, ?int $version = null)
     {
-        $this->schemaName = $schemaName;
+        $this->name = $schemaName;
         $this->version = $version;
     }
 
     /**
      * @return string
      */
-    public function getSchemaName(): string
+    public function getName(): string
     {
-        return $this->schemaName;
+        return $this->name;
     }
 
     /**

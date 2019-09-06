@@ -9,10 +9,10 @@ interface KafkaAvroSchemaInterface
     /**
      * @return string
      */
-    public function getSchemaName(): string;
+    public function getName(): string;
 
     /**
-     * @return integer
+     * @return integer|null
      */
     public function getVersion(): ?int;
 }

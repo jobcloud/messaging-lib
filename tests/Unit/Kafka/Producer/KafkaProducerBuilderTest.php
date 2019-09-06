@@ -171,8 +171,8 @@ class KafkaProducerBuilderTest extends TestCase
 
         self::assertSame(
             [
-                'socket.timeout.ms' => 50,
-                'internal.termination.signal' => SIGIO
+                'socket.timeout.ms' => '50',
+                'internal.termination.signal' => (string) SIGIO
             ],
             $reflectionProperty->getValue($this->kafkaProducerBuilder)
         );

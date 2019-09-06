@@ -11,7 +11,6 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
-use FlixTech\SchemaRegistryApi\Registry;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;

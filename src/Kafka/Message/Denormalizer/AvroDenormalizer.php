@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Message\Denormalizer;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
@@ -45,11 +47,10 @@ class AvroDenormalizer implements DenormalizerInterface
 
         $schemaDefinition = $this->getAvroSchemaDefinition($consumerMessage);
 
-        $body = json_encode($this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition));
-
-        if (false === $body) {
-            throw new AvroDenormalizeException(AvroDenormalizeException::UNABLE_TO_ENCODE_PAYLOAD);
-        }
+        $body = json_encode(
+            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition),
+            JSON_THROW_ON_ERROR
+        );
 
         return new KafkaConsumerMessage(
             $consumerMessage->getTopicName(),

@@ -19,7 +19,7 @@ class KafkaAvroSchemaTest extends TestCase
 
         $avroSchema = new KafkaAvroSchema($schemaName, $version);
 
-        self::assertEquals($schemaName, $avroSchema->getSchemaName());
+        self::assertEquals($schemaName, $avroSchema->getName());
         self::assertEquals($version, $avroSchema->getVersion());
     }
 
@@ -29,7 +29,7 @@ class KafkaAvroSchemaTest extends TestCase
 
         $avroSchema = new KafkaAvroSchema($schemaName);
 
-        self::assertEquals($schemaName, $avroSchema->getSchemaName());
+        self::assertEquals($schemaName, $avroSchema->getName());
         self::assertNull($avroSchema->getVersion());
     }
 }

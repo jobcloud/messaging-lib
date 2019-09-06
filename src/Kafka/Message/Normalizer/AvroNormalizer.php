@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Message\Normalizer;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
@@ -42,7 +44,7 @@ class AvroNormalizer implements NormalizerInterface
             return $producerMessage;
         }
 
-        if (null === $avroSchema = $this->schemaMapping[$producerMessage->getTopicName()]) {
+        if (false === isset($this->schemaMapping[$producerMessage->getTopicName()])) {
             throw new AvroNormalizerException(
                 sprintf(
                     AvroNormalizerException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
@@ -50,6 +52,8 @@ class AvroNormalizer implements NormalizerInterface
                 )
             );
         }
+
+        $avroSchema = $this->schemaMapping[$producerMessage->getTopicName()];
 
         $arrayBody = json_decode($producerMessage->getBody(), true);
 
@@ -59,7 +63,7 @@ class AvroNormalizer implements NormalizerInterface
 
         $schemaDefinition = $this->getAvroSchemaDefinition($producerMessage);
 
-        $body = $this->avroTransformer->encodeValue($avroSchema->getSchemaName(), $schemaDefinition, $arrayBody);
+        $body = $this->avroTransformer->encodeValue($avroSchema->getName(), $schemaDefinition, $arrayBody);
 
         return $producerMessage->withBody($body);
     }

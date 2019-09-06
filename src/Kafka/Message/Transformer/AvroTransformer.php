@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Message\Transformer;
 
 use FlixTech\SchemaRegistryApi\Registry;
@@ -47,13 +49,7 @@ class AvroTransformer extends RecordSerializer implements AvroTransformerInterfa
      */
     public function decodeValue(string $binaryValue, AvroSchema $schema = null): array
     {
-        try {
-            $result = $this->decodeMessage($binaryValue, $schema);
-        } catch (Throwable $e) {
-            throw $e;
-        }
-
-        return $result;
+        return $this->decodeMessage($binaryValue, $schema);
     }
 
     /**

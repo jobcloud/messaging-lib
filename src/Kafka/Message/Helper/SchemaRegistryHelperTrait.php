@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Message\Helper;
 
 use \AvroSchema;
@@ -24,9 +26,11 @@ trait SchemaRegistryHelperTrait
      */
     private function getAvroSchemaDefinition(KafkaMessageInterface $kafkaMessage): ?AvroSchema
     {
-        if (null === $avroSchema = $this->schemaMapping[$kafkaMessage->getTopicName()]) {
+        if (false === isset($this->schemaMapping[$kafkaMessage->getTopicName()])) {
             return null;
         }
+
+        $avroSchema = $this->schemaMapping[$kafkaMessage->getTopicName()];
 
         if (false === $avroSchema instanceof KafkaAvroSchemaInterface) {
             throw new AvroNormalizerException(
@@ -40,11 +44,11 @@ trait SchemaRegistryHelperTrait
 
         /** @var KafkaAvroSchemaInterface $avroSchema */
         if (null === $avroSchema->getVersion()) {
-            return $this->avroTransformer->getSchemaRegistry()->latestVersion($avroSchema->getSchemaName());
+            return $this->avroTransformer->getSchemaRegistry()->latestVersion($avroSchema->getName());
         }
 
         return $this->avroTransformer
             ->getSchemaRegistry()
-            ->schemaForSubjectAndVersion($avroSchema->getSchemaName(), $avroSchema->getVersion());
+            ->schemaForSubjectAndVersion($avroSchema->getName(), $avroSchema->getVersion());
     }
 }

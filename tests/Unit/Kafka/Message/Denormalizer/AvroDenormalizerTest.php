@@ -55,8 +55,7 @@ class AvroDenormalizerTest extends TestCase
 
     public function testDenormalizeWithUnencodableBody()
     {
-        self::expectException(AvroDenormalizeException::class);
-        self::expectExceptionMessage(AvroDenormalizeException::UNABLE_TO_ENCODE_PAYLOAD);
+        self::expectException(\JsonException::class);
 
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getTopicName')->willReturn('test-topic');
