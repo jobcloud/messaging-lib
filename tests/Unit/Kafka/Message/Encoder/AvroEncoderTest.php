@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Encoder;
 
-use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
+use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
@@ -37,10 +37,10 @@ class AvroEncoderTest extends TestCase
         $producerMessage->expects(self::once())->method('getBody')->willReturn('test');
 
 
-        self::expectException(AvroNormalizerException::class);
+        self::expectException(AvroEncoderException::class);
         self::expectExceptionMessage(
             sprintf(
-                AvroNormalizerException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
                 $producerMessage->getTopicName()
             )
         );
@@ -61,8 +61,8 @@ class AvroEncoderTest extends TestCase
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
 
-        self::expectException(AvroNormalizerException::class);
-        self::expectExceptionMessage(AvroNormalizerException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
+        self::expectException(AvroEncoderException::class);
+        self::expectExceptionMessage(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
 
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);

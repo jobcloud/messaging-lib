@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Decoder;
 
-use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;

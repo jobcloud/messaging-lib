@@ -9,7 +9,6 @@ use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
-use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 
 final class AvroDecoder implements DecoderInterface
 {
@@ -28,7 +27,6 @@ final class AvroDecoder implements DecoderInterface
     /**
      * @param KafkaConsumerMessageInterface $consumerMessage
      * @return KafkaConsumerMessageInterface
-     * @throws AvroDenormalizeException
      * @throws SchemaRegistryException
      */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
