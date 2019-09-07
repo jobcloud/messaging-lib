@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
+use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
@@ -35,7 +35,7 @@ final class AvroEncoder implements EncoderInterface
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
-     * @throws AvroNormalizerException
+     * @throws AvroEncoderException
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -44,9 +44,9 @@ final class AvroEncoder implements EncoderInterface
         }
 
         if (false === isset($this->schemaMapping[$producerMessage->getTopicName()])) {
-            throw new AvroNormalizerException(
+            throw new AvroEncoderException(
                 sprintf(
-                    AvroNormalizerException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                    AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
                     $producerMessage->getTopicName()
                 )
             );
@@ -57,7 +57,7 @@ final class AvroEncoder implements EncoderInterface
         $arrayBody = json_decode($producerMessage->getBody(), true);
 
         if (null === $arrayBody) {
-            throw new AvroNormalizerException(AvroNormalizerException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
+            throw new AvroEncoderException(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
         }
 
         $schemaDefinition = $this->getAvroSchemaDefinition($producerMessage);

@@ -6,8 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Message\Helper;
 
 use \AvroSchema;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
-use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
+use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
@@ -22,7 +21,6 @@ trait SchemaRegistryHelperTrait
      * @param KafkaMessageInterface $kafkaMessage
      * @return AvroSchema|null
      *@throws SchemaRegistryException
-     * @throws AvroDenormalizeException
      */
     private function getAvroSchemaDefinition(KafkaMessageInterface $kafkaMessage): ?AvroSchema
     {
@@ -33,9 +31,9 @@ trait SchemaRegistryHelperTrait
         $avroSchema = $this->schemaMapping[$kafkaMessage->getTopicName()];
 
         if (false === $avroSchema instanceof KafkaAvroSchemaInterface) {
-            throw new AvroNormalizerException(
+            throw new AvroEncoderException(
                 sprintf(
-                    AvroNormalizerException::WRONG_SCHEMA_MAPPING_TYPE_MESSAGE,
+                    AvroEncoderException::WRONG_SCHEMA_MAPPING_TYPE_MESSAGE,
                     $kafkaMessage->getTopicName(),
                     KafkaAvroSchemaInterface::class
                 )

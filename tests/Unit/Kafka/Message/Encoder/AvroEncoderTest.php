@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Encoder;
 
 use FlixTech\SchemaRegistryApi\Registry;
-use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
+use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
@@ -38,10 +38,10 @@ class AvroEncoderTest extends TestCase
         $producerMessage->expects(self::once())->method('getBody')->willReturn('test');
 
 
-        self::expectException(AvroNormalizerException::class);
+        self::expectException(AvroEncoderException::class);
         self::expectExceptionMessage(
             sprintf(
-                AvroNormalizerException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
                 $producerMessage->getTopicName()
             )
         );
@@ -57,10 +57,10 @@ class AvroEncoderTest extends TestCase
         $producerMessage->expects(self::exactly(6))->method('getTopicName')->willReturn('test');
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
 
-        self::expectException(AvroNormalizerException::class);
+        self::expectException(AvroEncoderException::class);
         self::expectExceptionMessage(
             sprintf(
-                AvroNormalizerException::WRONG_SCHEMA_MAPPING_TYPE_MESSAGE,
+                AvroEncoderException::WRONG_SCHEMA_MAPPING_TYPE_MESSAGE,
                 $producerMessage->getTopicName(),
                 KafkaAvroSchemaInterface::class
             )
@@ -77,8 +77,8 @@ class AvroEncoderTest extends TestCase
         $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('test');
         $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        self::expectException(AvroNormalizerException::class);
-        self::expectExceptionMessage(AvroNormalizerException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
+        self::expectException(AvroEncoderException::class);
+        self::expectExceptionMessage(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
 
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $normalizer = new AvroEncoder($transformer, ['test' => $avroSchema]);
