@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
@@ -16,17 +17,12 @@ class AvroDecoder implements DecoderInterface
     /** @var AvroTransformerInterface */
     private $avroTransformer;
 
-    /** @var array */
-    private $schemaMapping;
-
     /**
      * @param AvroTransformerInterface $avroTransformer
-     * @param array                    $schemaMapping
      */
-    public function __construct(AvroTransformerInterface $avroTransformer, array $schemaMapping)
+    public function __construct(AvroTransformerInterface $avroTransformer)
     {
         $this->avroTransformer = $avroTransformer;
-        $this->schemaMapping = $schemaMapping;
     }
 
     /**
@@ -37,14 +33,20 @@ class AvroDecoder implements DecoderInterface
      */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
+        $schemaDefinition = null;
+
         if (null === $consumerMessage->getBody()) {
             return $consumerMessage;
         }
 
         $avroSchema = $this->avroTransformer->getSchemaRegistry()->getSchemaForTopic($consumerMessage->getTopicName());
 
+        if (true === $avroSchema instanceof KafkaAvroSchemaInterface) {
+            $schemaDefinition = $avroSchema->getDefinition();
+        }
+
         $body = json_encode(
-            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $avroSchema->getDefinition()),
+            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition),
             JSON_THROW_ON_ERROR
         );
 

@@ -15,17 +15,12 @@ class AvroEncoder implements EncoderInterface
     /** @var AvroTransformerInterface */
     private $avroTransformer;
 
-    /** @var array */
-    private $schemaMapping;
-
     /**
      * @param AvroTransformerInterface $avroTransformer
-     * @param array                    $schemaMapping
      */
-    public function __construct(AvroTransformerInterface $avroTransformer, array $schemaMapping)
+    public function __construct(AvroTransformerInterface $avroTransformer)
     {
         $this->avroTransformer = $avroTransformer;
-        $this->schemaMapping = $schemaMapping;
     }
 
     /**
