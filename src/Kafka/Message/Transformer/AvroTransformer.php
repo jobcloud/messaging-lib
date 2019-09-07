@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message\Transformer;
 
-use FlixTech\SchemaRegistryApi\Registry;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use \Throwable;
 use \AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
@@ -16,16 +16,16 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 class AvroTransformer extends RecordSerializer implements AvroTransformerInterface
 {
 
-    /** @var Registry */
+    /** @var AvroSchemaRegistryInterface */
     protected $registry;
 
     /**
-     * @param Registry $registry
-     * @param array    $options
+     * @param AvroSchemaRegistryInterface $registry
+     * @param array                       $options
      */
-    public function __construct(Registry $registry, array $options = [])
+    public function __construct(AvroSchemaRegistryInterface $registry, array $options = [])
     {
-        parent::__construct($registry, $options);
+        parent::__construct($registry->getRegistry(), $options);
         $this->registry = $registry;
     }
 
@@ -53,9 +53,9 @@ class AvroTransformer extends RecordSerializer implements AvroTransformerInterfa
     }
 
     /**
-     * @return Registry
+     * @return AvroSchemaRegistryInterface
      */
-    public function getSchemaRegistry(): Registry
+    public function getSchemaRegistry(): AvroSchemaRegistryInterface
     {
         return $this->registry;
     }

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
@@ -14,8 +12,6 @@ use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 
 class AvroDecoder implements DecoderInterface
 {
-
-    use SchemaRegistryHelperTrait;
 
     /** @var AvroTransformerInterface */
     private $avroTransformer;
@@ -45,10 +41,10 @@ class AvroDecoder implements DecoderInterface
             return $consumerMessage;
         }
 
-        $schemaDefinition = $this->getAvroSchemaDefinition($consumerMessage);
+        $avroSchema = $this->avroTransformer->getSchemaRegistry()->getSchemaForTopic($consumerMessage->getTopicName());
 
         $body = json_encode(
-            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition),
+            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $avroSchema->getDefinition()),
             JSON_THROW_ON_ERROR
         );
 

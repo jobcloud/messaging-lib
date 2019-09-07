@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Message\Transformer;
 
 use \AvroSchema;
-use FlixTech\SchemaRegistryApi\Registry;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 interface AvroTransformerInterface
 {
@@ -25,7 +25,7 @@ interface AvroTransformerInterface
     public function decodeValue(string $binaryValue, AvroSchema $schema = null): array;
 
     /**
-     * @return Registry
+     * @return AvroSchemaRegistryInterface
      */
-    public function getSchemaRegistry(): Registry;
+    public function getSchemaRegistry(): AvroSchemaRegistryInterface;
 }
