@@ -16,7 +16,7 @@ class KafkaAvroSchemaTest extends TestCase
     public function testGetters()
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
-        
+
         $schemaName = 'testSchema';
         $version = 9;
 
