@@ -13,7 +13,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 /**
  * @codeCoverageIgnore
  */
-class AvroTransformer extends RecordSerializer implements AvroTransformerInterface
+final class AvroTransformer extends RecordSerializer implements AvroTransformerInterface
 {
 
     /** @var Registry */

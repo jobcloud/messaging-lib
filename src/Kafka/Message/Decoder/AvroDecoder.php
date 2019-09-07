@@ -6,13 +6,12 @@ namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 
-class AvroDecoder implements DecoderInterface
+final class AvroDecoder implements DecoderInterface
 {
 
     use SchemaRegistryHelperTrait;

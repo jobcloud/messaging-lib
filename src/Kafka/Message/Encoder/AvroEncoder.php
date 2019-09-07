@@ -7,11 +7,10 @@ namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
 use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 
-class AvroEncoder implements EncoderInterface
+final class AvroEncoder implements EncoderInterface
 {
 
     use SchemaRegistryHelperTrait;
