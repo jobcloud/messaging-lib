@@ -26,9 +26,9 @@ class KafkaAvroSchema implements KafkaAvroSchemaInterface
 
     /**
      * KafkaAvroSchema constructor.
-     * @param string       $schemaName
-     * @param integer|null $version
-     * @param string|null  $definition
+     * @param string           $schemaName
+     * @param integer|null     $version
+     * @param AvroSchema|null  $definition
      */
     public function __construct(string $schemaName, ?int $version = null, ?AvroSchema $definition = null)
     {
@@ -46,7 +46,7 @@ class KafkaAvroSchema implements KafkaAvroSchemaInterface
     }
 
     /**
-     * @return integer
+     * @return integer|null
      */
     public function getVersion(): ?int
     {
