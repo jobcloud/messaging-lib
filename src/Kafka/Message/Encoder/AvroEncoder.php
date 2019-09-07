@@ -9,7 +9,7 @@ use Jobcloud\Messaging\Kafka\Exception\AvroNormalizerException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 
-class AvroEncoder implements EncoderInterface
+final class AvroEncoder implements EncoderInterface
 {
 
     /** @var AvroTransformerInterface */

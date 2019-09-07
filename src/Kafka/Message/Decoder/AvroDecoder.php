@@ -11,7 +11,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use Jobcloud\Messaging\Kafka\Exception\AvroDenormalizeException;
 
-class AvroDecoder implements DecoderInterface
+final class AvroDecoder implements DecoderInterface
 {
 
     /** @var AvroTransformerInterface */

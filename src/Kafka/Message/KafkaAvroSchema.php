@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Message;
 
 use AvroSchema;
 
-class KafkaAvroSchema implements KafkaAvroSchemaInterface
+final class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
 
     /**
