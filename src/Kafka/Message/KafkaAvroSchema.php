@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message;
 
-use AvroSchema;
+use \AvroSchema;
 
 final class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
@@ -26,9 +26,9 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
 
     /**
      * KafkaAvroSchema constructor.
-     * @param string           $schemaName
-     * @param integer|null     $version
-     * @param AvroSchema|null  $definition
+     * @param string          $schemaName
+     * @param integer|null    $version
+     * @param AvroSchema|null $definition
      */
     public function __construct(string $schemaName, ?int $version = null, ?AvroSchema $definition = null)
     {
