@@ -51,7 +51,7 @@ To create an avro prodcuer add the avro encoder.
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
-use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistry;use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 use \Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformer;
 use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
@@ -60,21 +60,25 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$encoder = new AvroEncoder(
-    new AvroTransformer(
-        new CachedRegistry(
-            new BlockingRegistry(
-                new PromisingRegistry(
-                    new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
-                )
-            ),
-            new AvroObjectCacheAdapter()
-        )
-    ),
-    [
-        'test' => new KafkaAvroSchema('test' /* , $schemaVersion */)
-    ]
+$registry = new AvroSchemaRegistry(
+    new CachedRegistry(
+        new BlockingRegistry(
+            new PromisingRegistry(
+                new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
+            )
+        ),
+        new AvroObjectCacheAdapter()
+    )
 );
+
+//if no version is defined, latest version will be used
+//if no schema definition is defined, the appropriate version will be fetched form the registry
+$registry->addSchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('schemaName' /*, int $version, AvroSchema $definition */)
+);
+
+$encoder = new AvroEncoder(new AvroTransformer($registry));
 
 $producer = KafkaProducerBuilder::create()
     ->addBroker('kafka:9092')
@@ -182,8 +186,6 @@ while (true) {
 
 #### Avro Consumer
 To create an avro consumer add the avro decoder.  
-If `AvroDecoder` is instantiated with an empty array (`$schemaMapping`),  
-the latest version of the schema that was used for encoding will be used.
 
 ```php
 <?php
@@ -194,6 +196,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistry;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformer;
 use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
 use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
@@ -201,24 +204,25 @@ use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
 use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
 use GuzzleHttp\Client;
 
-$decoder = new AvroDecoder(
-    new AvroTransformer(
-        new CachedRegistry(
-            new BlockingRegistry(
-                new PromisingRegistry(
-                    new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
-                )
-            ),
-            new AvroObjectCacheAdapter()
-        )
-    ),
-    [
-        'test' => new KafkaAvroSchema('test', 1) //this entry is optional, on empty array, latest schema is used
-    ]
+$registry = new AvroSchemaRegistry(
+    new CachedRegistry(
+        new BlockingRegistry(
+            new PromisingRegistry(
+                new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
+            )
+        ),
+        new AvroObjectCacheAdapter()
+    )
 );
 
-$schemaName = 'someSchema';
-$version = 9;
+//if no version is defined, latest version will be used
+//if no schema definition is defined, the appropriate version will be fetched form the registry
+$registry->addSchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('someSchema' , 9 /* , AvroSchema $definition */)
+);
+
+$decoder = new AvroDecoder(new AvroTransformer($registry));
 
 $consumer = KafkaConsumerBuilder::create()
      ->addConfig(
