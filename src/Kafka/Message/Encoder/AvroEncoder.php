@@ -46,6 +46,15 @@ final class AvroEncoder implements EncoderInterface
             );
         }
 
+        if (null === $avroSchema->getDefinition()) {
+            throw new AvroEncoderException(
+                sprintf(
+                    AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
+                    $avroSchema->getName()
+                )
+            );
+        }
+
         $arrayBody = json_decode($producerMessage->getBody(), true);
 
         if (null === $arrayBody) {

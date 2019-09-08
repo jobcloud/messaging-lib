@@ -3,4 +3,3 @@ parameters:
     paths: [ src ]
     ignoreErrors:
         - '#Class RdKafka\\TopicPartition constructor invoked with 3 parameters, 0 required#'
-        - '#Parameter \#2 $schema of method Jobcloud\\Messaging\\Kafka\\Message\\Transformer\\AvroTransformerInterface::encodeValue\(\) expects AvroSchema, AvroSchema|null given#'

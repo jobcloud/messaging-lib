@@ -11,6 +11,7 @@ use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use PHPStan\Testing\TestCase;
+use \AvroSchema;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder
@@ -50,9 +51,38 @@ class AvroEncoderTest extends TestCase
         $normalizer->encode($producerMessage);
     }
 
-    public function testNormalizeWithoutJsonBody()
+    public function testNormalizeWithoutSchemaDefinition()
     {
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::once())->method('getDefinition')->willReturn(null);
+
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::once(1))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn('test');
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
+
+        self::expectException(AvroEncoderException::class);
+        self::expectExceptionMessage(
+            sprintf(
+                AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
+                $avroSchema->getName()
+            )
+        );
+
+        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
+        $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
+
+        $normalizer = new AvroEncoder($transformer);
+        $normalizer->encode($producerMessage);
+    }
+
+    public function testNormalizeWithoutJsonBody()
+    {
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
@@ -71,14 +101,14 @@ class AvroEncoderTest extends TestCase
         $normalizer->encode($producerMessage);
     }
 
-    public function testNormalizeSuccessWithoutSchema()
+    public function testNormalizeSuccessWithSchema()
     {
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::exactly(2))->method('getName')->willReturn('schemaName');
         $avroSchema->expects(self::never())->method('getVersion');
-        $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
+        $avroSchema->expects(self::exactly(3))->method('getDefinition')->willReturn($schemaDefinition);
 
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
