@@ -55,7 +55,7 @@ class KafkaProducerTest extends TestCase
             ->method('producev')
             ->with(
                 $message->getPartition(),
-                0,
+                RD_KAFKA_MSG_F_BLOCK,
                 $message->getBody(),
                 $message->getKey(),
                 $message->getHeaders()
@@ -103,7 +103,7 @@ class KafkaProducerTest extends TestCase
             ->method('producev')
             ->with(
                 $message->getPartition(),
-                0,
+                RD_KAFKA_MSG_F_BLOCK,
                 $message->getBody(),
                 $message->getKey(),
                 $message->getHeaders()
