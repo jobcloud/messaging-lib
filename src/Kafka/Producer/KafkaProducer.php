@@ -60,7 +60,7 @@ final class KafkaProducer implements KafkaProducerInterface
 
         $topicProducer->producev(
             $message->getPartition(),
-            0,
+            RD_KAFKA_MSG_F_BLOCK,
             $message->getBody(),
             $message->getKey(),
             $message->getHeaders()
