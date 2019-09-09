@@ -13,7 +13,7 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     protected $key;
 
     /**
-     * @var string|null
+     * @var mixed
      */
     protected $body;
 
@@ -41,9 +41,9 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     }
 
     /**
-     * @return null|string
+     * @return mixed
      */
-    public function getBody(): ?string
+    public function getBody()
     {
         return $this->body;
     }

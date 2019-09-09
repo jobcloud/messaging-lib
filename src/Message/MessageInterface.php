@@ -9,7 +9,7 @@ interface MessageInterface
 
     /**
      * Returns the message body as string or null if the message doesn't have a body
-     * @return null|string
+     * @return mixed
      */
-    public function getBody(): ?string;
+    public function getBody();
 }

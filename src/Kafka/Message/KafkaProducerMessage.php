@@ -41,10 +41,10 @@ final class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaPr
     }
 
     /**
-     * @param string|null $body
+     * @param mixed $body
      * @return KafkaProducerMessageInterface
      */
-    public function withBody(?string $body): KafkaProducerMessageInterface
+    public function withBody($body): KafkaProducerMessageInterface
     {
         $new = clone $this;
 
