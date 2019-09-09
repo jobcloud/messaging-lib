@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
-use Jobcloud\Messaging\Kafka\Message\Helper\SchemaRegistryHelperTrait;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
-use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroEncoder implements EncoderInterface
 {
 
-    use SchemaRegistryHelperTrait;
+    /**
+     * @var AvroSchemaRegistryInterface
+     */
+    private $registry;
 
-    /** @var AvroTransformerInterface */
-    private $avroTransformer;
-
-    /** @var array */
-    private $schemaMapping;
+    /** @var RecordSerializer */
+    private $recordSerializer;
 
     /**
-     * @param AvroTransformerInterface $avroTransformer
-     * @param array                    $schemaMapping
+     * @param AvroSchemaRegistryInterface $registry
+     * @param RecordSerializer            $recordSerializer
      */
-    public function __construct(AvroTransformerInterface $avroTransformer, array $schemaMapping)
+    public function __construct(AvroSchemaRegistryInterface $registry, RecordSerializer $recordSerializer)
     {
-        $this->avroTransformer = $avroTransformer;
-        $this->schemaMapping = $schemaMapping;
+        $this->recordSerializer = $recordSerializer;
+        $this->registry = $registry;
     }
 
     /**
@@ -43,7 +43,7 @@ final class AvroEncoder implements EncoderInterface
             return $producerMessage;
         }
 
-        if (false === isset($this->schemaMapping[$producerMessage->getTopicName()])) {
+        if (null === $avroSchema = $this->registry->getSchemaForTopic($producerMessage->getTopicName())) {
             throw new AvroEncoderException(
                 sprintf(
                     AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
@@ -52,17 +52,20 @@ final class AvroEncoder implements EncoderInterface
             );
         }
 
-        $avroSchema = $this->schemaMapping[$producerMessage->getTopicName()];
-
-        $arrayBody = json_decode($producerMessage->getBody(), true);
-
-        if (null === $arrayBody) {
-            throw new AvroEncoderException(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
+        if (null === $avroSchema->getDefinition()) {
+            throw new AvroEncoderException(
+                sprintf(
+                    AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
+                    $avroSchema->getName()
+                )
+            );
         }
 
-        $schemaDefinition = $this->getAvroSchemaDefinition($producerMessage);
-
-        $body = $this->avroTransformer->encodeValue($avroSchema->getName(), $schemaDefinition, $arrayBody);
+        $body = $this->recordSerializer->encodeRecord(
+            $avroSchema->getName(),
+            $avroSchema->getDefinition(),
+            $producerMessage->getBody()
+        );
 
         return $producerMessage->withBody($body);
     }

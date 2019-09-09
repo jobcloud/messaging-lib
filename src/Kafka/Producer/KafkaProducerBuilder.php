@@ -10,7 +10,7 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
-use Jobcloud\Messaging\Kafka\Message\Encoder\DefaultEncoder;
+use Jobcloud\Messaging\Kafka\Message\Encoder\NullEncoder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 
@@ -55,7 +55,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
         $this->errorCallback = new KafkaErrorCallback();
-        $this->encoder = new DefaultEncoder();
+        $this->encoder = new NullEncoder();
     }
 
     /**

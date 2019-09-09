@@ -25,7 +25,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * @param RdKafkaHighLevelConsumer $consumer
      * @param KafkaConfiguration       $kafkaConfiguration
-     * @param DecoderInterface    $denormalizer
+     * @param DecoderInterface         $denormalizer
      */
     public function __construct(
         RdKafkaHighLevelConsumer $consumer,

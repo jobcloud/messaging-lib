@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message;
 
+use \AvroSchema;
+
 interface KafkaAvroSchemaInterface
 {
     /**
@@ -15,4 +17,15 @@ interface KafkaAvroSchemaInterface
      * @return integer|null
      */
     public function getVersion(): ?int;
+
+    /**
+     * @param AvroSchema $definition
+     * @return void
+     */
+    public function setDefinition(AvroSchema $definition): void;
+
+    /**
+     * @return AvroSchema|null
+     */
+    public function getDefinition(): ?AvroSchema;
 }

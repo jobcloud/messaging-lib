@@ -32,21 +32,21 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     protected $consumer;
 
     /** @var DecoderInterface */
-    protected $denormalizer;
+    protected $decoder;
 
     /**
-     * @param mixed                 $consumer
-     * @param KafkaConfiguration    $kafkaConfiguration
-     * @param DecoderInterface $denormalizer
+     * @param mixed              $consumer
+     * @param KafkaConfiguration $kafkaConfiguration
+     * @param DecoderInterface   $decoder
      */
     public function __construct(
         $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DecoderInterface $denormalizer
+        DecoderInterface $decoder
     ) {
         $this->consumer = $consumer;
         $this->kafkaConfiguration = $kafkaConfiguration;
-        $this->denormalizer = $denormalizer;
+        $this->decoder = $decoder;
     }
 
     /**
@@ -144,7 +144,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             $message->headers
         );
 
-        return $this->denormalizer->decode($message);
+        return $this->decoder->decode($message);
     }
 
     /**

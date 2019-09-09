@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Message\Encoder;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 
-final class DefaultEncoder implements EncoderInterface
+final class NullEncoder implements EncoderInterface
 {
 
     /**

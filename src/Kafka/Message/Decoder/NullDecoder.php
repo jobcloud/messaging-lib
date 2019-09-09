@@ -6,7 +6,7 @@ namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 
-final class DefaultDecoder implements DecoderInterface
+final class NullDecoder implements DecoderInterface
 {
 
     /**

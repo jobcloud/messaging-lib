@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message;
 
+use \AvroSchema;
+
 final class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
 
@@ -18,14 +20,21 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     private $version;
 
     /**
-     * KafkaAvroSchema constructor.
-     * @param string       $schemaName
-     * @param integer|null $version
+     * @var AvroSchema|null
      */
-    public function __construct(string $schemaName, ?int $version = null)
+    private $definition;
+
+    /**
+     * KafkaAvroSchema constructor.
+     * @param string          $schemaName
+     * @param integer|null    $version
+     * @param AvroSchema|null $definition
+     */
+    public function __construct(string $schemaName, ?int $version = null, ?AvroSchema $definition = null)
     {
         $this->name = $schemaName;
         $this->version = $version;
+        $this->definition = $definition;
     }
 
     /**
@@ -37,10 +46,27 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     }
 
     /**
-     * @return integer
+     * @return integer|null
      */
     public function getVersion(): ?int
     {
         return $this->version;
+    }
+
+    /**
+     * @param AvroSchema $definition
+     * @return void
+     */
+    public function setDefinition(AvroSchema $definition): void
+    {
+        $this->definition = $definition;
+    }
+
+    /**
+     * @return AvroSchema|null
+     */
+    public function getDefinition(): ?AvroSchema
+    {
+        return $this->definition;
     }
 }

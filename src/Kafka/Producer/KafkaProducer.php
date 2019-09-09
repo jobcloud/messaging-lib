@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Producer;
 
-use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
@@ -31,9 +30,9 @@ final class KafkaProducer implements ProducerInterface
 
     /**
      * KafkaProducer constructor.
-     * @param RdKafkaProducer     $producer
-     * @param KafkaConfiguration  $kafkaConfiguration
-     * @param EncoderInterface $normalizer
+     * @param RdKafkaProducer    $producer
+     * @param KafkaConfiguration $kafkaConfiguration
+     * @param EncoderInterface   $normalizer
      */
     public function __construct(
         RdKafkaProducer $producer,

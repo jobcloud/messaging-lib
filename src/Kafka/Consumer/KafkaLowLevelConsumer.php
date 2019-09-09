@@ -32,7 +32,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * @param RdKafkaLowLevelConsumer $consumer
      * @param KafkaConfiguration      $kafkaConfiguration
-     * @param DecoderInterface   $denormalizer
+     * @param DecoderInterface        $denormalizer
      */
     public function __construct(
         RdKafkaLowLevelConsumer $consumer,
