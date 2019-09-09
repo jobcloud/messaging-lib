@@ -55,11 +55,7 @@ final class AvroEncoder implements EncoderInterface
             );
         }
 
-        $arrayBody = json_decode($producerMessage->getBody(), true);
-
-        if (null === $arrayBody) {
-            throw new AvroEncoderException(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
-        }
+        $arrayBody = json_decode($producerMessage->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         $body = $this->avroTransformer->encodeValue($avroSchema->getName(), $avroSchema->getDefinition(), $arrayBody);
 

@@ -91,8 +91,8 @@ class AvroEncoderTest extends TestCase
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
 
-        self::expectException(AvroEncoderException::class);
-        self::expectExceptionMessage(AvroEncoderException::MESSAGE_BODY_MUST_BE_JSON_MESSAGE);
+        self::expectException(\JsonException::class);
+        self::expectExceptionMessage('Syntax error');
 
         $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
         $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
