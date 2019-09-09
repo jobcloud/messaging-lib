@@ -34,15 +34,6 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $schemaMapping['test']);
     }
 
-    public function testGetRegistry()
-    {
-        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
-
-        $registry = new AvroSchemaRegistry($flixRegistry);
-
-        self::assertSame($flixRegistry, $registry->getRegistry());
-    }
-
     public function testGetSchemaForTopicWithNoMapping()
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);

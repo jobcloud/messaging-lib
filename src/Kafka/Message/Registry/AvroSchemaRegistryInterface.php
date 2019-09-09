@@ -19,11 +19,6 @@ interface AvroSchemaRegistryInterface
     public function addSchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void;
 
     /**
-     * @return Registry
-     */
-    public function getRegistry(): Registry;
-
-    /**
      * @param string $topicName
      * @return KafkaAvroSchemaInterface|null
      * @throws SchemaRegistryException

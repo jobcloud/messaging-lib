@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Message\Decoder;
 
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
@@ -21,10 +22,11 @@ class AvroDecoderTest extends TestCase
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(null);
 
-        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
-        $transformer->expects(self::never())->method('decodeValue');
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::never())->method('decodeMessage');
 
-        $denormalizer = new AvroDecoder($transformer);
+        $denormalizer = new AvroDecoder($registry, $recordSerializer);
 
         $result = $denormalizer->decode($message);
 
@@ -45,11 +47,10 @@ class AvroDecoderTest extends TestCase
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getSchemaForTopic')->willReturn(null);
 
-        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
-        $transformer->expects(self::once())->method('decodeValue')->with($message->getBody(), null)->willReturn(['test']);
-        $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), null)->willReturn(['test']);
 
-        $denormalizer = new AvroDecoder($transformer);
+        $denormalizer = new AvroDecoder($registry, $recordSerializer);
 
         $result = $denormalizer->decode($message);
 
@@ -76,11 +77,10 @@ class AvroDecoderTest extends TestCase
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
 
-        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
-        $transformer->expects(self::once())->method('decodeValue')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
-        $transformer->expects(self::once())->method('getSchemaRegistry')->willReturn($registry);
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
 
-        $denormalizer = new AvroDecoder($transformer);
+        $denormalizer = new AvroDecoder($registry, $recordSerializer);
 
         $result = $denormalizer->decode($message);
 
@@ -101,10 +101,12 @@ class AvroDecoderTest extends TestCase
         $message->expects(self::exactly(3))->method('getBody')->willReturn('test');
         $message->expects(self::never())->method('getHeaders');
 
-        $transformer = $this->getMockForAbstractClass(AvroTransformerInterface::class);
-        $transformer->expects(self::once())->method('decodeValue')->with($message->getBody(), null)->willReturn([chr(255)]);
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
 
-        $denormalizer = new AvroDecoder($transformer);
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), null)->willReturn([chr(255)]);
+
+        $denormalizer = new AvroDecoder($registry, $recordSerializer);
 
         $denormalizer->decode($message);
     }

@@ -42,14 +42,6 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
     }
 
     /**
-     * @return Registry
-     */
-    public function getRegistry(): Registry
-    {
-        return $this->registry;
-    }
-
-    /**
      * @param string $topicName
      * @return KafkaAvroSchemaInterface|null
      * @throws SchemaRegistryException

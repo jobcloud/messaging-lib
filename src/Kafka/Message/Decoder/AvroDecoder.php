@@ -4,24 +4,32 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message\Decoder;
 
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
-use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroDecoder implements DecoderInterface
 {
 
-    /** @var AvroTransformerInterface */
-    private $avroTransformer;
+    /**
+     * @var AvroSchemaRegistryInterface
+     */
+    private $registry;
+
+    /** @var RecordSerializer */
+    private $recordSerializer;
 
     /**
-     * @param AvroTransformerInterface $avroTransformer
+     * @param AvroSchemaRegistryInterface $registry
+     * @param RecordSerializer            $recordSerializer
      */
-    public function __construct(AvroTransformerInterface $avroTransformer)
+    public function __construct(AvroSchemaRegistryInterface $registry, RecordSerializer $recordSerializer)
     {
-        $this->avroTransformer = $avroTransformer;
+        $this->recordSerializer = $recordSerializer;
+        $this->registry = $registry;
     }
 
     /**
@@ -37,14 +45,14 @@ final class AvroDecoder implements DecoderInterface
             return $consumerMessage;
         }
 
-        $avroSchema = $this->avroTransformer->getSchemaRegistry()->getSchemaForTopic($consumerMessage->getTopicName());
+        $avroSchema = $this->registry->getSchemaForTopic($consumerMessage->getTopicName());
 
         if (true === $avroSchema instanceof KafkaAvroSchemaInterface) {
             $schemaDefinition = $avroSchema->getDefinition();
         }
 
         $body = json_encode(
-            $this->avroTransformer->decodeValue($consumerMessage->getBody(), $schemaDefinition),
+            $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition),
             JSON_THROW_ON_ERROR
         );
 
