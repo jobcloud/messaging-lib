@@ -10,7 +10,6 @@ use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use PHPStan\Testing\TestCase;
 use \AvroSchema;
 
@@ -82,28 +81,6 @@ class AvroEncoderTest extends TestCase
         $normalizer->encode($producerMessage);
     }
 
-    public function testNormalizeWithoutJsonBody()
-    {
-        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
-        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
-
-        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
-        $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('test');
-
-        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
-        $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
-
-        self::expectException(\JsonException::class);
-        self::expectExceptionMessage('Syntax error');
-
-        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-
-        $normalizer = new AvroEncoder($registry, $recordSerializer);
-        $normalizer->encode($producerMessage);
-    }
-
     public function testNormalizeSuccessWithSchema()
     {
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
@@ -118,7 +95,7 @@ class AvroEncoderTest extends TestCase
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn('{}');
+        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn([]);
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();

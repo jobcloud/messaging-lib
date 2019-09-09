@@ -51,10 +51,7 @@ final class AvroDecoder implements DecoderInterface
             $schemaDefinition = $avroSchema->getDefinition();
         }
 
-        $body = json_encode(
-            $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition),
-            JSON_THROW_ON_ERROR
-        );
+        $body = $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition);
 
         return new KafkaConsumerMessage(
             $consumerMessage->getTopicName(),

@@ -9,7 +9,7 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
-use Jobcloud\Messaging\Kafka\Message\Decoder\DefaultDecoder;
+use Jobcloud\Messaging\Kafka\Message\Decoder\NullDecoder;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -82,7 +82,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
-        $this->decoder = new DefaultDecoder();
+        $this->decoder = new NullDecoder();
     }
 
     /**

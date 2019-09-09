@@ -9,7 +9,6 @@ use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,7 +54,7 @@ class AvroDecoderTest extends TestCase
         $result = $denormalizer->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
-        self::assertSame(json_encode(['test']), $result->getBody());
+        self::assertSame([ 0 => 'test'], $result->getBody());
     }
 
     public function testDenormalizeWithSchema()
@@ -85,29 +84,6 @@ class AvroDecoderTest extends TestCase
         $result = $denormalizer->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
-        self::assertSame(json_encode(['test']), $result->getBody());
-    }
-
-    public function testDenormalizeWithUnencodableBody()
-    {
-        self::expectException(\JsonException::class);
-
-        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message->expects(self::once())->method('getTopicName')->willReturn('test-topic');
-        $message->expects(self::never())->method('getPartition');
-        $message->expects(self::never())->method('getOffset');
-        $message->expects(self::never())->method('getTimestamp');
-        $message->expects(self::never())->method('getKey');
-        $message->expects(self::exactly(3))->method('getBody')->willReturn('test');
-        $message->expects(self::never())->method('getHeaders');
-
-        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
-
-        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), null)->willReturn([chr(255)]);
-
-        $denormalizer = new AvroDecoder($registry, $recordSerializer);
-
-        $denormalizer->decode($message);
+        self::assertSame([ 0 => 'test'], $result->getBody());
     }
 }

@@ -9,7 +9,6 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use Jobcloud\Messaging\Kafka\Message\Transformer\AvroTransformerInterface;
 
 final class AvroEncoder implements EncoderInterface
 {
@@ -62,9 +61,11 @@ final class AvroEncoder implements EncoderInterface
             );
         }
 
-        $arrayBody = json_decode($producerMessage->getBody(), true, 512, JSON_THROW_ON_ERROR);
-
-        $body = $this->recordSerializer->encodeRecord($avroSchema->getName(), $avroSchema->getDefinition(), $arrayBody);
+        $body = $this->recordSerializer->encodeRecord(
+            $avroSchema->getName(),
+            $avroSchema->getDefinition(),
+            $producerMessage->getBody()
+        );
 
         return $producerMessage->withBody($body);
     }
