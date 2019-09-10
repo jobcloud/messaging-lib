@@ -22,16 +22,24 @@ use RdKafka\Message as RdKafkaMessage;
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
 
-    /** @var KafkaConfiguration */
+    /**
+     * @var KafkaConfiguration
+     */
     protected $kafkaConfiguration;
 
-    /** @var boolean */
+    /**
+     * @var boolean
+     */
     protected $subscribed = false;
 
-    /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
+    /**
+     * @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer
+     */
     protected $consumer;
 
-    /** @var DecoderInterface */
+    /**
+     * @var DecoderInterface
+     */
     protected $decoder;
 
     /**

@@ -18,7 +18,7 @@ use \AvroSchema;
  */
 class AvroEncoderTest extends TestCase
 {
-    public function testNormalizeTombstone()
+    public function testEncodeTombstone()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::once())->method('getBody')->willReturn(null);
@@ -27,13 +27,13 @@ class AvroEncoderTest extends TestCase
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::never())->method('encodeRecord');
-        $normalizer = new AvroEncoder($registry, $recordSerializer);
-        $result = $normalizer->encode($producerMessage);
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+        $result = $encoder->encode($producerMessage);
 
         self::assertSame($producerMessage, $result);
     }
 
-    public function testNormalizeWithoutSchema()
+    public function testEncodeWithoutSchema()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(3))->method('getTopicName')->willReturn('test');
@@ -51,11 +51,11 @@ class AvroEncoderTest extends TestCase
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-        $normalizer = new AvroEncoder($registry, $recordSerializer);
-        $normalizer->encode($producerMessage);
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+        $encoder->encode($producerMessage);
     }
 
-    public function testNormalizeWithoutSchemaDefinition()
+    public function testEncodeWithoutSchemaDefinition()
     {
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::once())->method('getDefinition')->willReturn(null);
@@ -77,11 +77,11 @@ class AvroEncoderTest extends TestCase
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
 
-        $normalizer = new AvroEncoder($registry, $recordSerializer);
-        $normalizer->encode($producerMessage);
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+        $encoder->encode($producerMessage);
     }
 
-    public function testNormalizeSuccessWithSchema()
+    public function testEncodeSuccessWithSchema()
     {
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -101,8 +101,8 @@ class AvroEncoderTest extends TestCase
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::once())->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), [])->willReturn('encodedValue');
 
-        $normalizer = new AvroEncoder($registry, $recordSerializer);
+        $encoder = new AvroEncoder($registry, $recordSerializer);
 
-        self::assertSame($producerMessage, $normalizer->encode($producerMessage));
+        self::assertSame($producerMessage, $encoder->encode($producerMessage));
     }
 }

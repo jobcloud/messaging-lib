@@ -16,32 +16,40 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 final class KafkaProducer implements ProducerInterface
 {
 
-    /** @var RdKafkaProducer */
+    /**
+     * @var RdKafkaProducer
+     */
     protected $producer;
 
-    /** @var KafkaConfiguration */
+    /**
+     * @var KafkaConfiguration
+     */
     protected $kafkaConfiguration;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $producerTopics = [];
 
-    /** @var EncoderInterface */
-    protected $normalizer;
+    /**
+     * @var EncoderInterface
+     */
+    protected $encoder;
 
     /**
      * KafkaProducer constructor.
      * @param RdKafkaProducer    $producer
      * @param KafkaConfiguration $kafkaConfiguration
-     * @param EncoderInterface   $normalizer
+     * @param EncoderInterface   $encoder
      */
     public function __construct(
         RdKafkaProducer $producer,
         KafkaConfiguration $kafkaConfiguration,
-        EncoderInterface $normalizer
+        EncoderInterface $encoder
     ) {
         $this->producer = $producer;
         $this->kafkaConfiguration = $kafkaConfiguration;
-        $this->normalizer = $normalizer;
+        $this->encoder = $encoder;
     }
 
     /**
@@ -63,7 +71,7 @@ final class KafkaProducer implements ProducerInterface
             );
         }
 
-        $message = $this->getProducerMessage($message);
+        $message = $this->encoder->encode($message);
 
         /** @var KafkaProducerMessageInterface $message */
         $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
@@ -79,19 +87,6 @@ final class KafkaProducer implements ProducerInterface
         while ($this->producer->getOutQLen() > 0) {
             $this->producer->poll($this->kafkaConfiguration->getTimeout());
         }
-    }
-
-    /**
-     * @param KafkaProducerMessageInterface $message
-     * @return KafkaProducerMessageInterface
-     */
-    private function getProducerMessage(KafkaProducerMessageInterface $message): KafkaProducerMessageInterface
-    {
-        if (null === $message->getBody()) {
-            return $message;
-        }
-
-        return $this->normalizer->encode($message);
     }
 
     /**

@@ -17,7 +17,7 @@ class NullEncoderTest extends TestCase
     /**
      * @return void
      */
-    public function testNormalize(): void
+    public function testEncode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
 

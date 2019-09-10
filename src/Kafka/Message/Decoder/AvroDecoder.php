@@ -19,7 +19,9 @@ final class AvroDecoder implements DecoderInterface
      */
     private $registry;
 
-    /** @var RecordSerializer */
+    /**
+     * @var RecordSerializer
+     */
     private $recordSerializer;
 
     /**

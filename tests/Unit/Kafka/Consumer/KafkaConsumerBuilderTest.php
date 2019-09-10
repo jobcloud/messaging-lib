@@ -2,20 +2,16 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 
-use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaHighLevelConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumerInterface;
 use PHPUnit\Framework\TestCase;
-use RdKafka\Consumer;
-use RdKafka\KafkaConsumer;
 
 /**
  * @covers \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder
@@ -107,9 +103,9 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testSetDecoder(): void
     {
-        $denormalizer = $this->getMockForAbstractClass(DecoderInterface::class);
+        $decoder = $this->getMockForAbstractClass(DecoderInterface::class);
 
-        $this->kafkaConsumerBuilder->setDecoder($denormalizer);
+        $this->kafkaConsumerBuilder->setDecoder($decoder);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'decoder');
         $reflectionProperty->setAccessible(true);

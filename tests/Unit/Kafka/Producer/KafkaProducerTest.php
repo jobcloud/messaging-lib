@@ -2,9 +2,6 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
-use FlixTech\SchemaRegistryApi\Registry;
-use Jobcloud\Messaging\Kafka\Exception\KafkaMessageException;
-use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
@@ -23,16 +20,24 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 class KafkaProducerTest extends TestCase
 {
 
-    /** @var KafkaConfiguration|MockObject */
+    /**
+     * @var KafkaConfiguration|MockObject
+     */
     private $kafkaConfigurationMock;
 
-    /** @var RdKafkaProducer|MockObject */
+    /**
+     * @var RdKafkaProducer|MockObject
+     */
     private $rdKafkaProducerMock;
 
-    /** @var EncoderInterface|MockObject */
+    /**
+     * @var EncoderInterface|MockObject
+     */
     private $encoderMock;
 
-    /** @var KafkaProducer */
+    /**
+     * @var KafkaProducer
+     */
     private $kafkaProducer;
 
     public function setUp(): void
@@ -143,58 +148,6 @@ class KafkaProducerTest extends TestCase
             ->method('encode')
             ->with($message)
             ->willReturn($message);
-        $this->rdKafkaProducerMock
-            ->expects(self::once())
-            ->method('newTopic')
-            ->with('test-topic')
-            ->willReturn($rdKafkaProducerTopicMock);
-        $this->rdKafkaProducerMock
-            ->expects(self::exactly(2))
-            ->method('poll')
-            ->with(1000);
-
-        $this->kafkaProducer->produce($message);
-    }
-
-    public function testProduceTombstoneSuccess()
-    {
-        $message = KafkaProducerMessage::create('test-topic', 1)
-            ->withKey('asdf-asdf-asfd-asdf')
-            ->withBody(null)
-            ->withHeaders([ 'key' => 'value' ]);
-
-        /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
-        $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
-        $rdKafkaProducerTopicMock
-            ->expects(self::once())
-            ->method('producev')
-            ->with(
-                $message->getPartition(),
-                0,
-                $message->getBody(),
-                $message->getKey(),
-                $message->getHeaders()
-            );
-
-        $this->kafkaConfigurationMock
-            ->expects(self::exactly(2))
-            ->method('getTimeout')
-            ->willReturn(1000);
-        $this->rdKafkaProducerMock
-            ->expects(self::exactly(3))
-            ->method('getOutQLen')
-            ->willReturnCallback(
-                function () {
-                    static $messageCount = 0;
-                    switch ($messageCount++) {
-                        case 0:
-                        case 1:
-                            return 1;
-                        default:
-                            return 0;
-                    }
-                }
-            );
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')

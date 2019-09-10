@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AvroDecoderTest extends TestCase
 {
-    public function testDenormalizeTombstone()
+    public function testDecodeTombstone()
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(null);
@@ -25,14 +25,14 @@ class AvroDecoderTest extends TestCase
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::never())->method('decodeMessage');
 
-        $denormalizer = new AvroDecoder($registry, $recordSerializer);
+        $decoder = new AvroDecoder($registry, $recordSerializer);
 
-        $result = $denormalizer->decode($message);
+        $result = $decoder->decode($message);
 
         self::assertSame($message, $result);
     }
 
-    public function testDenormalizeWithoutSchema()
+    public function testDecodeWithoutSchema()
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test-topic');
@@ -49,15 +49,15 @@ class AvroDecoderTest extends TestCase
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), null)->willReturn(['test']);
 
-        $denormalizer = new AvroDecoder($registry, $recordSerializer);
+        $decoder = new AvroDecoder($registry, $recordSerializer);
 
-        $result = $denormalizer->decode($message);
+        $result = $decoder->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame([ 0 => 'test'], $result->getBody());
     }
 
-    public function testDenormalizeWithSchema()
+    public function testDecodeWithSchema()
     {
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -79,9 +79,9 @@ class AvroDecoderTest extends TestCase
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
 
-        $denormalizer = new AvroDecoder($registry, $recordSerializer);
+        $decoder = new AvroDecoder($registry, $recordSerializer);
 
-        $result = $denormalizer->decode($message);
+        $result = $decoder->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame([ 0 => 'test'], $result->getBody());

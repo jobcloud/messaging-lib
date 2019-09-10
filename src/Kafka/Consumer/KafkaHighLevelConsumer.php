@@ -19,20 +19,22 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements KafkaHighLevelConsumerInterface
 {
 
-    /** @var RdKafkaHighLevelConsumer */
+    /**
+     * @var RdKafkaHighLevelConsumer
+     */
     protected $consumer;
 
     /**
      * @param RdKafkaHighLevelConsumer $consumer
      * @param KafkaConfiguration       $kafkaConfiguration
-     * @param DecoderInterface         $denormalizer
+     * @param DecoderInterface         $decoder
      */
     public function __construct(
         RdKafkaHighLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DecoderInterface $denormalizer
+        DecoderInterface $decoder
     ) {
-        parent::__construct($consumer, $kafkaConfiguration, $denormalizer);
+        parent::__construct($consumer, $kafkaConfiguration, $decoder);
     }
 
     /**

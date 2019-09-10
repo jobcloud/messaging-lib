@@ -17,7 +17,7 @@ class NullDecoderTest extends TestCase
     /**
      * @return void
      */
-    public function testDenormalize(): void
+    public function testDecode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
 

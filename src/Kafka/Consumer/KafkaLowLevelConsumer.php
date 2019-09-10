@@ -20,26 +20,32 @@ use RdKafka\Queue as RdKafkaQueue;
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
 
-    /** @var RdKafkaLowLevelConsumer */
+    /**
+     * @var RdKafkaLowLevelConsumer
+     */
     protected $consumer;
 
-    /** @var array|RdKafkaConsumerTopic[] */
+    /**
+     * @var array|RdKafkaConsumerTopic[]
+     */
     protected $topics = [];
 
-    /** @var RdKafkaQueue */
+    /**
+     * @var RdKafkaQueue
+     */
     protected $queue;
 
     /**
      * @param RdKafkaLowLevelConsumer $consumer
      * @param KafkaConfiguration      $kafkaConfiguration
-     * @param DecoderInterface        $denormalizer
+     * @param DecoderInterface        $decoder
      */
     public function __construct(
         RdKafkaLowLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DecoderInterface $denormalizer
+        DecoderInterface $decoder
     ) {
-        parent::__construct($consumer, $kafkaConfiguration, $denormalizer);
+        parent::__construct($consumer, $kafkaConfiguration, $decoder);
         $this->queue = $consumer->newQueue();
     }
 

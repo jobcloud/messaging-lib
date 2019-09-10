@@ -10,13 +10,19 @@ use RdKafka\Conf as RdKafkaConf;
 class KafkaConfiguration extends RdKafkaConf
 {
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $brokers;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $topicSubscriptions;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $timeout;
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
-use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
@@ -62,9 +61,9 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testSetEncoder(): void
     {
-        $normalizer = $this->getMockForAbstractClass(EncoderInterface::class);
+        $encoder = $this->getMockForAbstractClass(EncoderInterface::class);
 
-        $this->kafkaProducerBuilder->setEncoder($normalizer);
+        $this->kafkaProducerBuilder->setEncoder($encoder);
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'encoder');
         $reflectionProperty->setAccessible(true);

@@ -18,7 +18,9 @@ final class AvroEncoder implements EncoderInterface
      */
     private $registry;
 
-    /** @var RecordSerializer */
+    /**
+     * @var RecordSerializer
+     */
     private $recordSerializer;
 
     /**
