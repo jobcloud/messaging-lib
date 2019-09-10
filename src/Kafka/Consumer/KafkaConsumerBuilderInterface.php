@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
+
 interface KafkaConsumerBuilderInterface
 {
 
@@ -94,6 +96,14 @@ interface KafkaConsumerBuilderInterface
      * @return KafkaConsumerBuilderInterface
      */
     public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
+
+    /**
+     * Lets you set a custom decoder for the consumed message
+     *
+     * @param DecoderInterface $decoder
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setDecoder(DecoderInterface $decoder): self;
 
     /**
      * Returns your consumer instance

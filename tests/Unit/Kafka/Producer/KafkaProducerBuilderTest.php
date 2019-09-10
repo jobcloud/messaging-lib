@@ -3,7 +3,9 @@
 namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+use Jobcloud\Messaging\Kafka\Producer\KafkaProducerInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -51,6 +53,22 @@ class KafkaProducerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaProducerBuilder));
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetEncoder(): void
+    {
+        $encoder = $this->getMockForAbstractClass(EncoderInterface::class);
+
+        $this->kafkaProducerBuilder->setEncoder($encoder);
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'encoder');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
     }
 
     /**
@@ -152,8 +170,8 @@ class KafkaProducerBuilderTest extends TestCase
 
         self::assertSame(
             [
-                'socket.timeout.ms' => 50,
-                'internal.termination.signal' => SIGIO
+                'socket.timeout.ms' => '50',
+                'internal.termination.signal' => (string) SIGIO
             ],
             $reflectionProperty->getValue($this->kafkaProducerBuilder)
         );
