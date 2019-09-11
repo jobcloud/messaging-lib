@@ -91,7 +91,7 @@ $schemaName = 'testSchema';
 $version = 1;
 $message = KafkaProducerMessage::create('test-topic', 0)
             ->withKey('asdf-asdf-asfd-asdf')
-            ->withBody('{"name": "some name"}') //this must be a json encoded string
+            ->withBody(['name' => 'someName'])
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
