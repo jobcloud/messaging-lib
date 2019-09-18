@@ -82,17 +82,6 @@ class KafkaConfigurationTest extends TestCase
             [ '  ', '  ' ],
             [ [], null ],
             [ new stdClass(), null ],
-            [ static function() { return 1; }, '1'],
-            [ static function() { return -1; }, '-1'],
-            [ static function() { return 1.123333; }, '1.123333' ],
-            [ static function() { return -0.99999; }, '-0.99999'],
-            [ static function() { return true; }, 'true'],
-            [ static function() { return false; }, 'false'],
-            [ static function() { return null; }, ''],
-            [ static function() { return ''; }, ''],
-            [ static function() { return '  '; }, '  ' ],
-            [ static function() { return []; }, null],
-            [ static function() { new stdClass(); }, null ],
         ];
     }
 

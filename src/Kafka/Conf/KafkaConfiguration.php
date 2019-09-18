@@ -74,18 +74,10 @@ class KafkaConfiguration extends RdKafkaConf
     {
 
         foreach ($config as $name => $value) {
-            // If user pass callable, why not, we will call it, and receive result
-            if (true === is_callable($value)) {
-                $value = $value();
-            }
-
-            // First, we skip if user set object or array in config,
-            // because we on't have plan for that scenario
-            if (true === is_object($value) || true === is_array($value)) {
+            if (false === is_scalar($value)) {
                 continue;
             }
 
-            // Let's manually cast if it's bool, to string
             if (true === is_bool($value)) {
                 $value = true === $value ? 'true' : 'false';
             }
