@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Conf;
 
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
@@ -8,13 +10,19 @@ use RdKafka\Conf as RdKafkaConf;
 class KafkaConfiguration extends RdKafkaConf
 {
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $brokers;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $topicSubscriptions;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $timeout;
 
     /**

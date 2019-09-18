@@ -5,13 +5,14 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
-use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
+use Jobcloud\Messaging\Message\MessageInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
@@ -40,6 +41,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
     /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
 
+    /** @var DecoderInterface|MockObject $decoderMock */
+    private $decoderMock;
+
     /** @var KafkaLowLevelConsumer */
     private $kafkaConsumer;
 
@@ -56,7 +60,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->willReturn($this->rdKafkaQueueMock);
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $this->kafkaConfigurationMock->expects(self::any())->method('dump')->willReturn([]);
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->decoderMock);
     }
 
     /**
@@ -84,6 +89,13 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaMessageMock
             ->expects(self::never())
             ->method('errstr');
+
+        $kafkaMessageMock = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $kafkaMessageMock->expects(self::once())->method('getBody')->willReturn($rdKafkaMessageMock->payload);
+        $kafkaMessageMock->expects(self::once())->method('getOffset')->willReturn($rdKafkaMessageMock->offset);
+        $kafkaMessageMock->expects(self::once())->method('getPartition')->willReturn($rdKafkaMessageMock->partition);
+
+        $this->decoderMock->expects(self::once())->method('decode')->willReturn($kafkaMessageMock);
 
         /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
         $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
@@ -140,7 +152,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->kafkaConsumer->subscribe();
         $message = $this->kafkaConsumer->consume();
 
-        self::assertInstanceOf(KafkaConsumerMessage::class, $message);
+        self::assertInstanceOf(KafkaConsumerMessageInterface::class, $message);
+        self::assertInstanceOf(MessageInterface::class, $message);
 
         self::assertEquals($rdKafkaMessageMock->payload, $message->getBody());
         self::assertEquals($rdKafkaMessageMock->offset, $message->getOffset());
@@ -537,7 +550,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
                 }
             );
 
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->decoderMock);
 
         $lowOffset = $this->kafkaConsumer->getFirstOffsetForTopicPartition('test-topic', 1, 1000);
 
@@ -559,7 +572,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
                 }
             );
 
-        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock);
+        $this->kafkaConsumer = new KafkaLowLevelConsumer($this->rdKafkaConsumerMock, $this->kafkaConfigurationMock, $this->decoderMock);
 
         $lowOffset = $this->kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
 

@@ -8,6 +8,8 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\NullEncoder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 
@@ -39,12 +41,18 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $pollTimeout = 1;
 
     /**
+     * @var EncoderInterface
+     */
+    private $encoder;
+
+    /**
      * KafkaProducerBuilder constructor.
      */
     private function __construct()
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
         $this->errorCallback = new KafkaErrorCallback();
+        $this->encoder = new NullEncoder();
     }
 
     /**
@@ -76,9 +84,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
-    public function setConfig(array $config): KafkaProducerBuilderInterface
+    public function addConfig(array $config): KafkaProducerBuilderInterface
     {
-        $this->config += $config;
+        $this->config = $config + $this->config;
 
         return $this;
     }
@@ -125,6 +133,19 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Lets you set a custom encoder for produce message
+     *
+     * @param EncoderInterface $encoder
+     * @return KafkaProducerBuilderInterface
+     */
+    public function setEncoder(EncoderInterface $encoder): KafkaProducerBuilderInterface
+    {
+        $this->encoder = $encoder;
+
+        return $this;
+    }
+
+    /**
      * Returns your producer instance
      *
      * @return ProducerInterface
@@ -137,22 +158,32 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         }
 
         //Thread termination improvement (https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings)
-        $this->config['socket.timeout.ms'] = 50;
-        $this->config['queue.buffering.max.ms'] = 1;
+        $this->config['socket.timeout.ms'] = '50';
+        $this->config['queue.buffering.max.ms'] = '1';
 
         if (function_exists('pcntl_sigprocmask')) {
             pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
-            $this->config['internal.termination.signal'] = SIGIO;
+            $this->config['internal.termination.signal'] = (string) SIGIO;
             unset($this->config['queue.buffering.max.ms']);
         }
 
         $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->pollTimeout, $this->config);
 
-        $kafkaConfig->setDrMsgCb($this->deliverReportCallback);
-        $kafkaConfig->setErrorCb($this->errorCallback);
+        //set producer callbacks
+        $this->registerCallbacks($kafkaConfig);
 
         $rdKafkaProducer = new RdKafkaProducer($kafkaConfig);
 
-        return new KafkaProducer($rdKafkaProducer, $kafkaConfig);
+        return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->encoder);
+    }
+
+    /**
+     * @param KafkaConfiguration $conf
+     * @return void
+     */
+    private function registerCallbacks(KafkaConfiguration $conf): void
+    {
+        $conf->setDrMsgCb($this->deliverReportCallback);
+        $conf->setErrorCb($this->errorCallback);
     }
 }

@@ -24,7 +24,7 @@ final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaCo
      * @param integer     $offset
      * @param integer     $timestamp
      * @param string|null $key
-     * @param string|null $body
+     * @param mixed       $body
      * @param array|null  $headers
      */
     public function __construct(
@@ -33,7 +33,7 @@ final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaCo
         int $offset,
         int $timestamp,
         ?string $key,
-        ?string $body,
+        $body,
         ?array $headers
     ) {
         $this->topicName = $topicName;

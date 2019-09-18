@@ -7,6 +7,8 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\NullDecoder;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -67,11 +69,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $offsetCommitCallback;
 
     /**
+     * @var DecoderInterface
+     */
+    private $decoder;
+
+    /**
      * KafkaConsumerBuilder constructor.
      */
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
+        $this->decoder = new NullDecoder();
     }
 
     /**
@@ -223,6 +231,19 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Lets you set a custom decoder for the consumed message
+     *
+     * @param DecoderInterface $decoder
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setDecoder(DecoderInterface $decoder): KafkaConsumerBuilderInterface
+    {
+        $this->decoder = $decoder;
+
+        return $this;
+    }
+
+    /**
      * Returns your consumer instance
      *
      * @return KafkaConsumerInterface
@@ -268,12 +289,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
             $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
 
-            return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+            return new KafkaLowLevelConsumer(
+                $rdKafkaConsumer,
+                $kafkaConfig,
+                $this->decoder
+            );
         }
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
-        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->decoder);
     }
 
     /**

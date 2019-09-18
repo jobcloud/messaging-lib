@@ -4,6 +4,7 @@ namespace Jobcloud\Messaging\Tests\Unit\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -19,25 +20,37 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 class KafkaProducerTest extends TestCase
 {
 
-    /** @var KafkaConfiguration|MockObject */
+    /**
+     * @var KafkaConfiguration|MockObject
+     */
     private $kafkaConfigurationMock;
 
-    /** @var RdKafkaProducer|MockObject */
+    /**
+     * @var RdKafkaProducer|MockObject
+     */
     private $rdKafkaProducerMock;
 
-    /** @var KafkaProducer */
+    /**
+     * @var EncoderInterface|MockObject
+     */
+    private $encoderMock;
+
+    /**
+     * @var KafkaProducer
+     */
     private $kafkaProducer;
 
     public function setUp(): void
     {
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $this->rdKafkaProducerMock = $this->createMock(RdKafkaProducer::class);
-        $this->kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock);
+        $this->encoderMock = $this->getMockForAbstractClass(EncoderInterface::class);
+        $this->kafkaProducer = new KafkaProducer($this->rdKafkaProducerMock, $this->kafkaConfigurationMock, $this->encoderMock);
     }
 
     /**
-     * @throws KafkaProducerException
      * @return void
+     * @throws KafkaProducerException
      */
     public function testProduceError(): void
     {
@@ -45,6 +58,8 @@ class KafkaProducerTest extends TestCase
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test content')
             ->withHeaders([ 'key' => 'value' ]);
+
+        $this->encoderMock->expects(self::once())->method('encode')->willReturn($message);
 
         self::expectException(KafkaProducerException::class);
 
@@ -71,8 +86,8 @@ class KafkaProducerTest extends TestCase
     }
 
     /**
-     * @throws KafkaProducerException
      * @return void
+     * @throws KafkaProducerException
      */
     public function testProduceErrorOnMessageInterface(): void
     {
@@ -128,6 +143,11 @@ class KafkaProducerTest extends TestCase
                     }
                 }
             );
+        $this->encoderMock
+            ->expects(self::once())
+            ->method('encode')
+            ->with($message)
+            ->willReturn($message);
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')

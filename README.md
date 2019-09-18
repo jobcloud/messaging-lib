@@ -7,9 +7,9 @@ Generic php messaging library
 Supports:
 - Kafka
 
-This is a convenience wrapper for https://github.com/arnaud-lb/php-rdkafka  
-To read more about the functions used in this lib, check out the documentation  
-of the extension: https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html
+This is a convenience wrapper for [arnaud-lb/php-rdkafka](https://github.com/arnaud-lb/php-rdkafka)  
+Avro support relies on [flix-tech/avro-serde-php](https://github.com/flix-tech/avro-serde-php)  
+To read more about the functions used in this lib, check out the [documentation](https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html) of the extension.
 
 
 ## Requirements
@@ -25,22 +25,78 @@ of the extension: https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.ht
 
 #### Kafka
 
+##### Simple example
 ```php
 <?php
 
+use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('localhost:9095')
+    ->addBroker('localhost:9092')
     ->build();
 
-$message = KafkaMessage::create('test-topic', 0)
+$message = KafkaProducerMessage::create('test-topic', 0)
             ->withKey('asdf-asdf-asfd-asdf')
             ->withBody('some test message payload')
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
 ```
+##### Avro Producer
+To create an avro prodcuer add the avro encoder.  
+
+```php
+<?php
+
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
+use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
+use Jobcloud\Messaging\Kafka\Message\Encoder\AvroEncoder;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistry;
+use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
+use \Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
+use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
+use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
+use GuzzleHttp\Client;
+
+$cachedRegistry = new CachedRegistry(
+    new BlockingRegistry(
+        new PromisingRegistry(
+            new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
+        )
+    ),
+    new AvroObjectCacheAdapter()
+);
+
+$registry = new AvroSchemaRegistry($cachedRegistry);
+$recordSerializer = new RecordSerializer($cachedRegistry);
+
+//if no version is defined, latest version will be used
+//if no schema definition is defined, the appropriate version will be fetched form the registry
+$registry->addSchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('schemaName' /*, int $version, AvroSchema $definition */)
+);
+
+$encoder = new AvroEncoder($registry, $recordSerializer);
+
+$producer = KafkaProducerBuilder::create()
+    ->addBroker('kafka:9092')
+    ->setEncoder($encoder)
+    ->build();
+
+$schemaName = 'testSchema';
+$version = 1;
+$message = KafkaProducerMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody(['name' => 'someName'])
+            ->withHeaders([ 'key' => 'value' ]);
+
+$producer->produce($message);
+```
+
 **NOTE:** To improve producer latency you can install the `pcntl` extension.  
 The messaging-lib already has code in place, similarly described here:  
 https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
@@ -54,6 +110,8 @@ https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
 
 use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 
 $consumer = KafkaConsumerBuilder::create()
      ->addConfig(
@@ -63,7 +121,7 @@ $consumer = KafkaConsumerBuilder::create()
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('localhost:9095')
+    ->addBroker('kafka:9092')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
     ->addSubscription('test-topic')
@@ -76,6 +134,10 @@ while (true) {
         $message = $consumer->consume();
         // your business logic
         $consumer->commit($message);
+    } catch (KafkaConsumerTimeoutException $e) {
+        //no messages were read in a given time
+    } catch (KafkaConsumerEndOfPartitionException $e) {
+        //only occurs if enable.partition.eof is true (default: false)
     } catch (ConsumerException $e) {
         // Failed
     } 
@@ -89,6 +151,8 @@ while (true) {
 
 use \Jobcloud\Messaging\Consumer\ConsumerException;
 use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 
 $consumer = KafkaConsumerBuilder::create()
      ->addConfig(
@@ -98,7 +162,7 @@ $consumer = KafkaConsumerBuilder::create()
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('localhost:9095')
+    ->addBroker('kafka:9092')
     ->setConsumerGroup('testGroup')
     ->setTimeout(120 * 10000)
     ->addSubscription('test-topic')
@@ -112,6 +176,83 @@ while (true) {
         $message = $consumer->consume();
         // your business logic
         $consumer->commit($message);
+    } catch (KafkaConsumerTimeoutException $e) {
+        //no messages were read in a given time
+    } catch (KafkaConsumerEndOfPartitionException $e) {
+        //only occurs if enable.partition.eof is true (default: false)
+    } catch (ConsumerException $e) {
+        // Failed
+    } 
+}
+```
+
+#### Avro Consumer
+To create an avro consumer add the avro decoder.  
+
+```php
+<?php
+
+use FlixTech\AvroSerializer\Objects\RecordSerializer;
+use Jobcloud\Messaging\Consumer\ConsumerException;
+use \Jobcloud\Messaging\Kafka\Consumer\KafkaConsumerBuilder;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Message\Decoder\AvroDecoder;
+use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchema;
+use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistry;
+use FlixTech\SchemaRegistryApi\Registry\CachedRegistry;
+use FlixTech\SchemaRegistryApi\Registry\BlockingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\PromisingRegistry;
+use FlixTech\SchemaRegistryApi\Registry\Cache\AvroObjectCacheAdapter;
+use GuzzleHttp\Client;
+
+$cachedRegistry = new CachedRegistry(
+    new BlockingRegistry(
+        new PromisingRegistry(
+            new Client(['base_uri' => 'jobcloud-kafka-schema-registry:9081'])
+        )
+    ),
+    new AvroObjectCacheAdapter()
+);
+
+$registry = new AvroSchemaRegistry($cachedRegistry);
+$recordSerializer = new RecordSerializer($cachedRegistry);
+
+//if no version is defined, latest version will be used
+//if no schema definition is defined, the appropriate version will be fetched form the registry
+$registry->addSchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('someSchema' , 9 /* , AvroSchema $definition */)
+);
+
+$decoder = new AvroDecoder($registry, $recordSerializer);
+
+$consumer = KafkaConsumerBuilder::create()
+     ->addConfig(
+        [
+            'compression.codec' => 'lz4',
+            'auto.offset.reset' => 'earliest',
+            'auto.commit.interval.ms' => 500
+        ]
+    )
+    ->setDecoder($decoder)
+    ->addBroker('kafka:9092')
+    ->setConsumerGroup('testGroup')
+    ->setTimeout(120 * 10000)
+    ->addSubscription('test-topic')
+    ->build();
+
+$consumer->subscribe();
+
+while (true) {
+    try {
+        $message = $consumer->consume();
+        // your business logic
+        $consumer->commit($message);
+    } catch (KafkaConsumerTimeoutException $e) {
+        //no messages were read in a given time
+    } catch (KafkaConsumerEndOfPartitionException $e) {
+        //only occurs if enable.partition.eof is true (default: false)
     } catch (ConsumerException $e) {
         // Failed
     } 

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Message;
 
-class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaProducerMessageInterface
+final class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaProducerMessageInterface
 {
 
     /**
@@ -39,10 +41,10 @@ class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaProducer
     }
 
     /**
-     * @param string|null $body
+     * @param mixed $body
      * @return KafkaProducerMessageInterface
      */
-    public function withBody(?string $body): KafkaProducerMessageInterface
+    public function withBody($body): KafkaProducerMessageInterface
     {
         $new = clone $this;
 
