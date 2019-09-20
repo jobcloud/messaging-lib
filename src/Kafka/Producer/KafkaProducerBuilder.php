@@ -8,7 +8,6 @@ use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Callback\KafkaProducerDeliveryReportCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\NullEncoder;
 use Jobcloud\Messaging\Producer\ProducerInterface;
@@ -16,8 +15,6 @@ use RdKafka\Producer as RdKafkaProducer;
 
 final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 {
-    use KafkaConfigTrait;
-
     /**
      * @var array|string[]
      */
@@ -170,7 +167,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
             unset($this->config['queue.buffering.max.ms']);
         }
 
-        $kafkaConfig = $this->createKafkaConfig($this->config, $this->brokers, [], $this->pollTimeout);
+        $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->pollTimeout, $this->config);
 
         //set producer callbacks
         $this->registerCallbacks($kafkaConfig);

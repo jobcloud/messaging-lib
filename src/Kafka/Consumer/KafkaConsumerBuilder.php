@@ -6,7 +6,6 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\Decoder\NullDecoder;
@@ -16,10 +15,8 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
 
-    use KafkaConfigTrait;
-
-    const CONSUMER_TYPE_LOW_LEVEL = 'low';
-    const CONSUMER_TYPE_HIGH_LEVEL = 'high';
+    public const CONSUMER_TYPE_LOW_LEVEL = 'low';
+    public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
      * @var array
@@ -285,12 +282,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['enable.auto.offset.store'] = false;
 
-        //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig(
-            $this->config,
+        //create config
+        $kafkaConfig = new KafkaConfiguration(
             $this->brokers,
             $this->topics,
-            $this->timeout
+            $this->timeout,
+            $this->config
         );
 
         //set consumer callbacks
@@ -298,7 +295,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //create RdConsumer
 
-        if (self::CONSUMER_TYPE_LOW_LEVEL == $this->consumerType) {
+        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
                     sprintf(
