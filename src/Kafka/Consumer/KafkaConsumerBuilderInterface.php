@@ -32,6 +32,21 @@ interface KafkaConsumerBuilderInterface
     public function addSubscription(string $topicName, array $partitions = [], int $offset = self::OFFSET_STORED): self;
 
     /**
+     * Replaces all topic names previously configured with a topic and additionally partitions and an offset to
+     * subscribe to
+     *
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): self;
+
+    /**
      * Add configuration settings, otherwise the kafka defaults apply
      *
      * @param array $config

@@ -70,6 +70,24 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
+    public function testReplaceSubscribedToTopics(): void
+    {
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->addSubscription('test-topic'));
+        self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->setSubscription('new-topic'));
+
+        $reflectionProperty = new \ReflectionProperty($this->kafkaConsumerBuilder, 'topics');
+        $reflectionProperty->setAccessible(true);
+
+        $topicSubscription = $reflectionProperty->getValue($this->kafkaConsumerBuilder);
+        self::assertCount(1, $topicSubscription);
+        self::isInstanceOf(TopicSubscription::class, $topicSubscription[0]);
+        self::assertSame('new-topic', $topicSubscription[0]->getTopicName());
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
     public function testSetTimeout(): void
     {
         self::assertSame($this->kafkaConsumerBuilder, $this->kafkaConsumerBuilder->setTimeout(1000));
