@@ -128,6 +128,25 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
+     * Replaces all topic names previously configured with a topic and additionally partitions and an offset to
+     * subscribe to
+     *
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): KafkaConsumerBuilderInterface {
+        $this->topics = [new TopicSubscription($topicName, $partitions, $offset)];
+
+        return $this;
+    }
+
+    /**
      * Add configuration settings, otherwise the kafka defaults apply
      *
      * @param array $config
