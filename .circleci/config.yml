@@ -155,7 +155,7 @@ commands:
     steps:
       - save_cache:
           name: Cache vendor
-          key: vendor-{{ checksum "./composer.lock" }}
+          key: vendor-{{ checksum "./composer.json" }}
           paths:
             - ./vendor/
 
@@ -164,7 +164,7 @@ commands:
       - restore_cache:
           name: Load vendor from cache
           keys:
-            - vendor-{{ checksum "./composer.lock" }}
+            - vendor-{{ checksum "./composer.json" }}
 
   execute-in-container:
     parameters:
