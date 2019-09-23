@@ -8,6 +8,9 @@ workflows:
       - install-dependencies:
           requires:
             - build-docker
+      - install-dependencies-lowest:
+          requires:
+            - build-docker
       - coverage:
           requires:
             - install-dependencies
