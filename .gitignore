@@ -2,5 +2,6 @@
 /vendor/
 /.idea
 /composer.symlink
+composer.lock
 .phpunit.result.cache
 clover.xml
