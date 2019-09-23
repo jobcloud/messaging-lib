@@ -11,6 +11,9 @@ workflows:
       - coverage:
           requires:
             - install-dependencies
+      - coverage-lowest-dependencies:
+          requires:
+            - install-dependencies-lowest
       - code-style:
           requires:
             - install-dependencies
@@ -51,6 +54,25 @@ jobs:
           info: Install dependencies
           command: make install-dependencies
       - cache-persist-vendor
+
+  install-dependencies-lowest:
+    machine: true
+    steps:
+      - checkout
+      - cache-load-vendor-lowest
+      - run:
+          name: Check for existing vendor
+          command: |
+            if [[ -d ./vendor ]]; then
+              circleci step halt
+            fi
+      - cache-load-docker-images
+      - load-docker-images
+      - run-docker
+      - execute-in-container:
+          info: Install dependencies
+          command: make install-dependencies-lowest
+      - cache-persist-vendor-lowest
 
   coverage:
     machine: true
@@ -159,12 +181,27 @@ commands:
           paths:
             - ./vendor/
 
+  cache-persist-vendor-lowest:
+    steps:
+      - save_cache:
+          name: Cache vendor
+          key: vendor-{{ checksum "./composer.json" }}-lowest
+          paths:
+            - ./vendor/
+
   cache-load-vendor:
     steps:
       - restore_cache:
           name: Load vendor from cache
           keys:
             - vendor-{{ checksum "./composer.json" }}
+
+  cache-load-vendor-lowest:
+    steps:
+      - restore_cache:
+          name: Load vendor from cache
+          keys:
+            - vendor-{{ checksum "./composer.json" }}-lowest
 
   execute-in-container:
     parameters:

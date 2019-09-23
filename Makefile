@@ -30,6 +30,9 @@ update-dependencies:
 install-dependencies:
 	composer install
 
+install-dependencies-lowest:
+	composer install --prefer-lowest
+
 xdebug-enable:
 	sudo php-ext-enable xdebug
 
