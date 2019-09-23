@@ -33,14 +33,14 @@ class KafkaProducerBuilderTest extends TestCase
     public function testAddConfig(): void
     {
         $config = ['timeout' => 1000];
-        $this->kafkaProducerBuilder->addConfig($config);
+        $clone = $this->kafkaProducerBuilder->withAdditionalConfig($config);
         $config = ['timeout' => 1001];
-        $this->kafkaProducerBuilder->addConfig($config);
+        $clone = $clone->withAdditionalConfig($config);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
+        $reflectionProperty = new \ReflectionProperty($clone, 'config');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($config, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame($config, $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -49,12 +49,12 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testAddBroker(): void
     {
-        $this->kafkaProducerBuilder->addBroker('localhost');
+        $clone = $this->kafkaProducerBuilder->withAdditionalBroker('localhost');
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'brokers');
+        $reflectionProperty = new \ReflectionProperty($clone, 'brokers');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(['localhost'], $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame(['localhost'], $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -65,12 +65,12 @@ class KafkaProducerBuilderTest extends TestCase
     {
         $encoder = $this->getMockForAbstractClass(EncoderInterface::class);
 
-        $this->kafkaProducerBuilder->setEncoder($encoder);
+        $clone = $this->kafkaProducerBuilder->withEncoder($encoder);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'encoder');
+        $reflectionProperty = new \ReflectionProperty($clone, 'encoder');
         $reflectionProperty->setAccessible(true);
 
-        self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -83,12 +83,12 @@ class KafkaProducerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        $this->kafkaProducerBuilder->setDeliveryReportCallback($callback);
+        $clone = $this->kafkaProducerBuilder->withDeliveryReportCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'deliverReportCallback');
+        $reflectionProperty = new \ReflectionProperty($clone, 'deliverReportCallback');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame($callback, $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -101,12 +101,12 @@ class KafkaProducerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        $this->kafkaProducerBuilder->setErrorCallback($callback);
+        $clone = $this->kafkaProducerBuilder->withErrorCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'errorCallback');
+        $reflectionProperty = new \ReflectionProperty($clone, 'errorCallback');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame($callback, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame($callback, $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -115,12 +115,12 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testSetPollTimeout(): void
     {
-        $this->kafkaProducerBuilder->setPollTimeout(1000);
+        $clone = $this->kafkaProducerBuilder->withPollTimeout(1000);
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'pollTimeout');
+        $reflectionProperty = new \ReflectionProperty($clone, 'pollTimeout');
         $reflectionProperty->setAccessible(true);
 
-        self::assertSame(1000, $reflectionProperty->getValue($this->kafkaProducerBuilder));
+        self::assertSame(1000, $reflectionProperty->getValue($clone));
     }
 
     /**
@@ -143,9 +143,9 @@ class KafkaProducerBuilderTest extends TestCase
         };
 
         $producer = $this->kafkaProducerBuilder
-            ->addBroker('localhost')
-            ->setDeliveryReportCallback($callback)
-            ->setErrorCallback($callback)
+            ->withAdditionalBroker('localhost')
+            ->withDeliveryReportCallback($callback)
+            ->withErrorCallback($callback)
             ->build();
 
         self::assertInstanceOf(ProducerInterface::class, $producer);
@@ -162,9 +162,9 @@ class KafkaProducerBuilderTest extends TestCase
         };
 
         $this->kafkaProducerBuilder
-            ->addBroker('localhost')
-            ->setDeliveryReportCallback($callback)
-            ->setErrorCallback($callback)
+            ->withAdditionalBroker('localhost')
+            ->withDeliveryReportCallback($callback)
+            ->withErrorCallback($callback)
             ->build();
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');

@@ -71,7 +71,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param string $broker
      * @return KafkaProducerBuilderInterface
      */
-    public function addBroker(string $broker): KafkaProducerBuilderInterface
+    public function withAdditionalBroker(string $broker): KafkaProducerBuilderInterface
     {
         $this->brokers[] = $broker;
 
@@ -84,7 +84,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
-    public function addConfig(array $config): KafkaProducerBuilderInterface
+    public function withAdditionalConfig(array $config): KafkaProducerBuilderInterface
     {
         $this->config = $config + $this->config;
 
@@ -98,7 +98,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilderInterface
      */
-    public function setDeliveryReportCallback(callable $deliveryReportCallback): KafkaProducerBuilderInterface
+    public function withDeliveryReportCallback(callable $deliveryReportCallback): KafkaProducerBuilderInterface
     {
         $this->deliverReportCallback = $deliveryReportCallback;
 
@@ -112,7 +112,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param callable $errorCallback
      * @return KafkaProducerBuilderInterface
      */
-    public function setErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
+    public function withErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
     {
         $this->errorCallback = $errorCallback;
 
@@ -125,7 +125,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param integer $pollTimeout
      * @return KafkaProducerBuilderInterface
      */
-    public function setPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface
+    public function withPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface
     {
         $this->pollTimeout = $pollTimeout;
 
@@ -138,7 +138,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * @param EncoderInterface $encoder
      * @return KafkaProducerBuilderInterface
      */
-    public function setEncoder(EncoderInterface $encoder): KafkaProducerBuilderInterface
+    public function withEncoder(EncoderInterface $encoder): KafkaProducerBuilderInterface
     {
         $this->encoder = $encoder;
 

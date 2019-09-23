@@ -23,31 +23,31 @@ interface KafkaProducerBuilderInterface
      * @param string $broker
      * @return KafkaProducerBuilderInterface
      */
-    public function addBroker(string $broker): self;
+    public function withAdditionalBroker(string $broker): self;
 
     /**
      * @param array $config
      * @return KafkaProducerBuilderInterface
      */
-    public function addConfig(array $config): self;
+    public function withAdditionalConfig(array $config): self;
 
     /**
      * @param callable $deliveryReportCallback
      * @return KafkaProducerBuilderInterface
      */
-    public function setDeliveryReportCallback(callable $deliveryReportCallback): self;
+    public function withDeliveryReportCallback(callable $deliveryReportCallback): self;
 
     /**
      * @param callable $errorCallback
      * @return KafkaProducerBuilderInterface
      */
-    public function setErrorCallback(callable $errorCallback): self;
+    public function withErrorCallback(callable $errorCallback): self;
 
     /**
      * @param integer $pollTimeout
      * @return KafkaProducerBuilderInterface
      */
-    public function setPollTimeout(int $pollTimeout): self;
+    public function withPollTimeout(int $pollTimeout): self;
 
     /**
      * Lets you set a custom encoder for produce message
@@ -55,5 +55,5 @@ interface KafkaProducerBuilderInterface
      * @param EncoderInterface $encoder
      * @return KafkaProducerBuilderInterface
      */
-    public function setEncoder(EncoderInterface $encoder): self;
+    public function withEncoder(EncoderInterface $encoder): self;
 }

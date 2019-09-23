@@ -33,7 +33,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessage;
 use \Jobcloud\Messaging\Kafka\Producer\KafkaProducerBuilder;
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('localhost:9092')
+    ->withAdditionalBroker('localhost:9092')
     ->build();
 
 $message = KafkaProducerMessage::create('test-topic', 0)
@@ -83,8 +83,8 @@ $registry->addSchemaMappingForTopic(
 $encoder = new AvroEncoder($registry, $recordSerializer);
 
 $producer = KafkaProducerBuilder::create()
-    ->addBroker('kafka:9092')
-    ->setEncoder($encoder)
+    ->withAdditionalBroker('kafka:9092')
+    ->withEncoder($encoder)
     ->build();
 
 $schemaName = 'testSchema';
@@ -114,17 +114,17 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 
 $consumer = KafkaConsumerBuilder::create()
-     ->addConfig(
+     ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
             'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('kafka:9092')
-    ->setConsumerGroup('testGroup')
-    ->setTimeout(120 * 10000)
-    ->addSubscription('test-topic')
+    ->withAdditionalBroker('kafka:9092')
+    ->withConsumerGroup('testGroup')
+    ->withTimeout(120 * 10000)
+    ->withAdditionalSubscription('test-topic')
     ->build();
 
 $consumer->subscribe();
@@ -155,18 +155,18 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
 
 $consumer = KafkaConsumerBuilder::create()
-     ->addConfig(
+     ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
             'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->addBroker('kafka:9092')
-    ->setConsumerGroup('testGroup')
-    ->setTimeout(120 * 10000)
-    ->addSubscription('test-topic')
-    ->setConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
+    ->withAdditionalBroker('kafka:9092')
+    ->withConsumerGroup('testGroup')
+    ->withTimeout(120 * 10000)
+    ->withAdditionalSubscription('test-topic')
+    ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
     ->build();
 
 $consumer->subscribe();
@@ -228,18 +228,18 @@ $registry->addSchemaMappingForTopic(
 $decoder = new AvroDecoder($registry, $recordSerializer);
 
 $consumer = KafkaConsumerBuilder::create()
-     ->addConfig(
+     ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
             'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )
-    ->setDecoder($decoder)
-    ->addBroker('kafka:9092')
-    ->setConsumerGroup('testGroup')
-    ->setTimeout(120 * 10000)
-    ->addSubscription('test-topic')
+    ->withDecoder($decoder)
+    ->withAdditionalBroker('kafka:9092')
+    ->withConsumerGroup('testGroup')
+    ->withTimeout(120 * 10000)
+    ->withAdditionalSubscription('test-topic')
     ->build();
 
 $consumer->subscribe();
