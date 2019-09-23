@@ -1,12 +1,20 @@
 {
   "name": "jobcloud/messaging-lib",
   "description": "Jobcloud php messaging library (kafka)",
+  "license": [
+    "MIT"
+  ],
+  "authors": [
+    {
+      "name": "Jobcloud AG",
+      "homepage": "https://www.jobcloud.ch/c/en/about/team/?team=13"
+    }
+  ],
   "keywords": [
     "php",
     "kafka",
     "messaging"
   ],
-  "license": "MIT",
   "require": {
     "php": "^7.3",
     "ext-rdkafka": "^3.1.2",
