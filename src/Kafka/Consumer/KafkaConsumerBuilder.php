@@ -28,6 +28,9 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      */
     private $topics = [];
 
+    /** @var string */
+    private $consumerGroupBase;
+
     /**
      * @var string
      */
@@ -109,12 +112,27 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param string $consumerGroup
+     * @param string $consumerGroupBase
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
+    public function setConsumerGroupBase(string $consumerGroupBase): KafkaConsumerBuilderInterface
+    {
+        $this->consumerGroupBase = $consumerGroupBase;
+
+        return $this;
+    }
+
+    /**
+     * @param string  $consumerGroup
+     * @param boolean $isSuffixOnly
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function setConsumerGroup(string $consumerGroup, bool $isSuffixOnly = false): KafkaConsumerBuilderInterface
     {
         $this->consumerGroup = $consumerGroup;
+        if (true === $isSuffixOnly) {
+            $this->consumerGroup = $this->consumerGroupBase . '-' . $consumerGroup;
+        }
 
         return $this;
     }
