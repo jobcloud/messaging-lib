@@ -37,8 +37,8 @@ interface KafkaConsumerBuilderInterface
     public function setConsumerGroupBase(string $consumerGroupBase): self;
 
     /**
-     * @param string $consumerGroup
-     * @param bool   $isSuffixOnly
+     * @param string  $consumerGroup
+     * @param boolean $isSuffixOnly
      * @return KafkaConsumerBuilderInterface
      */
     public function setConsumerGroup(string $consumerGroup, bool $isSuffixOnly = false): self;
