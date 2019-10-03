@@ -9,9 +9,9 @@ use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 interface KafkaConsumerBuilderInterface
 {
 
-    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
-    const OFFSET_END = RD_KAFKA_OFFSET_END;
-    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
+    public const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
+    public const OFFSET_END = RD_KAFKA_OFFSET_END;
+    public const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
 
     /**
      * Adds a broker from which you want to consume
