@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Message\Registry;
 
-use \AvroSchema;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
@@ -66,10 +65,10 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 
     /**
      * @param KafkaAvroSchemaInterface $avroSchema
-     * @return AvroSchema
+     * @return \AvroSchema
      * @throws SchemaRegistryException
      */
-    private function getSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): AvroSchema
+    private function getSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): \AvroSchema
     {
         if (null === $avroSchema->getVersion()) {
             return $this->registry->latestVersion($avroSchema->getName());

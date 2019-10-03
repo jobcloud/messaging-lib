@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Message\Registry;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Messaging\Kafka\Message\KafkaAvroSchemaInterface;
 
 interface AvroSchemaRegistryInterface
