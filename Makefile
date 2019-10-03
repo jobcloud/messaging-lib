@@ -12,7 +12,7 @@ clean:
 
 code-style:
 	mkdir -p build/logs/phpcs
-	${PHPCS} --report-full --report-gitblame --standard=PSR2 ./src --ignore=./src/Kafka/Callback/ --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
+	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --ignore=./src/Kafka/Callback/ --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
 
 coverage: xdebug-disable
 	${PHPDBG}
