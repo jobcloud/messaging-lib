@@ -65,7 +65,7 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 
     /**
      * @param KafkaAvroSchemaInterface $avroSchema
-     * @return AvroSchema
+     * @return \AvroSchema
      * @throws SchemaRegistryException
      */
     private function getSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): \AvroSchema
