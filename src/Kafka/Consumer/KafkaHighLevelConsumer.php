@@ -159,7 +159,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Get current offset positions of the consumer
      *
-     * @param array|TopicPartition[] $topicPartitions
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
      * @return array
      */
     public function getOffsetPositions(array $topicPartitions): array

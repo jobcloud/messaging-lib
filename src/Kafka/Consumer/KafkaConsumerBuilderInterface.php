@@ -130,7 +130,7 @@ interface KafkaConsumerBuilderInterface
      * @param callable $consumeCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface;
+    public function withLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface;
 
     /**
      * Returns your consumer instance

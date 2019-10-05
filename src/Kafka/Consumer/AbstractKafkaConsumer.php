@@ -18,6 +18,7 @@ use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Message as RdKafkaMessage;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
@@ -139,8 +140,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * Get the earliest offset for a certain timestamp for topic partitions
      *
-     * @param array|TopicPartition[] $topicPartitions
-     * @param integer                $timeout
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @param integer                       $timeout
      * @return array
      */
     public function offsetsForTimes(array $topicPartitions, int $timeout): array

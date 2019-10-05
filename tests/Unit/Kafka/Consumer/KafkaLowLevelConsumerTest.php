@@ -606,9 +606,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('offsetsForTimes')
-            ->with([], self::TEST_TIMEOUT)
+            ->with([], 1000)
             ->willReturn([]);
 
-        $this->kafkaConsumer->offsetsForTimes([], self::TEST_TIMEOUT);
+        $this->kafkaConsumer->offsetsForTimes([], 1000);
     }
 }

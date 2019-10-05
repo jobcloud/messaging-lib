@@ -9,6 +9,7 @@ use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 interface KafkaConsumerInterface extends ConsumerInterface
 {
@@ -69,8 +70,8 @@ interface KafkaConsumerInterface extends ConsumerInterface
     /**
      * Get the earliest offset for a certain timestamp for topic partitions
      *
-     * @param array|TopicPartition[] $topicPartitions
-     * @param integer                $timeout
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @param integer                       $timeout
      * @return array
      */
     public function offsetsForTimes(array $topicPartitions, int $timeout): array;

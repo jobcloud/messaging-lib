@@ -255,14 +255,15 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Callback for log related events
      *
-     * @param callable $consumeCallback
+     * @param callable $logCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
+    public function withLogCallback(callable $logCallback): KafkaConsumerBuilderInterface
     {
-        $this->consumeCallback = $consumeCallback;
+        $that = clone $this;
+        $that->logCallback = $logCallback;
 
-        return $this;
+        return $that;
     }
 
     /**
