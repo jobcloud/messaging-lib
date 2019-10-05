@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09b60c76b27fa41a5bf97744f494297a",
+    "content-hash": "be525a0e68de24db5c53fba6675c1bb9",
     "packages": [],
     "packages-dev": [
         {
@@ -164,12 +164,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kwn/php-rdkafka-stubs.git",
-                "reference": "d3ff5d7e5907490963163d0430330d584cf9882f"
+                "reference": "093852073707708d434cfd293c5df36719edc765"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kwn/php-rdkafka-stubs/zipball/d3ff5d7e5907490963163d0430330d584cf9882f",
-                "reference": "d3ff5d7e5907490963163d0430330d584cf9882f",
+                "url": "https://api.github.com/repos/kwn/php-rdkafka-stubs/zipball/093852073707708d434cfd293c5df36719edc765",
+                "reference": "093852073707708d434cfd293c5df36719edc765",
                 "shasum": ""
             },
             "require": {
@@ -1723,16 +1723,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "8.4.0",
+            "version": "8.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "57e5e77b62086033528ee1f4063ae03035f57894"
+                "reference": "302faed7059fde575cf3403a78c730c5e3a62750"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/57e5e77b62086033528ee1f4063ae03035f57894",
-                "reference": "57e5e77b62086033528ee1f4063ae03035f57894",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/302faed7059fde575cf3403a78c730c5e3a62750",
+                "reference": "302faed7059fde575cf3403a78c730c5e3a62750",
                 "shasum": ""
             },
             "require": {
@@ -1776,7 +1776,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "8.4-dev"
+                    "dev-master": "8.3-dev"
                 }
             },
             "autoload": {
@@ -1802,7 +1802,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-10-04T03:12:25+00:00"
+            "time": "2019-09-14T09:12:03+00:00"
         },
         {
             "name": "psr/container",
