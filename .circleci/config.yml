@@ -22,16 +22,16 @@ jobs:
     machine: true
     steps:
       - checkout
-      - cache-load-docker-layers
+      - cache-load-docker-images
       - run:
-          name: Check for existing docker layers
+          name: Check for existing docker images
           command: |
-            if [[ -f ~/docker-layers.tar ]]; then
+            if [[ -f ~/docker-images.tar ]]; then
               circleci step halt
             fi
       - build-docker-images
-      - persist-docker-layers
-      - cache-persist-docker-layers
+      - persist-docker-images
+      - cache-persist-docker-images
 
   install-dependencies:
     machine: true
@@ -44,8 +44,8 @@ jobs:
             if [[ -d ./vendor ]]; then
               circleci step halt
             fi
-      - cache-load-docker-layers
-      - load-docker-layers
+      - cache-load-docker-images
+      - load-docker-images
       - run-docker
       - execute-in-container:
           info: Install dependencies
@@ -95,8 +95,8 @@ commands:
   restore:
     steps:
       - checkout
-      - cache-load-docker-layers
-      - load-docker-layers
+      - cache-load-docker-images
+      - load-docker-images
       - cache-load-vendor
       - run-docker
   run-docker:
@@ -111,44 +111,51 @@ commands:
           name: Build docker
           command: cd ./docker && docker-compose -f docker-compose.yml build
 
-  persist-docker-layers:
+  persist-docker-images:
     steps:
       - run:
-          name: Persist docker layers
+          name: Persist docker images
           command: |
-            export DOCKER_IMAGES=$(docker images -q)
-            export DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
-            docker save -o ~/docker-layers.tar $DOCKER_LAYERS
+            export DOCKER_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}"  --filter "dangling=false")
+            docker save -o ~/docker-images.tar $DOCKER_IMAGES
 
-  load-docker-layers:
+  load-docker-images:
     steps:
       - run:
-          name: Load docker layers
+          name: Load docker images
           command: |
-            if [[ -f ~/docker-layers.tar ]]; then
-              docker load -i ~/docker-layers.tar
+            if [[ -f ~/docker-images.tar ]]; then
+              docker load -i ~/docker-images.tar
             fi
 
-  cache-persist-docker-layers:
+  cache-persist-docker-images:
     steps:
+      - run:
+          name: Create directory cache key
+          command: |
+            echo $(find ./docker/dev -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1)  > CACHE_KEY
       - save_cache:
-          name: Cache docker layers
-          key: docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.yml" }}
+          name: Cache docker images
+          key: docker-images-{{ checksum "./CACHE_KEY" }}{{ checksum "./docker/docker-compose.yml" }}
           paths:
-            - ~/docker-layers.tar
+            - ~/docker-images.tar
 
-  cache-load-docker-layers:
+  cache-load-docker-images:
     steps:
+      - run:
+          name: Create directory cache key
+          command: |
+            echo $(find ./docker/dev -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1)  > CACHE_KEY
       - restore_cache:
-          name: Load docker layers from cache
+          name: Load docker images from cache
           keys:
-            - docker-layers-{{ checksum "./docker/dev/php/Dockerfile" }}{{ checksum "./docker/docker-compose.yml" }}
+            - docker-images-{{ checksum "./CACHE_KEY" }}{{ checksum "./docker/docker-compose.yml" }}
 
   cache-persist-vendor:
     steps:
       - save_cache:
           name: Cache vendor
-          key: vendor-{{ checksum "./composer.lock" }}
+          key: vendor-{{ checksum "./composer.json" }}
           paths:
             - ./vendor/
 
@@ -157,7 +164,7 @@ commands:
       - restore_cache:
           name: Load vendor from cache
           keys:
-            - vendor-{{ checksum "./composer.lock" }}
+            - vendor-{{ checksum "./composer.json" }}
 
   execute-in-container:
     parameters:

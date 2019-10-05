@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
@@ -7,6 +9,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerAssignmentException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerRequestException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerSubscriptionException;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
@@ -16,17 +19,22 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements KafkaHighLevelConsumerInterface
 {
 
-    /** @var RdKafkaHighLevelConsumer */
+    /**
+     * @var RdKafkaHighLevelConsumer
+     */
     protected $consumer;
 
     /**
      * @param RdKafkaHighLevelConsumer $consumer
      * @param KafkaConfiguration       $kafkaConfiguration
+     * @param DecoderInterface         $decoder
      */
-    public function __construct(RdKafkaHighLevelConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
-    {
-        $this->consumer = $consumer;
-        $this->kafkaConfiguration = $kafkaConfiguration;
+    public function __construct(
+        RdKafkaHighLevelConsumer $consumer,
+        KafkaConfiguration $kafkaConfiguration,
+        DecoderInterface $decoder
+    ) {
+        parent::__construct($consumer, $kafkaConfiguration, $decoder);
     }
 
     /**
@@ -171,7 +179,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
-     * @param boolean                                       $asAsync
+     * @param boolean                                                       $asAsync
      * @return void
      * @throws KafkaConsumerCommitException
      */

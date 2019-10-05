@@ -6,19 +6,17 @@ namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Callback\KafkaErrorCallback;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Messaging\Kafka\Conf\KafkaConfigTrait;
-use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerBuilderException;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
+use Jobcloud\Messaging\Kafka\Message\Decoder\NullDecoder;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
 
-    use KafkaConfigTrait;
-
-    const CONSUMER_TYPE_LOW_LEVEL = 'low';
-    const CONSUMER_TYPE_HIGH_LEVEL = 'high';
+    public const CONSUMER_TYPE_LOW_LEVEL = 'low';
+    public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
      * @var array
@@ -76,11 +74,17 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $offsetCommitCallback;
 
     /**
+     * @var DecoderInterface
+     */
+    private $decoder;
+
+    /**
      * KafkaConsumerBuilder constructor.
      */
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
+        $this->decoder = new NullDecoder();
     }
 
     /**
@@ -99,11 +103,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param string $broker
      * @return KafkaConsumerBuilderInterface
      */
-    public function addBroker(string $broker): KafkaConsumerBuilderInterface
+    public function withAdditionalBroker(string $broker): KafkaConsumerBuilderInterface
     {
-        $this->brokers[] = $broker;
+        $that = clone $this;
 
-        return $this;
+        $that->brokers[] = $broker;
+
+        return $that;
     }
 
     /**
@@ -114,15 +120,36 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(
+    public function withAdditionalSubscription(
         string $topicName,
         array $partitions = [],
         int $offset = self::OFFSET_STORED
     ): KafkaConsumerBuilderInterface {
+        $that = clone $this;
 
-        $this->topics[] = new TopicSubscription($topicName, $partitions, $offset);
+        $that->topics[] = new TopicSubscription($topicName, $partitions, $offset);
 
-        return $this;
+        return $that;
+    }
+
+    /**
+     * Replaces all topic names previously configured with a topic and additionally partitions and an offset to
+     * subscribe to
+     *
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function withSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): KafkaConsumerBuilderInterface {
+        $that = clone $this;
+        $that->topics = [new TopicSubscription($topicName, $partitions, $offset)];
+
+        return $that;
     }
 
     /**
@@ -131,11 +158,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function addConfig(array $config): KafkaConsumerBuilderInterface
+    public function withAdditionalConfig(array $config): KafkaConsumerBuilderInterface
     {
-        $this->config = $config + $this->config;
+        $that = clone $this;
+        $that->config = $config + $this->config;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -144,11 +172,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param integer $timeout
      * @return KafkaConsumerBuilderInterface
      */
-    public function setTimeout(int $timeout): KafkaConsumerBuilderInterface
+    public function withTimeout(int $timeout): KafkaConsumerBuilderInterface
     {
-        $this->timeout = $timeout;
+        $that = clone $this;
+        $that->timeout = $timeout;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -157,11 +186,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param string $consumerGroup
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
+    public function withConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
     {
-        $this->consumerGroup = $consumerGroup;
+        $that = clone $this;
+        $that->consumerGroup = $consumerGroup;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -170,11 +200,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param string $consumerType
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerType(string $consumerType): KafkaConsumerBuilderInterface
+    public function withConsumerType(string $consumerType): KafkaConsumerBuilderInterface
     {
-        $this->consumerType = $consumerType;
+        $that = clone $this;
+        $that->consumerType = $consumerType;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -184,11 +215,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param callable $errorCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setErrorCallback(callable $errorCallback): KafkaConsumerBuilderInterface
+    public function withErrorCallback(callable $errorCallback): KafkaConsumerBuilderInterface
     {
-        $this->errorCallback = $errorCallback;
+        $that = clone $this;
+        $that->errorCallback = $errorCallback;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -197,11 +229,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param callable $rebalanceCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setRebalanceCallback(callable $rebalanceCallback): KafkaConsumerBuilderInterface
+    public function withRebalanceCallback(callable $rebalanceCallback): KafkaConsumerBuilderInterface
     {
-        $this->rebalanceCallback = $rebalanceCallback;
+        $that = clone $this;
+        $that->rebalanceCallback = $rebalanceCallback;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -211,11 +244,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param callable $consumeCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumeCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
+    public function withConsumeCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
     {
-        $this->consumeCallback = $consumeCallback;
+        $that = clone $this;
+        $that->consumeCallback = $consumeCallback;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -237,11 +271,26 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @param callable $offsetCommitCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setOffsetCommitCallback(callable $offsetCommitCallback): KafkaConsumerBuilderInterface
+    public function withOffsetCommitCallback(callable $offsetCommitCallback): KafkaConsumerBuilderInterface
     {
-        $this->offsetCommitCallback = $offsetCommitCallback;
+        $that = clone $this;
+        $that->offsetCommitCallback = $offsetCommitCallback;
 
-        return $this;
+        return $that;
+    }
+
+    /**
+     * Lets you set a custom decoder for the consumed message
+     *
+     * @param DecoderInterface $decoder
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function withDecoder(DecoderInterface $decoder): KafkaConsumerBuilderInterface
+    {
+        $that = clone $this;
+        $that->decoder = $decoder;
+
+        return $that;
     }
 
     /**
@@ -264,12 +313,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->config['group.id'] = $this->consumerGroup;
         $this->config['enable.auto.offset.store'] = false;
 
-        //create config from given settings
-        $kafkaConfig = $this->createKafkaConfig(
-            $this->config,
+        //create config
+        $kafkaConfig = new KafkaConfiguration(
             $this->brokers,
             $this->topics,
-            $this->timeout
+            $this->timeout,
+            $this->config
         );
 
         if (null !== $this->logCallback) {
@@ -281,7 +330,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //create RdConsumer
 
-        if (self::CONSUMER_TYPE_LOW_LEVEL == $this->consumerType) {
+        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
                     sprintf(
@@ -294,12 +343,16 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
             $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
 
-            return new KafkaLowLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+            return new KafkaLowLevelConsumer(
+                $rdKafkaConsumer,
+                $kafkaConfig,
+                $this->decoder
+            );
         }
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
-        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig);
+        return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->decoder);
     }
 
     /**

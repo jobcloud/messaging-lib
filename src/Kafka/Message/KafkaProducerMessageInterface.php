@@ -21,16 +21,16 @@ interface KafkaProducerMessageInterface extends KafkaMessageInterface
     public function withKey(?string $key): KafkaProducerMessageInterface;
 
     /**
-     * @param string|null $body
+     * @param mixed $body
      * @return KafkaProducerMessageInterface
      */
-    public function withBody(?string $body): KafkaProducerMessageInterface;
+    public function withBody($body): KafkaProducerMessageInterface;
 
     /**
-     * @param array $headers
+     * @param array|null $headers
      * @return KafkaProducerMessageInterface
      */
-    public function withHeaders(array $headers): KafkaProducerMessageInterface;
+    public function withHeaders(?array $headers): KafkaProducerMessageInterface;
 
     /**
      * @param string         $key

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerCommitException;
@@ -19,23 +20,32 @@ use RdKafka\Queue as RdKafkaQueue;
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
 
-    /** @var RdKafkaLowLevelConsumer */
+    /**
+     * @var RdKafkaLowLevelConsumer
+     */
     protected $consumer;
 
-    /** @var array|RdKafkaConsumerTopic[] */
+    /**
+     * @var array|RdKafkaConsumerTopic[]
+     */
     protected $topics = [];
 
-    /** @var RdKafkaQueue */
+    /**
+     * @var RdKafkaQueue
+     */
     protected $queue;
 
     /**
      * @param RdKafkaLowLevelConsumer $consumer
      * @param KafkaConfiguration      $kafkaConfiguration
+     * @param DecoderInterface        $decoder
      */
-    public function __construct(RdKafkaLowLevelConsumer $consumer, KafkaConfiguration $kafkaConfiguration)
-    {
-        $this->consumer = $consumer;
-        $this->kafkaConfiguration = $kafkaConfiguration;
+    public function __construct(
+        RdKafkaLowLevelConsumer $consumer,
+        KafkaConfiguration $kafkaConfiguration,
+        DecoderInterface $decoder
+    ) {
+        parent::__construct($consumer, $kafkaConfiguration, $decoder);
         $this->queue = $consumer->newQueue();
     }
 

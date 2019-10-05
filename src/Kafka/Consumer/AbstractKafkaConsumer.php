@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerTimeoutException;
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
+use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaConsumerConsumeException;
@@ -18,14 +22,40 @@ use RdKafka\Message as RdKafkaMessage;
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
 
-    /** @var KafkaConfiguration */
+    /**
+     * @var KafkaConfiguration
+     */
     protected $kafkaConfiguration;
 
-    /** @var boolean */
+    /**
+     * @var boolean
+     */
     protected $subscribed = false;
 
-    /** @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer */
+    /**
+     * @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer
+     */
     protected $consumer;
+
+    /**
+     * @var DecoderInterface
+     */
+    protected $decoder;
+
+    /**
+     * @param mixed              $consumer
+     * @param KafkaConfiguration $kafkaConfiguration
+     * @param DecoderInterface   $decoder
+     */
+    public function __construct(
+        $consumer,
+        KafkaConfiguration $kafkaConfiguration,
+        DecoderInterface $decoder
+    ) {
+        $this->consumer = $consumer;
+        $this->kafkaConfiguration = $kafkaConfiguration;
+        $this->decoder = $decoder;
+    }
 
     /**
      * Returns true if the consumer has subscribed to its topics, otherwise false
@@ -78,15 +108,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
-        $message = new KafkaConsumerMessage(
-            $rdKafkaMessage->topic_name,
-            $rdKafkaMessage->partition,
-            $rdKafkaMessage->offset,
-            $rdKafkaMessage->timestamp,
-            $rdKafkaMessage->key,
-            $rdKafkaMessage->payload,
-            $rdKafkaMessage->headers
-        );
+        $message = $this->getConsumerMessage($rdKafkaMessage);
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
@@ -160,6 +182,25 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
 
         return $highOffset;
+    }
+
+    /**
+     * @param RdKafkaMessage $message
+     * @return KafkaConsumerMessageInterface
+     */
+    protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
+    {
+        $message = new KafkaConsumerMessage(
+            $message->topic_name,
+            $message->partition,
+            $message->offset,
+            $message->timestamp,
+            $message->key,
+            $message->payload,
+            $message->headers
+        );
+
+        return $this->decoder->decode($message);
     }
 
     /**

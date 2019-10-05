@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
+use Jobcloud\Messaging\Kafka\Message\Decoder\DecoderInterface;
+
 interface KafkaConsumerBuilderInterface
 {
 
-    const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
-    const OFFSET_END = RD_KAFKA_OFFSET_END;
-    const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
+    public const OFFSET_BEGINNING = RD_KAFKA_OFFSET_BEGINNING;
+    public const OFFSET_END = RD_KAFKA_OFFSET_END;
+    public const OFFSET_STORED = RD_KAFKA_OFFSET_STORED;
 
     /**
      * Adds a broker from which you want to consume
@@ -17,7 +19,7 @@ interface KafkaConsumerBuilderInterface
      * @param string $broker
      * @return KafkaConsumerBuilderInterface
      */
-    public function addBroker(string $broker): self;
+    public function withAdditionalBroker(string $broker): self;
 
     /**
      * Add topic name(s) (and additionally partition(s) and offset(s)) to subscribe to
@@ -27,7 +29,26 @@ interface KafkaConsumerBuilderInterface
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
-    public function addSubscription(string $topicName, array $partitions = [], int $offset = self::OFFSET_STORED): self;
+    public function withAdditionalSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): self;
+
+    /**
+     * Replaces all topic names previously configured with a topic and additionally partitions and an offset to
+     * subscribe to
+     *
+     * @param string  $topicName
+     * @param array   $partitions
+     * @param integer $offset
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function withSubscription(
+        string $topicName,
+        array $partitions = [],
+        int $offset = self::OFFSET_STORED
+    ): self;
 
     /**
      * Add configuration settings, otherwise the kafka defaults apply
@@ -35,7 +56,7 @@ interface KafkaConsumerBuilderInterface
      * @param array $config
      * @return KafkaConsumerBuilderInterface
      */
-    public function addConfig(array $config): self;
+    public function withAdditionalConfig(array $config): self;
 
     /**
      * Set the timeout for all consumer actions
@@ -43,7 +64,7 @@ interface KafkaConsumerBuilderInterface
      * @param integer $timeout
      * @return KafkaConsumerBuilderInterface
      */
-    public function setTimeout(int $timeout): self;
+    public function withTimeout(int $timeout): self;
 
     /**
      * Set the consumer group
@@ -51,7 +72,7 @@ interface KafkaConsumerBuilderInterface
      * @param string $consumerGroup
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerGroup(string $consumerGroup): self;
+    public function withConsumerGroup(string $consumerGroup): self;
 
     /**
      * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
@@ -59,7 +80,7 @@ interface KafkaConsumerBuilderInterface
      * @param string $consumerType
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerType(string $consumerType): self;
+    public function withConsumerType(string $consumerType): self;
 
     /**
      * Set a callback to be called on errors.
@@ -68,7 +89,7 @@ interface KafkaConsumerBuilderInterface
      * @param callable $errorCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setErrorCallback(callable $errorCallback): self;
+    public function withErrorCallback(callable $errorCallback): self;
 
     /**
      * Set a callback to be called on consumer rebalance
@@ -76,7 +97,7 @@ interface KafkaConsumerBuilderInterface
      * @param callable $rebalanceCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setRebalanceCallback(callable $rebalanceCallback): self;
+    public function withRebalanceCallback(callable $rebalanceCallback): self;
 
     /**
      * Only applicable for the high level consumer
@@ -85,7 +106,7 @@ interface KafkaConsumerBuilderInterface
      * @param callable $consumeCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumeCallback(callable $consumeCallback): self;
+    public function withConsumeCallback(callable $consumeCallback): self;
 
     /**
      * Set callback that is being called on offset commits
@@ -93,7 +114,15 @@ interface KafkaConsumerBuilderInterface
      * @param callable $offsetCommitCallback
      * @return KafkaConsumerBuilderInterface
      */
-    public function setOffsetCommitCallback(callable $offsetCommitCallback): self;
+    public function withOffsetCommitCallback(callable $offsetCommitCallback): self;
+
+    /**
+     * Lets you set a custom decoder for the consumed message
+     *
+     * @param DecoderInterface $decoder
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function withDecoder(DecoderInterface $decoder): self;
 
     /**
      * Callback for log related events

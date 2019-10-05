@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Jobcloud\Messaging\Kafka\Producer;
 
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
+use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
-use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
@@ -17,32 +16,49 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 final class KafkaProducer implements KafkaProducerInterface
 {
 
-    /** @var RdKafkaProducer */
+    /**
+     * @var RdKafkaProducer
+     */
     protected $producer;
 
-    /** @var KafkaConfiguration */
+    /**
+     * @var KafkaConfiguration
+     */
     protected $kafkaConfiguration;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $producerTopics = [];
+
+    /**
+     * @var EncoderInterface
+     */
+    protected $encoder;
 
     /**
      * KafkaProducer constructor.
      * @param RdKafkaProducer    $producer
      * @param KafkaConfiguration $kafkaConfiguration
+     * @param EncoderInterface   $encoder
      */
-    public function __construct(RdKafkaProducer $producer, KafkaConfiguration $kafkaConfiguration)
-    {
+    public function __construct(
+        RdKafkaProducer $producer,
+        KafkaConfiguration $kafkaConfiguration,
+        EncoderInterface $encoder
+    ) {
         $this->producer = $producer;
         $this->kafkaConfiguration = $kafkaConfiguration;
+        $this->encoder = $encoder;
     }
 
     /**
      * Produces a message to the topic and partition defined in the message
+     * If a schema name was given, the message body will be avro serialized.
      *
      * @param MessageInterface $message
-     * @throws KafkaProducerException
      * @return void
+     * @throws KafkaProducerException
      */
     public function produce(MessageInterface $message): void
     {
@@ -54,6 +70,8 @@ final class KafkaProducer implements KafkaProducerInterface
                 )
             );
         }
+
+        $message = $this->encoder->encode($message);
 
         /** @var KafkaProducerMessageInterface $message */
         $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
