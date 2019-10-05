@@ -369,4 +369,36 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->expectExceptionMessage('Fail');
         $kafkaConsumer->getCommittedOffsets([], 1);
     }
+
+    /**
+     * @return void
+     */
+    public function testGetOffsetPositions(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('getOffsetPositions')
+            ->with([])
+            ->willReturn([]);
+
+        $kafkaConsumer->getOffsetPositions([]);
+    }
+
+    /**
+     * @return void
+     */
+    public function testClose(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+        $rdKafkaConsumerMock->expects(self::once())->method('close');
+
+        $kafkaConsumer->close();
+    }
 }

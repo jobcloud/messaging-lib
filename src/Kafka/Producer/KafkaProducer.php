@@ -13,7 +13,7 @@ use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
-final class KafkaProducer implements ProducerInterface
+final class KafkaProducer implements KafkaProducerInterface
 {
 
     /**
@@ -78,7 +78,7 @@ final class KafkaProducer implements ProducerInterface
 
         $topicProducer->producev(
             $message->getPartition(),
-            0,
+            RD_KAFKA_MSG_F_BLOCK,
             $message->getBody(),
             $message->getKey(),
             $message->getHeaders()
@@ -87,6 +87,28 @@ final class KafkaProducer implements ProducerInterface
         while ($this->producer->getOutQLen() > 0) {
             $this->producer->poll($this->kafkaConfiguration->getTimeout());
         }
+    }
+
+    /**
+     * Purge producer messages that are in flight
+     *
+     * @param integer $purgeFlags
+     * @return integer
+     */
+    public function purge(int $purgeFlags): int
+    {
+        return $this->producer->purge($purgeFlags);
+    }
+
+    /**
+     * Wait until all outstanding produce requests are completed
+     *
+     * @param integer $timeout
+     * @return integer
+     */
+    public function flush(int $timeout): int
+    {
+        return $this->producer->flush($timeout);
     }
 
     /**

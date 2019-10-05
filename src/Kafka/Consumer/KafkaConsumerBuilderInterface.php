@@ -125,6 +125,14 @@ interface KafkaConsumerBuilderInterface
     public function withDecoder(DecoderInterface $decoder): self;
 
     /**
+     * Callback for log related events
+     *
+     * @param callable $consumeCallback
+     * @return KafkaConsumerBuilderInterface
+     */
+    public function withLogCallback(callable $consumeCallback): KafkaConsumerBuilderInterface;
+
+    /**
      * Returns your consumer instance
      *
      * @return KafkaConsumerInterface

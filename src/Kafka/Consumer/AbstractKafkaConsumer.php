@@ -18,6 +18,7 @@ use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Message as RdKafkaMessage;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
@@ -134,6 +135,54 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             )
             ->getTopics()
             ->current();
+    }
+
+    /**
+     * Get the earliest offset for a certain timestamp for topic partitions
+     *
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @param integer                       $timeout
+     * @return array
+     */
+    public function offsetsForTimes(array $topicPartitions, int $timeout): array
+    {
+        return $this->consumer->offsetsForTimes($topicPartitions, $timeout);
+    }
+
+    /**
+     * Queries the broker for the first offset of a given topic and partition
+     *
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int
+    {
+        $lowOffset = 0;
+        $highOffset = 0;
+
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+
+        return $lowOffset;
+    }
+
+    /**
+     * Queries the broker for the last offset of a given topic and partition
+     *
+     * @param string  $topic
+     * @param integer $partition
+     * @param integer $timeout
+     * @return integer
+     */
+    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int
+    {
+        $lowOffset = 0;
+        $highOffset = 0;
+
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+
+        return $highOffset;
     }
 
     /**

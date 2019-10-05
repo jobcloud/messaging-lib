@@ -258,6 +258,24 @@ final class KafkaConsumerBuilderTest extends TestCase
 
     /**
      * @return void
+     * @throws \ReflectionException
+     */
+    public function testSetLogCallback(): void
+    {
+        $callback = function () {
+            // Anonymous test method, no logic required
+        };
+
+        $clone = $this->kafkaConsumerBuilder->withLogCallback($callback);
+
+        $reflectionProperty = new \ReflectionProperty($clone, 'logCallback');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertSame($callback, $reflectionProperty->getValue($clone));
+    }
+
+    /**
+     * @return void
      * @throws KafkaConsumerBuilderException
      */
     public function testBuildFailMissingBrokers(): void
@@ -295,6 +313,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withOffsetCommitCallback($callback)
             ->withConsumeCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);

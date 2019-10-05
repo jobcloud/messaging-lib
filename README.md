@@ -14,7 +14,7 @@ To read more about the functions used in this lib, check out the [documentation]
 
 ## Requirements
 - php: ^7.1
-- ext-rdkafka: ^3.1.2
+- ext-rdkafka: ^4.0.0
 
 ## Installation
 ```composer require jobcloud/messaging-lib "~4.0"```

@@ -6,7 +6,7 @@ ARG HOST_USER_ID
 ARG HOST_USER
 
 # PHP: Copy configuration files & remove dist files
-COPY dev/php/files/php/ /phpIni
+RUN mkdir /phpIni
 COPY dev/php/files/bin/ /usr/local/bin/
 
 # SYS: Install required packages
@@ -35,7 +35,7 @@ RUN composer global require hirak/prestissimo
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka xdebug && \
+    pecl install rdkafka && \
     docker-php-ext-install pcntl && \
     php-ext-enable rdkafka pcntl
 

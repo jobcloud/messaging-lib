@@ -157,6 +157,27 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Get current offset positions of the consumer
+     *
+     * @param array|RdKafkaTopicPartition[] $topicPartitions
+     * @return array
+     */
+    public function getOffsetPositions(array $topicPartitions): array
+    {
+        return $this->consumer->getOffsetPositions($topicPartitions);
+    }
+
+    /**
+     * Close the consumer connection
+     *
+     * @return void;
+     */
+    public function close(): void
+    {
+        $this->consumer->close();
+    }
+
+    /**
      * @param integer $timeout
      * @return RdKafkaMessage|null
      * @throws RdKafkaException

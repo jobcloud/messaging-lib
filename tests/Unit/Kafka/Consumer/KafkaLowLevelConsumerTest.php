@@ -587,7 +587,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
     {
         $partitionMock = $this->getMockBuilder(RdKafkaMetadataPartition::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->getMock();
 
         $partitionMock
@@ -596,5 +596,19 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->willReturn($partitionId);
 
         return $partitionMock;
+    }
+
+    /**
+     * @return void
+     */
+    public function testOffsetsForTimes(): void
+    {
+        $this->rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('offsetsForTimes')
+            ->with([], 1000)
+            ->willReturn([]);
+
+        $this->kafkaConsumer->offsetsForTimes([], 1000);
     }
 }
