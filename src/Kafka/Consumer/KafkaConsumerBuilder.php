@@ -311,7 +311,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
-        $this->config['enable.auto.offset.store'] = false;
 
         //create config
         $kafkaConfig = new KafkaConfiguration(
@@ -321,16 +320,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             $this->config
         );
 
-        if (null !== $this->logCallback) {
-            $this->config['log.queue'] = true;
-        }
-
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
 
         if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
+            $this->config['enable.auto.offset.store'] = false;
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
                     sprintf(
@@ -349,6 +345,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
                 $this->decoder
             );
         }
+
+        $this->config['enable.auto.commit'] = false;
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
