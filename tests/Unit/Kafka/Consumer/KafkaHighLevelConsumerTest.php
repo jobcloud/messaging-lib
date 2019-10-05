@@ -386,4 +386,17 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         $kafkaConsumer->getOffsetPositions([]);
     }
+
+    /**
+     * @return void
+     */
+    public function testClose(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock);
+        $rdKafkaConsumerMock->expects(self::once())->method('close');
+
+        $kafkaConsumer->close();
+    }
 }

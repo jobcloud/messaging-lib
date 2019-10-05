@@ -168,6 +168,16 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * Close the consumer connection
+     *
+     * @return void;
+     */
+    public function close(): void
+    {
+        $this->consumer->close();
+    }
+
+    /**
      * @param integer $timeout
      * @return RdKafkaMessage|null
      * @throws RdKafkaException

@@ -48,4 +48,11 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
      * @return array
      */
     public function getOffsetPositions(array $topicPartitions): array;
+
+    /**
+     * Close the consumer connection
+     *
+     * @return void;
+     */
+    public function close(): void;
 }
