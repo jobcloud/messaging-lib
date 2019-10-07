@@ -11,7 +11,7 @@ class KafkaConsumerConsumeException extends ConsumerException
 {
 
     /**
-     * @var Message
+     * @var Message|null
      */
     private $kafkaMessage;
 
@@ -33,9 +33,9 @@ class KafkaConsumerConsumeException extends ConsumerException
     }
 
     /**
-     * @return Message
+     * @return Message|null
      */
-    public function getKafkaMessage(): Message
+    public function getKafkaMessage(): ?Message
     {
         return $this->kafkaMessage;
     }

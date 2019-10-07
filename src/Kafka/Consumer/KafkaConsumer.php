@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
+
 namespace Jobcloud\Messaging\Kafka\Consumer;
 
 use Jobcloud\Messaging\Consumer\MessageInterface;
