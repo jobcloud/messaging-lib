@@ -17,14 +17,14 @@ class ProducerPoolTest extends TestCase
      */
     protected $producerPool;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->producerPool = new ProducerPool();
     }
 
     public function testGetProducerPool()
     {
-        self::assertInternalType('array', $this->producerPool->getProducerPool());
+        self::assertIsArray($this->producerPool->getProducerPool());
     }
 
     public function testAddProducerSuccess()

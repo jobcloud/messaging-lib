@@ -27,7 +27,11 @@
             <directory>./tests/Unit</directory>
         </testsuite>
     </testsuites>
-
+    <logging>
+        <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
+        <log type="coverage-html" target="./build"/>
+        <log type="coverage-clover" target="clover.xml"/>
+    </logging>
     <filter>
         <whitelist>
             <directory>src</directory>

@@ -40,23 +40,38 @@ final class TopicSubscriptionTest extends TestCase
     {
         $topicSubscription = new TopicSubscription('test');
 
-        self::assertAttributeEquals(['auto.offset.reset' => 'smallest'],'topicSettings', $topicSubscription);
+        $reflectionProperty = new \ReflectionProperty($topicSubscription, 'topicSettings');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertEquals(
+            ['auto.offset.reset' => 'smallest'],
+            $reflectionProperty->getValue($topicSubscription)
+        );
     }
 
     public function testOverrideSettings()
     {
         $topicSubscription = new TopicSubscription('test', RD_KAFKA_OFFSET_STORED, ['auto.offset.reset' => 'latest']);
 
-        self::assertAttributeEquals(['auto.offset.reset' => 'latest'],'topicSettings', $topicSubscription);
+        $reflectionProperty = new \ReflectionProperty($topicSubscription, 'topicSettings');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertEquals(
+            ['auto.offset.reset' => 'latest'],
+            $reflectionProperty->getValue($topicSubscription)
+        );
     }
 
     public function testAppendSettings()
     {
         $topicSubscription = new TopicSubscription('test', RD_KAFKA_OFFSET_STORED, ['request.required.acks' => '1']);
 
-        self::assertAttributeEquals(
+        $reflectionProperty = new \ReflectionProperty($topicSubscription, 'topicSettings');
+        $reflectionProperty->setAccessible(true);
+
+        self::assertEquals(
             ['auto.offset.reset' => 'smallest', 'request.required.acks' => '1'],
-            'topicSettings',
-            $topicSubscription);
+            $reflectionProperty->getValue($topicSubscription)
+        );
     }
 }

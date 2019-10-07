@@ -10,7 +10,6 @@ use RdKafka\Consumer as RdKafkaConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
-
     use KafkaConfigTrait;
 
     /**

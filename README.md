@@ -1,7 +1,7 @@
 # messaging-lib
 
 [![Build Status](https://semaphoreci.com/api/v1/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8/branches/master/shields_badge.svg)](https://semaphoreci.com/nick-zh/messaging-lib-77823800-8a15-4a87-aaa6-531ca5e5cda8)
- [![Maintainability](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/maintainability)](https://codeclimate.com/github/jobcloud/messaging-lib/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/test_coverage)](https://codeclimate.com/github/jobcloud/messaging-lib/test_coverage) [![Latest Stable Version](https://poser.pugx.org/jobcloud/messaging-lib/v/stable)](https://packagist.org/packages/jobcloud/messaging-lib) [![Latest Unstable Version](https://poser.pugx.org/jobcloud/messaging-lib/v/unstable)](https://packagist.org/packages/jobcloud/messaging-lib) 
+ [![Maintainability](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/maintainability)](https://codeclimate.com/github/jobcloud/messaging-lib/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/7b01ab13705d4be203a1/test_coverage)](https://codeclimate.com/github/jobcloud/messaging-lib/test_coverage) [![Latest Stable Version](https://poser.pugx.org/jobcloud/messaging-lib/v/stable)](https://packagist.org/packages/jobcloud/messaging-lib) [![Latest Unstable Version](https://poser.pugx.org/jobcloud/messaging-lib/v/unstable)](https://packagist.org/packages/jobcloud/messaging-lib)
 ## Description
 Generic php messaging library
 Supports:
@@ -9,7 +9,7 @@ Supports:
 
 ## Requirements
 - php: ^7.1
-- ext-rdkafka: ^3.0.5
+- ext-rdkafka: ^3.0.5|^4.0
 
 ## Installation
 ```composer require jobcloud/messaging-lib "~1.0"```
@@ -57,7 +57,7 @@ while (true) {
         $message = $consumer->consume();
     } catch (ConsumerException $e) {
         // Failed
-    } 
+    }
 }
 ```
 
