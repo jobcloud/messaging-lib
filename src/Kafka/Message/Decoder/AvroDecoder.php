@@ -11,7 +11,7 @@ use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Messaging\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
-final class AvroDecoder implements DecoderInterface
+final class AvroDecoder implements AvroDecoderInterface
 {
 
     /**
@@ -64,5 +64,13 @@ final class AvroDecoder implements DecoderInterface
             $body,
             $consumerMessage->getHeaders()
         );
+    }
+
+    /**
+     * @return AvroSchemaRegistryInterface
+     */
+    public function getRegistry(): AvroSchemaRegistryInterface
+    {
+        return $this->registry;
     }
 }

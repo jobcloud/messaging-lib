@@ -98,4 +98,13 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry->getSchemaForTopic('test');
     }
+
+    public function testGetTopicSchemaMapping()
+    {
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+
+        self::assertIsArray($registry->getTopicSchemaMapping());
+    }
 }

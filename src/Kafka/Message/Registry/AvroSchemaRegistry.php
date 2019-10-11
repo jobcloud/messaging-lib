@@ -76,4 +76,12 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 
         return $this->registry->schemaForSubjectAndVersion($avroSchema->getName(), $avroSchema->getVersion());
     }
+
+    /**
+     * @return array|KafkaAvroSchemaInterface[]
+     */
+    public function getTopicSchemaMapping(): array
+    {
+        return $this->schemaMapping;
+    }
 }

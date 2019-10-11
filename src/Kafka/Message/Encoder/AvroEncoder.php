@@ -10,7 +10,7 @@ use Jobcloud\Messaging\Kafka\Exception\AvroEncoderException;
 use Jobcloud\Messaging\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Messaging\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
-final class AvroEncoder implements EncoderInterface
+final class AvroEncoder implements AvroEncoderInterface
 {
 
     /**
@@ -70,5 +70,13 @@ final class AvroEncoder implements EncoderInterface
         );
 
         return $producerMessage->withBody($body);
+    }
+
+    /**
+     * @return AvroSchemaRegistryInterface
+     */
+    public function getRegistry(): AvroSchemaRegistryInterface
+    {
+        return $this->registry;
     }
 }
