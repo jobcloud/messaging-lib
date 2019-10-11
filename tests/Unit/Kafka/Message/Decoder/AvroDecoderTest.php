@@ -86,4 +86,14 @@ class AvroDecoderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame([ 0 => 'test'], $result->getBody());
     }
+
+    public function testGetRegistry()
+    {
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+
+        $decoder = new AvroDecoder($registry, $recordSerializer);
+
+        self::assertSame($registry, $decoder->getRegistry());
+    }
 }

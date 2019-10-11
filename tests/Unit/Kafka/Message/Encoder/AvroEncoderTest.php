@@ -105,4 +105,14 @@ class AvroEncoderTest extends TestCase
 
         self::assertSame($producerMessage, $encoder->encode($producerMessage));
     }
+
+    public function testGetRegistry()
+    {
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+
+        self::assertSame($registry, $encoder->getRegistry());
+    }
 }
