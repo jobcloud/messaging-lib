@@ -31,17 +31,10 @@ interface KafkaConsumerBuilderInterface
     public function setTimeout(int $timeout): self;
 
     /**
-     * @param string $consumerGroupBase
+     * @param string $consumerGroup
      * @return KafkaConsumerBuilderInterface
      */
-    public function setConsumerGroupBase(string $consumerGroupBase): self;
-
-    /**
-     * @param string  $consumerGroup
-     * @param boolean $isSuffixOnly
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function setConsumerGroup(string $consumerGroup, bool $isSuffixOnly = false): self;
+    public function setConsumerGroup(string $consumerGroup): self;
 
     /**
      * @param callable $errorCallback
