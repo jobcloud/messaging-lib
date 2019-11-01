@@ -338,8 +338,12 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
             ->build();
 
+        $conf = $consumer->getConfiguration();
+
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaLowLevelConsumerInterface::class, $consumer);
+        self::assertArrayHasKey('enable.auto.offset.store', $conf);
+        self::assertEquals($conf['enable.auto.offset.store'], 'false');
     }
 
     /**
@@ -385,7 +389,11 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withErrorCallback($callback)
             ->build();
 
+        $conf = $consumer->getConfiguration();
+
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaHighLevelConsumerInterface::class, $consumer);
+        self::assertArrayHasKey('enable.auto.commit', $conf);
+        self::assertEquals($conf['enable.auto.commit'], 'false');
     }
 }
