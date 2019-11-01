@@ -112,7 +112,7 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testAddConfig(): void
     {
-        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group'];
+        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group', 'enable.auto.offset.store' => true];
         $newConfig = ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3];
         $clone = $this->kafkaConsumerBuilder->withAdditionalConfig($intialConfig);
         $clone = $clone->withAdditionalConfig($newConfig);
@@ -125,7 +125,7 @@ final class KafkaConsumerBuilderTest extends TestCase
                 'timeout' => 1001,
                 'offset.store.sync.interval.ms' => 60e3,
                 'group.id' => 'test-group',
-                'enable.auto.offset.store' => false,
+                'enable.auto.offset.store' => true,
                 'enable.auto.commit' => false,
                 'auto.offset.reset' => 'earliest'
             ],
