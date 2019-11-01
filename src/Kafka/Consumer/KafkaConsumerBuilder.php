@@ -327,7 +327,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //create RdConsumer
 
         if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
-            $this->config['enable.auto.offset.store'] = false;
+            $kafkaConfig->set('enable.auto.offset.store', 'false');
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
                     sprintf(
@@ -347,7 +347,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             );
         }
 
-        $this->config['enable.auto.commit'] = false;
+        $kafkaConfig->set('enable.auto.commit', 'false');
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
