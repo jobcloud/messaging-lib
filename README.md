@@ -117,7 +117,6 @@ $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
-            'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )
@@ -158,7 +157,6 @@ $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
-            'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )
@@ -231,7 +229,6 @@ $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(
         [
             'compression.codec' => 'lz4',
-            'auto.offset.reset' => 'earliest',
             'auto.commit.interval.ms' => 500
         ]
     )

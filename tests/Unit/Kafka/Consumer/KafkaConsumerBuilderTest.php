@@ -112,7 +112,7 @@ final class KafkaConsumerBuilderTest extends TestCase
      */
     public function testAddConfig(): void
     {
-        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group'];
+        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group', 'enable.auto.offset.store' => true];
         $newConfig = ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3];
         $clone = $this->kafkaConsumerBuilder->withAdditionalConfig($intialConfig);
         $clone = $clone->withAdditionalConfig($newConfig);
@@ -121,7 +121,14 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(
-            ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3, 'group.id' => 'test-group'],
+            [
+                'timeout' => 1001,
+                'offset.store.sync.interval.ms' => 60e3,
+                'group.id' => 'test-group',
+                'enable.auto.offset.store' => true,
+                'enable.auto.commit' => false,
+                'auto.offset.reset' => 'earliest'
+            ],
             $reflectionProperty->getValue($clone)
         );
     }
@@ -338,8 +345,12 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
             ->build();
 
+        $conf = $consumer->getConfiguration();
+
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaLowLevelConsumerInterface::class, $consumer);
+        self::assertArrayHasKey('enable.auto.offset.store', $conf);
+        self::assertEquals($conf['enable.auto.offset.store'], 'false');
     }
 
     /**
@@ -385,7 +396,11 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withErrorCallback($callback)
             ->build();
 
+        $conf = $consumer->getConfiguration();
+
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaHighLevelConsumerInterface::class, $consumer);
+        self::assertArrayHasKey('enable.auto.commit', $conf);
+        self::assertEquals($conf['enable.auto.commit'], 'false');
     }
 }
