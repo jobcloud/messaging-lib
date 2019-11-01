@@ -121,7 +121,14 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(
-            ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3, 'group.id' => 'test-group'],
+            [
+                'timeout' => 1001,
+                'offset.store.sync.interval.ms' => 60e3,
+                'group.id' => 'test-group',
+                'enable.auto.offset.store' => false,
+                'enable.auto.commit' => false,
+                'auto.offset.reset' => 'earliest'
+            ],
             $reflectionProperty->getValue($clone)
         );
     }

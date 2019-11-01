@@ -26,7 +26,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * @var array
      */
-    private $config = [];
+    private $config = [
+        'enable.auto.offset.store' => false,
+        'enable.auto.commit' => false,
+        'auto.offset.reset' => 'earliest'
+    ];
 
     /**
      * @var array
@@ -312,7 +316,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
-        $this->config['auto.offset.reset'] = 'earliest';
 
         //create config
         $kafkaConfig = new KafkaConfiguration(
@@ -328,7 +331,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         //create RdConsumer
 
         if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
-            $kafkaConfig->set('enable.auto.offset.store', 'false');
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
                     sprintf(
@@ -347,8 +349,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
                 $this->decoder
             );
         }
-
-        $kafkaConfig->set('enable.auto.commit', 'false');
 
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
