@@ -7,6 +7,7 @@ services:
       args:
         HOST_USER: ${USER}
         HOST_USER_ID: ${USER_ID}
+    container_name: messaging-lib-php
     tty: true
     volumes:
       - ../:/var/www/html
