@@ -105,8 +105,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerEndOfPartitionException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         } elseif (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err) {
             throw new KafkaConsumerTimeoutException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
-        } elseif (null === $rdKafkaMessage->topic_name && RD_KAFKA_RESP_ERR_NO_ERROR !== $rdKafkaMessage->err) {
-            throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
         $message = $this->getConsumerMessage($rdKafkaMessage);
@@ -115,7 +113,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
         }
 
-        return $message;
+        return $this->decoder->decode($message);
     }
 
     /**
@@ -191,17 +189,15 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      */
     protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
     {
-        $message = new KafkaConsumerMessage(
-            $message->topic_name,
-            $message->partition,
-            $message->offset,
-            $message->timestamp,
-            $message->key,
-            $message->payload,
-            $message->headers
+        return new KafkaConsumerMessage(
+            (string) $message->topic_name,
+            (int) $message->partition,
+            (int) $message->offset,
+            (int) $message->timestamp,
+            (string) $message->key,
+            (string) $message->payload,
+            (array) $message->headers
         );
-
-        return $this->decoder->decode($message);
     }
 
     /**
