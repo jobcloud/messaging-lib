@@ -15,7 +15,7 @@ code-style:
 	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --ignore=./src/Kafka/Callback/ --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
 
 coverage: xdebug-disable
-	${PHPDBG} && ./vendor/bin/coverage-check 100
+	${PHPDBG} && ./vendor/bin/coverage-check clover.xml 100
 
 test: xdebug-disable
 	${PHPUNIT}
