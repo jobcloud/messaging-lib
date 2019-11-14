@@ -27,6 +27,7 @@
     "phpstan/phpstan": "^0.11.12",
     "php-mock/php-mock-phpunit": "^2.5",
     "kwn/php-rdkafka-stubs": "^2.0.0",
+    "rregeer/phpunit-coverage-check": "^0.3.1",
     "johnkary/phpunit-speedtrap": "^3.1"
   },
   "autoload": {
