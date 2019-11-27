@@ -84,14 +84,3 @@ jobs:
           container: php
       - store_test_results:
           path: ./build/logs/phpstan
-  infection-testing:
-    machine: true
-    steps:
-      - ci-caching/run-docker-from-restored-caches:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          dependencyCheckSumFile: "./composer.json"
-      - ci-caching/execute-in-container:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          info: Execute infection testing
-          command: make infection-testing
-          container: php

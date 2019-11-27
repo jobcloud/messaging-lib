@@ -1,4 +1,4 @@
-.PHONY: clean code-style coverage help test static-analysis infection-testing update-dependencies xdebug-enable xdebug-disable
+.PHONY: clean code-style coverage help test static-analysis update-dependencies xdebug-enable xdebug-disable
 .DEFAULT_GOAL := test
 
 PHPUNIT =  ./vendor/bin/phpunit -c ./phpunit.xml
@@ -23,11 +23,6 @@ test: xdebug-disable
 static-analysis: xdebug-disable
 	mkdir -p build/logs/phpstan
 	${PHPSTAN} analyse --no-progress
-
-infection-testing:
-	make coverage
-	cp -f build/logs/coverage/junit.xml build/logs/coverage/phpunit.junit.xml
-	${INFECTION} --coverage=build/logs/coverage --min-msi=65 --threads=`nproc`
 
 update-dependencies:
 	composer update
@@ -55,7 +50,6 @@ help:
 	#   help                You're looking at it!
 	#   test (default)      Run all the tests with phpunit
 	#   static-analysis     Run static analysis using phpstan
-	#   infection-testing   Run infection/mutation testing
 	#   install-dependencies Run composer install
 	#   update-dependencies Run composer update
 	#   xdebug-enable       Enable xdebug
