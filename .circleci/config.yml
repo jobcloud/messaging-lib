@@ -1,4 +1,4 @@
-version: 2.1 # CircleCI version
+version: 2.1
 
 orbs:
   ci-caching: jobcloud/ci-caching@0.5
@@ -7,7 +7,8 @@ workflows:
   version: 2
   test-messaging-lib:
     jobs:
-      - ci-caching/build-docker-images
+      - ci-caching/build-docker-images:
+          dockerComposeFile: "./docker/docker-compose.yml"
       - install-dependencies:
           requires:
             - ci-caching/build-docker-images
@@ -28,9 +29,11 @@ jobs:
       - checkout
       - ci-caching/run-docker-from-restored-caches:
           dependencyCheckSumFile: "./composer.lock"
+          dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/dependency-check:
           cacheDataPath: "./composer.lock"
       - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Install dependencies
           command: make install-dependencies
           container: php
@@ -43,7 +46,9 @@ jobs:
     steps:
       - ci-caching/run-docker-from-restored-caches:
           dependencyCheckSumFile: "./composer.lock"
+          dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute tests with code coverage
           command: make coverage
           container: php
@@ -57,7 +62,9 @@ jobs:
     steps:
       - ci-caching/run-docker-from-restored-caches:
           dependencyCheckSumFile: "./composer.lock"
+          dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Check code style
           command: make code-style
           container: php
@@ -68,8 +75,10 @@ jobs:
     machine: true
     steps:
       - ci-caching/run-docker-from-restored-caches:
+          dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.lock"
       - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute static analysis
           command: make static-analysis
           container: php
@@ -79,8 +88,10 @@ jobs:
     machine: true
     steps:
       - ci-caching/run-docker-from-restored-caches:
+          dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.lock"
       - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute infection testing
           command: make infection-testing
           container: php
