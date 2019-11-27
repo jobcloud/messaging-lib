@@ -28,24 +28,24 @@ jobs:
     steps:
       - checkout
       - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.lock"
+          dependencyCheckSumFile: "./composer.json"
           dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/dependency-check:
-          cacheDataPath: "./composer.lock"
+          cacheDataPath: "./composer.json"
       - ci-caching/execute-in-container:
           dockerComposeFile: "./docker/docker-compose.yml"
           info: Install dependencies
           command: make install-dependencies
           container: php
       - ci-caching/dependency-cache-save:
-          checkSumFile: "./composer.lock"
+          checkSumFile: "./composer.json"
           cacheDataPath: "./vendor"
 
   coverage:
     machine: true
     steps:
       - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.lock"
+          dependencyCheckSumFile: "./composer.json"
           dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/execute-in-container:
           dockerComposeFile: "./docker/docker-compose.yml"
@@ -61,7 +61,7 @@ jobs:
     machine: true
     steps:
       - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.lock"
+          dependencyCheckSumFile: "./composer.json"
           dockerComposeFile: "./docker/docker-compose.yml"
       - ci-caching/execute-in-container:
           dockerComposeFile: "./docker/docker-compose.yml"
@@ -76,7 +76,7 @@ jobs:
     steps:
       - ci-caching/run-docker-from-restored-caches:
           dockerComposeFile: "./docker/docker-compose.yml"
-          dependencyCheckSumFile: "./composer.lock"
+          dependencyCheckSumFile: "./composer.json"
       - ci-caching/execute-in-container:
           dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute static analysis
@@ -89,7 +89,7 @@ jobs:
     steps:
       - ci-caching/run-docker-from-restored-caches:
           dockerComposeFile: "./docker/docker-compose.yml"
-          dependencyCheckSumFile: "./composer.lock"
+          dependencyCheckSumFile: "./composer.json"
       - ci-caching/execute-in-container:
           dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute infection testing
