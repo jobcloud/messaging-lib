@@ -28,7 +28,8 @@
     "php-mock/php-mock-phpunit": "^2.5",
     "kwn/php-rdkafka-stubs": "^2.0.0",
     "rregeer/phpunit-coverage-check": "^0.3.1",
-    "johnkary/phpunit-speedtrap": "^3.1"
+    "johnkary/phpunit-speedtrap": "^3.1",
+    "infection/infection": "^0.14.4"
   },
   "autoload": {
     "psr-4": {
