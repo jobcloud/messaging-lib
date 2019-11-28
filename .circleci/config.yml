@@ -1,13 +1,17 @@
-version: 2.1 # CircleCI version
+version: 2.1
+
+orbs:
+  ci-caching: jobcloud/ci-caching@0.5
 
 workflows:
   version: 2
   test-messaging-lib:
     jobs:
-      - build-docker
+      - ci-caching/build-docker-images:
+          dockerComposeFile: "./docker/docker-compose.yml"
       - install-dependencies:
           requires:
-            - build-docker
+            - ci-caching/build-docker-images
       - coverage:
           requires:
             - install-dependencies
@@ -17,165 +21,66 @@ workflows:
       - static-analysis:
           requires:
             - install-dependencies
-jobs:
-  build-docker:
-    machine: true
-    steps:
-      - checkout
-      - cache-load-docker-images
-      - run:
-          name: Check for existing docker images
-          command: |
-            if [[ -f ~/docker-images.tar ]]; then
-              circleci step halt
-            fi
-      - build-docker-images
-      - persist-docker-images
-      - cache-persist-docker-images
 
+jobs:
   install-dependencies:
     machine: true
     steps:
       - checkout
-      - cache-load-vendor
-      - run:
-          name: Check for existing vendor
-          command: |
-            if [[ -d ./vendor ]]; then
-              circleci step halt
-            fi
-      - cache-load-docker-images
-      - load-docker-images
-      - run-docker
-      - execute-in-container:
+      - ci-caching/run-docker-from-restored-caches:
+          dependencyCheckSumFile: "./composer.json"
+          dockerComposeFile: "./docker/docker-compose.yml"
+      - ci-caching/dependency-check:
+          cacheDataPath: "./composer.json"
+      - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Install dependencies
           command: make install-dependencies
-      - cache-persist-vendor
+          container: php
+      - ci-caching/dependency-cache-save:
+          checkSumFile: "./composer.json"
+          cacheDataPath: "./vendor"
 
   coverage:
     machine: true
     steps:
-      - restore
-      - run:
-          name:  Download cc-test-reporter
-          command: |
-            mkdir -p tmp/
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
-            chmod +x ./tmp/cc-test-reporter
-      - execute-in-container:
+      - ci-caching/run-docker-from-restored-caches:
+          dependencyCheckSumFile: "./composer.json"
+          dockerComposeFile: "./docker/docker-compose.yml"
+      - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute tests with code coverage
           command: make coverage
-      - run:
-          name: Upload coverage results to Code Climate
-          command: |
-            ./tmp/cc-test-reporter after-build -p /var/www/html --coverage-input-type clover;
+          container: php
+      - store_artifacts:
+          path: ./build/logs/phpunit/coverage
+      - store_test_results:
+          path: ./build/logs/phpunit
 
   code-style:
     machine: true
     steps:
-      - restore
-      - execute-in-container:
+      - ci-caching/run-docker-from-restored-caches:
+          dependencyCheckSumFile: "./composer.json"
+          dockerComposeFile: "./docker/docker-compose.yml"
+      - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Check code style
           command: make code-style
+          container: php
       - store_test_results:
           path: ./build/logs/phpcs
 
   static-analysis:
     machine: true
     steps:
-      - restore
-      - execute-in-container:
+      - ci-caching/run-docker-from-restored-caches:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
+      - ci-caching/execute-in-container:
+          dockerComposeFile: "./docker/docker-compose.yml"
           info: Execute static analysis
           command: make static-analysis
+          container: php
       - store_test_results:
           path: ./build/logs/phpstan
-
-
-commands:
-  restore:
-    steps:
-      - checkout
-      - cache-load-docker-images
-      - load-docker-images
-      - cache-load-vendor
-      - run-docker
-  run-docker:
-    steps:
-      - run:
-          name: Run docker
-          command: cd ./docker && docker-compose -f docker-compose.yml up -d
-
-  build-docker-images:
-    steps:
-      - run:
-          name: Build docker
-          command: cd ./docker && docker-compose -f docker-compose.yml build
-
-  persist-docker-images:
-    steps:
-      - run:
-          name: Persist docker images
-          command: |
-            export DOCKER_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}"  --filter "dangling=false")
-            docker save -o ~/docker-images.tar $DOCKER_IMAGES
-
-  load-docker-images:
-    steps:
-      - run:
-          name: Load docker images
-          command: |
-            if [[ -f ~/docker-images.tar ]]; then
-              docker load -i ~/docker-images.tar
-            fi
-
-  cache-persist-docker-images:
-    steps:
-      - run:
-          name: Create directory cache key
-          command: |
-            echo $(find ./docker/dev -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1)  > CACHE_KEY
-      - save_cache:
-          name: Cache docker images
-          key: docker-images-{{ checksum "./CACHE_KEY" }}{{ checksum "./docker/docker-compose.yml" }}
-          paths:
-            - ~/docker-images.tar
-
-  cache-load-docker-images:
-    steps:
-      - run:
-          name: Create directory cache key
-          command: |
-            echo $(find ./docker/dev -type f -exec md5sum {} \; | md5sum | cut -d' ' -f1)  > CACHE_KEY
-      - restore_cache:
-          name: Load docker images from cache
-          keys:
-            - docker-images-{{ checksum "./CACHE_KEY" }}{{ checksum "./docker/docker-compose.yml" }}
-
-  cache-persist-vendor:
-    steps:
-      - save_cache:
-          name: Cache vendor
-          key: vendor-{{ checksum "./composer.json" }}
-          paths:
-            - ./vendor/
-
-  cache-load-vendor:
-    steps:
-      - restore_cache:
-          name: Load vendor from cache
-          keys:
-            - vendor-{{ checksum "./composer.json" }}
-
-  execute-in-container:
-    parameters:
-      info:
-        type: string
-      container:
-        type: string
-        default: php
-      command:
-        type: string
-    steps:
-      - run:
-          name: << parameters.info >>
-          command: cd ./docker && docker-compose -f docker-compose.yml exec << parameters.container >> /bin/bash -c "<< parameters.command >>"
