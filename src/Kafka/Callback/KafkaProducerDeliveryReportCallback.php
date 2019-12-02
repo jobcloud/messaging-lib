@@ -8,7 +8,9 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\Message as RdKafkaMessage;
 
-require_once __DIR__ . '/../Exception/KafkaProducerException.php';  // @codeCoverageIgnore phpcs:ignore
+// phpcs:disable
+require_once __DIR__ . '/../Exception/KafkaProducerException.php';  // @codeCoverageIgnore
+// phpcs:enable
 
 final class KafkaProducerDeliveryReportCallback
 {
