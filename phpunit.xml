@@ -30,7 +30,9 @@
     <logging>
         <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
         <log type="coverage-html" target="./build"/>
+        <log type="coverage-xml" target="./build/coverage-xml"/>
         <log type="coverage-clover" target="clover.xml"/>
+        <log type="junit" target="build/junit.xml"/>
     </logging>
     <filter>
         <whitelist>
