@@ -17,7 +17,6 @@ workflows:
       - ci-php/coverage:
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
-          coverageDir: "./build"
           requires:
             - ci-php/install-dependencies
       - ci-php/code-style:
