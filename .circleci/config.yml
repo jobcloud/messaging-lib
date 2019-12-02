@@ -5,7 +5,6 @@ orbs:
   ci-php: jobcloud/ci-php@0.1
 
 workflows:
-  version: 2
   test-messaging-lib:
     jobs:
       - ci-caching/build-docker-images:
