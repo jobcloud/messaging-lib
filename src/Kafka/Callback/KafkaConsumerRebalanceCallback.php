@@ -1,5 +1,5 @@
 <?php
-// phpcs:ignoreFile
+
 declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Callback;
@@ -8,7 +8,7 @@ use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Messaging\Kafka\Exception\KafkaRebalanceException;
 use RdKafka\Exception as RdKafkaException;
 
-require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCoverageIgnore
+require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCoverageIgnore phpcs:ignore
 
 final class KafkaConsumerRebalanceCallback
 {

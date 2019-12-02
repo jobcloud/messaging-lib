@@ -1,12 +1,12 @@
 <?php
-// phpcs:ignoreFile
+
 declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Callback;
 
 use Jobcloud\Messaging\Kafka\Exception\KafkaBrokerException;
 
-require_once __DIR__ . '/../Exception/KafkaBrokerException.php';  // @codeCoverageIgnore
+require_once __DIR__ . '/../Exception/KafkaBrokerException.php';  // @codeCoverageIgnore phpcs:ignore
 
 final class KafkaErrorCallback
 {

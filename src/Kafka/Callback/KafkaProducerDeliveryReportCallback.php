@@ -1,5 +1,5 @@
 <?php
-// phpcs:ignoreFile
+
 declare(strict_types=1);
 
 namespace Jobcloud\Messaging\Kafka\Callback;
@@ -8,7 +8,7 @@ use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\Message as RdKafkaMessage;
 
-require_once __DIR__ . '/../Exception/KafkaProducerException.php';  // @codeCoverageIgnore
+require_once __DIR__ . '/../Exception/KafkaProducerException.php';  // @codeCoverageIgnore phpcs:ignore
 
 final class KafkaProducerDeliveryReportCallback
 {
