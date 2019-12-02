@@ -10,7 +10,7 @@ workflows:
     jobs:
       - ci-caching/build-docker-images:
           dockerComposeFile: "./docker/docker-compose.yml"
-      - ci-php/install-dependencies-command:
+      - ci-php/install-dependencies:
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFilKe: "./composer.json"
           requires:
@@ -19,14 +19,14 @@ workflows:
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
+            - ci-php/install-dependencies
       - ci-php/code-style:
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
+            - ci-php/install-dependencies
       - ci-php/static-analysis:
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
+            - ci-php/install-dependencies
