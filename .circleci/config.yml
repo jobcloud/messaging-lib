@@ -2,85 +2,30 @@ version: 2.1
 
 orbs:
   ci-caching: jobcloud/ci-caching@0.5
+  ci-php: jobcloud/ci-php@0.5
 
 workflows:
-  version: 2
   test-messaging-lib:
     jobs:
       - ci-caching/build-docker-images:
           dockerComposeFile: "./docker/docker-compose.yml"
-      - install-dependencies:
+      - ci-php/install-dependencies:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-caching/build-docker-images
-      - coverage:
+      - ci-php/coverage:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
-      - code-style:
+            - ci-php/install-dependencies
+      - ci-php/code-style:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
-      - static-analysis:
+            - ci-php/install-dependencies
+      - ci-php/static-analysis:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
           requires:
-            - install-dependencies
-
-jobs:
-  install-dependencies:
-    machine: true
-    steps:
-      - checkout
-      - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.json"
-          dockerComposeFile: "./docker/docker-compose.yml"
-      - ci-caching/dependency-check:
-          cacheDataPath: "./composer.json"
-      - ci-caching/execute-in-container:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          info: Install dependencies
-          command: make install-dependencies
-          container: php
-      - ci-caching/dependency-cache-save:
-          checkSumFile: "./composer.json"
-          cacheDataPath: "./vendor"
-
-  coverage:
-    machine: true
-    steps:
-      - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.json"
-          dockerComposeFile: "./docker/docker-compose.yml"
-      - ci-caching/execute-in-container:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          info: Execute tests with code coverage
-          command: make coverage
-          container: php
-      - store_artifacts:
-          path: ./build/logs/phpunit/coverage
-      - store_test_results:
-          path: ./build/logs/phpunit
-
-  code-style:
-    machine: true
-    steps:
-      - ci-caching/run-docker-from-restored-caches:
-          dependencyCheckSumFile: "./composer.json"
-          dockerComposeFile: "./docker/docker-compose.yml"
-      - ci-caching/execute-in-container:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          info: Check code style
-          command: make code-style
-          container: php
-      - store_test_results:
-          path: ./build/logs/phpcs
-
-  static-analysis:
-    machine: true
-    steps:
-      - ci-caching/run-docker-from-restored-caches:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          dependencyCheckSumFile: "./composer.json"
-      - ci-caching/execute-in-container:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          info: Execute static analysis
-          command: make static-analysis
-          container: php
-      - store_test_results:
-          path: ./build/logs/phpstan
+            - ci-php/install-dependencies
