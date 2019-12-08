@@ -340,7 +340,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
         $kafkaConsumer->subscribe();
-        $x = $kafkaConsumer->consume();
+        $kafkaConsumer->consume();
     }
 
     /**
