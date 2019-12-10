@@ -194,8 +194,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             (int) $message->partition,
             (int) $message->offset,
             (int) $message->timestamp,
-            (string) $message->key,
-            (string) $message->payload,
+            $message->key,
+            $message->payload,
             (array) $message->headers
         );
     }
