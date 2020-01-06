@@ -9,7 +9,6 @@ use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Message\MessageInterface;
 use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
-use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Producer as RdKafkaProducer;
