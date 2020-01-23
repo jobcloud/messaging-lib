@@ -10,7 +10,6 @@ use Jobcloud\Messaging\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Messaging\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Messaging\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Messaging\Kafka\Message\Encoder\NullEncoder;
-use Jobcloud\Messaging\Producer\ProducerInterface;
 use RdKafka\Producer as RdKafkaProducer;
 
 final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
@@ -148,10 +147,10 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Returns your producer instance
      *
-     * @return ProducerInterface
+     * @return KafkaProducerInterface
      * @throws KafkaProducerException
      */
-    public function build(): ProducerInterface
+    public function build(): KafkaProducerInterface
     {
         if ([] === $this->brokers) {
             throw new KafkaProducerException(KafkaProducerException::NO_BROKER_EXCEPTION_MESSAGE);
