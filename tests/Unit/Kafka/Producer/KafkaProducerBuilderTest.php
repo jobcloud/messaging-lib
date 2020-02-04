@@ -149,6 +149,7 @@ class KafkaProducerBuilderTest extends TestCase
             ->build();
 
         self::assertInstanceOf(ProducerInterface::class, $producer);
+        self::assertInstanceOf(KafkaProducerInterface::class, $producer);
     }
 
     /**
