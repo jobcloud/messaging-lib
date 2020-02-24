@@ -6,6 +6,9 @@ namespace Jobcloud\Messaging\Kafka\Message;
 
 interface KafkaAvroSchemaInterface
 {
+
+    public const LATEST_VERSION = -1;
+
     /**
      * @return string
      */
