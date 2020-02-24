@@ -79,6 +79,26 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getSchemaForTopic('test');
     }
 
+    public function testGetSchemaForTopicWithMappingWithDefinitionLatest()
+    {
+        $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+        $flixRegistry->expects(self::once())->method('latestVersion')->with('test-schema')->willReturn($definition);
+
+        $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $schema->expects(self::once())->method('getDefinition')->willReturn(null);
+        $schema->expects(self::once())->method('getVersion')->willReturn(KafkaAvroSchemaInterface::LATEST_VERSION);
+        $schema->expects(self::once())->method('getName')->willReturn('test-schema');
+        $schema->expects(self::once())->method('setDefinition')->with($definition);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+
+        $registry->addSchemaMappingForTopic('test', $schema);
+
+        $registry->getSchemaForTopic('test');
+    }
+
     public function testGetSchemaForTopicWithMappingWithoutDefinitionVersion()
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
