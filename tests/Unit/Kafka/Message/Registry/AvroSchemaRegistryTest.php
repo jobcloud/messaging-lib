@@ -68,7 +68,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $schema->expects(self::once())->method('getDefinition')->willReturn(null);
-        $schema->expects(self::once())->method('getVersion')->willReturn(null);
+        $schema->expects(self::once())->method('getVersion')->willReturn(KafkaAvroSchemaInterface::LATEST_VERSION);
         $schema->expects(self::once())->method('getName')->willReturn('test-schema');
         $schema->expects(self::once())->method('setDefinition')->with($definition);
 
@@ -88,7 +88,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $schema->expects(self::once())->method('getDefinition')->willReturn(null);
-        $schema->expects(self::exactly(2))->method('getVersion')->willReturn(KafkaAvroSchemaInterface::LATEST_VERSION);
+        $schema->expects(self::once())->method('getVersion')->willReturn(KafkaAvroSchemaInterface::LATEST_VERSION);
         $schema->expects(self::once())->method('getName')->willReturn('test-schema');
         $schema->expects(self::once())->method('setDefinition')->with($definition);
 
@@ -108,7 +108,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $schema->expects(self::once())->method('getDefinition')->willReturn(null);
-        $schema->expects(self::exactly(3))->method('getVersion')->willReturn(1);
+        $schema->expects(self::exactly(2))->method('getVersion')->willReturn(1);
         $schema->expects(self::once())->method('getName')->willReturn('test-schema');
         $schema->expects(self::once())->method('setDefinition')->with($definition);
 
