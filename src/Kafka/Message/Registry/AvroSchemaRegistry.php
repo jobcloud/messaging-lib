@@ -70,7 +70,8 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
      */
     private function getSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): \AvroSchema
     {
-        if (null === $avroSchema->getVersion()
+        if (
+            null === $avroSchema->getVersion()
             || KafkaAvroSchemaInterface::LATEST_VERSION === $avroSchema->getVersion()
         ) {
             return $this->registry->latestVersion($avroSchema->getName());
