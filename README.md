@@ -1,3 +1,7 @@
+#Deprecation notice
+This library has been deprecated in favour of [php-kafka-lib](https://github.com/jobcloud/php-kafka-lib).
+Please check [MIGRATION.md](MIGRATION.md) for the migration path.
+
 # messaging-lib
 
 [![CircleCI](https://circleci.com/gh/jobcloud/messaging-lib.svg?style=svg)](https://circleci.com/gh/jobcloud/messaging-lib)
