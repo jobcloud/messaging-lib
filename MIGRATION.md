@@ -8,4 +8,9 @@ In most cases you can just:
 1. `composer remove jobcloud/messaging-lib`
 2. `composer require jobcloud/php-kafka-lib ~0.1`
 3. Replace namespace `Jobcloud\Messaging\Kafka` with `Jobcloud\Kafka`
-4. In your project / code replace `ConsumerException` with `KafkaConsumerConsumeException`
+4. Replace the following:
+ - `ConsumerException` with `KafkaConsumerConsumeException`
+ - `MessageInterface` with `KafkaMessageInterface` or depending on your use case with `KafkaConsumerMessageInterface` and `KafkaProducerMessageInterface`
+ - `ProducerInterface` with `KafkaProducerInterface`
+ - `ConsumerInterface` with `KafkaConsumerInterface`
+ - `ProducerPool` is not supported anymore
