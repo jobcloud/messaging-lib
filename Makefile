@@ -1,28 +1,28 @@
-.PHONY: clean code-style coverage help test static-analysis update-dependencies xdebug-enable xdebug-disable
+.PHONY: clean code-style coverage help test static-analysis update-dependencies
 .DEFAULT_GOAL := test
 
 PHPUNIT =  ./vendor/bin/phpunit -c ./phpunit.xml
-PHPDBG =  phpdbg -qrr ./vendor/bin/phpunit -c ./phpunit.xml
-PHPSTAN  = ./vendor/bin/phpstan
+PHPSTAN  = ./vendor/bin/phpstan analyse --no-progress
 PHPCS = ./vendor/bin/phpcs --extensions=php
 CONSOLE = ./bin/console
+COVCHK = ./vendor/bin/coverage-check
 
 clean:
 	rm -rf ./build ./vendor
 
 code-style:
 	mkdir -p build/logs/phpcs
-	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
+	${PHPCS}
 
-coverage: xdebug-disable
-	${PHPDBG} && ./vendor/bin/coverage-check clover.xml 100
+coverage:
+	${PHPUNIT} && ${COVCHK} build/logs/phpunit/coverage/coverage.xml 100
 
-test: xdebug-disable
+test:
 	${PHPUNIT}
 
-static-analysis: xdebug-disable
+static-analysis:
 	mkdir -p build/logs/phpstan
-	${PHPSTAN} analyse --no-progress
+	${PHPSTAN}
 
 update-dependencies:
 	composer update
@@ -32,12 +32,6 @@ install-dependencies:
 
 install-dependencies-lowest:
 	composer install --prefer-lowest
-
-xdebug-enable:
-	sudo php-ext-enable xdebug
-
-xdebug-disable:
-	sudo php-ext-disable xdebug
 
 help:
 	# Usage:
@@ -52,5 +46,4 @@ help:
 	#   static-analysis     Run static analysis using phpstan
 	#   install-dependencies Run composer install
 	#   update-dependencies Run composer update
-	#   xdebug-enable       Enable xdebug
-	#   xdebug-disable      Disable xdebug
+
