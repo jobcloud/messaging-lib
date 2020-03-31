@@ -10,7 +10,7 @@ COPY dev/php/files/bin/ /usr/local/bin/
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \
-    apk --no-cache add bash git sudo openssh autoconf gcc g++ make gettext
+    apk --no-cache add bash git sudo openssh autoconf gcc g++ make gettext shadow
 
 RUN apk add librdkafka librdkafka-dev \
         --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community
