@@ -1,5 +1,6 @@
 #Deprecation notice
-This library has been deprecated in favour of [php-kafka-lib](https://github.com/jobcloud/php-kafka-lib).
+This library has been deprecated in favour of [php-kafka-lib](https://github.com/jobcloud/php-kafka-lib).  
+It will still receive bugfixes until end of 10/2020, after that it will be marked as abandoned on packagist.  
 Please check [MIGRATION.md](MIGRATION.md) for the migration path.
 
 # messaging-lib
